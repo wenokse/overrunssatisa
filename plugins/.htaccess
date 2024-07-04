@@ -1,0 +1,15 @@
+# Deny all access to this directory by default
+Order Allow,Deny
+Deny from all
+
+# Allow access to JavaScript files in the main directory
+<FilesMatch "\.js$">
+    Order Deny,Allow
+    Allow from all
+</FilesMatch>
+
+# Allow access to specific plugin directories
+<DirectoryMatch "^(bootstrap-slider|bootstrap-wysihtml5|iCheck|input-mask|jQueryUI|jvectormap|pace|timepicker)">
+    Order Deny,Allow
+    Allow from all
+</DirectoryMatch>

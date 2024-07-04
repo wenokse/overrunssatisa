@@ -1,0 +1,96 @@
+function animateTruck(distance, time) {
+    var truck = document.getElementById('truck');
+    truck.style.right = '0'; // Start from the right side
+    var duration = (distance / 10) * time * 1000; // Calculate duration based on distance
+    truck.style.transitionDuration = duration + 'ms';
+    truck.style.right = 'calc(100% - 50px)'; // Move truck to the left end
+    document.getElementById('trace_time').innerText = time + ' hours';
+}
+
+$(document).on('click', '.trace', function(e){
+    e.preventDefault();
+    var id = $(this).data('id');
+    $.ajax({
+        type: 'POST',
+        url: 'trace_transact.php',
+        data: {id: id},
+        dataType: 'json',
+        success: function(response){
+            $('#trace_date').html(response.date);
+            $('#trace_transid').html(response.transaction);
+            $('#trace_detail').html(response.list);
+            $('#trace_total').html(response.total);
+            $('#trace_status').html(response.status);
+            $('#trace_distance').html(response.distance + ' km');
+            animateTruck(response.distance, response.time); // Trigger animation
+            $('#traceModal').modal('show'); // Show modal
+        },
+        error: function(xhr, status, error) {
+            console.error(xhr.responseText);
+        }
+    });
+});\
+
+
+
+
+
+<div class="modal fade" id="traceModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><b>Trace Order</b></h4>
+            </div>
+            <div class="modal-body">
+                <p><b>Date:</b> <span id="trace_date"></span></p>
+                <p><b>Transaction ID:</b> <span id="trace_transid"></span></p>
+                <p><b>Order Details:</b> <span id="trace_detail"></span></p>
+                <p><b>Total Amount:</b> <span id="trace_total"></span></p>
+                <p><b>Status:</b> <span id="trace_status"></span></p>
+                <p><b>Distance:</b> <span id="trace_distance">10 km</span></p>
+                <p><b>Estimated Time:</b> <span id="trace_time"></span></p>
+                <div class="truck-animation-container">
+                    <div class="road">
+                        <div class="truck" id="truck"><i class='fa fa-motorcycle'></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+   .modal-content {
+    border-radius: 20px; 
+}
+
+.truck-animation-container {
+    position: relative;
+    width: 100%;
+    height: 100px;
+    margin-top: 20px;
+}
+
+.road {
+    position: absolute;
+    width: 100%;
+    height: 4px;
+    background-color: #000;
+    top: 50%;
+    left: 0;
+}
+
+.truck {
+    position: absolute;
+    font-size: 30px;
+    top: -30px;
+    right: 0; /* Start from the right side */
+    transition: right 10s linear;
+    color: red;
+}
+</style>

@@ -1,0 +1,563 @@
+<?php include 'includes/session.php'; ?>
+<?php include 'includes/header.php'; ?>
+<body class="hold-transition skin-blue layout-top-nav">
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v13.0&appId=1346358252525630&autoLogAppEvents=1" nonce="hsdcri7l"></script>
+<div class="wrapper">
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <?php 
+    if (isset($_SESSION['user'])) {
+        include 'includes/navbar.php';
+    } else {
+        include 'includes/home_navbar.php';
+    }
+    ?>
+
+    <style>
+        .container2 {
+            margin: 0px 50px 0px 50px; /* top right bottom left */
+        }
+        /* Preloader styles */
+        #preloader {
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 999;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loader {
+            border: 16px solid #f3f3f3; /* Light grey */
+            border-top: 16px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .visible {
+            display: block;
+            opacity: 1;
+        }
+    </style>
+
+    <div class="content-wrapper">
+        <div class="container2">
+            <!-- Main content -->
+            <section class="content">
+                <div class="row">
+                    <div class="">
+
+                        <!-- <img src="image/home.jpg" class="img1"> -->
+
+
+                        <?php
+$slider_enabled = 0; // Default value in case of an error or no value in the database
+
+$conn = $pdo->open();
+
+try {
+    $stmt = $conn->prepare("SELECT slider_enabled FROM settings WHERE id=1");
+    $stmt->execute();
+    $result = $stmt->fetch();
+    if ($result) {
+        $slider_enabled = $result['slider_enabled'];
+    }
+} catch (PDOException $e) {
+    $_SESSION['error'] = $e->getMessage();
+}
+
+// Fetch the homepage image URL
+try {
+    $stmt = $conn->prepare("SELECT value FROM settings WHERE name='home_image'");
+    $stmt->execute();
+    $home_image = $stmt->fetchColumn();
+} catch (PDOException $e) {
+    $_SESSION['error'] = $e->getMessage();
+}
+
+// Fetch slider images if slider is enabled
+$slider_images = [];
+if ($slider_enabled) {
+    try {
+        $stmt = $conn->prepare("SELECT image_path FROM slider_images");
+        $stmt->execute();
+        $slider_images = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    } catch (PDOException $e) {
+        $_SESSION['error'] = $e->getMessage();
+    }
+}
+
+$pdo->close();
+?>
+
+<!-- Homepage Content -->
+<div class="homepage-content">
+    <?php if ($slider_enabled): ?>
+        <!-- Slider code goes here -->
+        <div class="slider-container">
+            <div class="slider-wrapper">
+                <!-- Slider content -->
+                <?php foreach ($slider_images as $slider_image): ?>
+                    <div class="slide">
+                        <img src="<?php echo htmlspecialchars($slider_image); ?>" alt="Slider Image" class="img1">
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <button class="slider-arrow left">&#10094;</button>
+            <button class="slider-arrow right">&#10095;</button>
+        </div>
+    <?php else: ?>
+        <!-- Image code goes here -->
+        <img src="<?php echo htmlspecialchars($home_image); ?>" class="img1">
+    <?php endif; ?>
+</div>
+
+<!-- CSS for Slider -->
+<style>
+    .slider-container {
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+    }
+
+    .slider-wrapper {
+        display: flex;
+        transition: transform 0.5s ease-in-out;
+    }
+
+    .slide {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+
+    .slide img {
+        width: 100%;
+        height: auto;
+    }
+
+    .slider-arrow {
+        background-color: rgba(255, 255, 255, 0.5);
+        border: none;
+        color: black;
+        cursor: pointer;
+        font-size: 16px;
+        outline: none;
+        padding: 10px;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 1;
+    }
+
+    .slider-arrow.left {
+        left: 0;
+    }
+
+    .slider-arrow.right {
+        right: 0;
+    }
+</style>
+
+<!-- JavaScript for Slider Animation -->
+<script>
+   document.addEventListener('DOMContentLoaded', () => {
+    const sliderWrapper = document.querySelector('.slider-wrapper');
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentIndex = 0;
+
+    function showSlide(index) {
+        sliderWrapper.style.transition = 'transform 0.5s ease-in-out';
+        const offset = -index * 100;
+        sliderWrapper.style.transform = `translateX(${offset}%)`;
+    }
+
+    function nextSlide() {
+        currentIndex++;
+        if (currentIndex >= totalSlides) {
+            sliderWrapper.style.transition = 'none';
+            sliderWrapper.style.transform = 'translateX(0)';
+            currentIndex = 0;
+            setTimeout(() => {
+                showSlide(currentIndex);
+            }, 50);
+        } else {
+            showSlide(currentIndex);
+        }
+    }
+
+    function previousSlide() {
+        currentIndex--;
+        if (currentIndex < 0) {
+            sliderWrapper.style.transition = 'none';
+            sliderWrapper.style.transform = `translateX(${-((totalSlides - 1) * 100)}%)`;
+            currentIndex = totalSlides - 1;
+            setTimeout(() => {
+                showSlide(currentIndex);
+            }, 50);
+        } else {
+            showSlide(currentIndex);
+        }
+    }
+
+    document.querySelector('.slider-arrow.right').addEventListener('click', nextSlide);
+    document.querySelector('.slider-arrow.left').addEventListener('click', previousSlide);
+
+    setInterval(nextSlide, 5000); // Change slide every 3 seconds
+});
+
+</script>
+
+
+                                                <!-- <img src="<?php echo $home_image; ?>" class="img1"> -->
+
+
+                                                
+                                                <?php
+                                                $month = date('m');
+                                                $conn = $pdo->open();
+
+                                                function getStarRating($rating) {
+                                                    $fullStars = floor($rating);
+                                                    $halfStar = $rating - $fullStars >= 0.5 ? 1 : 0;
+                                                    $emptyStars = 5 - $fullStars - $halfStar;
+
+                                                    $starsHTML = str_repeat('<i class="fa fa-star-o"></i>', $emptyStars);
+                                                    if ($halfStar) {
+                                                        $starsHTML .= '<i class="fa fa-star-half-o"></i>';
+                                                    }
+                                                    $starsHTML .= str_repeat('<i class="fa fa-star"></i>', $fullStars);
+
+                                                    return $starsHTML;
+                                                }
+
+                                                $pdo->close();
+                                                ?>
+                                                
+                                                   <!--Horizontal line-->
+                <hr style="border-top: 5px solid black;">
+                
+                <h2>Categories</h2>
+                <div id="category-container" class="row">
+                    <?php
+                    $conn = $pdo->open();
+
+                    try {
+                        $stmt = $conn->prepare("SELECT * FROM category");
+                        $stmt->execute();
+                        foreach ($stmt as $category) {
+                            $image = (!empty($category['image'])) ? 'images/' . $category['photo'] : 'images/noimage.jpg';
+                            echo "<div class='col-sm-3'>
+                        <div class='box box-solid'>
+                        <div class='box-body prod-body'>
+                            <img src='".$image."' class='thumbnail category-img' data-id='".$category['id']."' width='100%' height='230px'>
+                            <h5 class='text-center'>".$category['name']."</h5>
+                        </div>
+                        </div>
+                    </div>";
+
+                        }
+                    } catch (PDOException $e) {
+                        echo "There is some problem in connection: " . $e->getMessage();
+                    }
+
+                    $pdo->close();
+                    ?>
+                </div>
+
+                <div id="products-container" class="row hidden">
+                    <div class="col-12">
+                        <button id="back-btn" class="btn btn-primary">Back to Categories</button>
+                        <hr>
+                    </div>
+                    <div id="products-list" class="row"></div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <?php include 'includes/footer.php'; ?>
+</div>
+
+<?php include 'includes/scripts.php'; ?>
+
+<style>
+    h3 {
+        font-weight: bolder;
+        color: rgb(0, 51, 102);
+    }
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f4;
+    }
+  
+    
+
+    .img1 {
+        width: 100%;
+        height: auto; 
+        max-height: 500px; 
+        filter: contrast(100%);
+        border-radius: 20px;
+    }
+    .fa-star, .fa-star-half-o, .fa-star-o {
+        color: gold;
+    }
+    .category-img {
+        cursor: pointer;
+        transition: transform 0.3s ease-in-out;
+    }
+    .category-img:hover {
+        transform: scale(1.05);
+    }
+    .btn-primary:hover {
+        background-color: #f0f0f0; 
+        color: #333; 
+        border-color: #f0f0f0;
+    }
+    .hidden {
+        display: none;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+    }
+    .visible {
+        display: block;
+        opacity: 1;
+    }
+
+    .btn-primary:hover {
+        background-color: #f0f0f0; 
+        color: #333; 
+        border-color: #f0f0f0;
+    }
+
+    .product-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    .product-container .row {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
+
+    .product-container .product {
+        flex: 0 1 calc(20% - 20px);
+        margin: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease-in-out;
+    }
+    .product-container .product2 {
+        flex: 0 1 calc(20% - 20px);
+        margin: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .product-container .product:hover {
+        transform: translateY(-5px);
+    }
+
+    .product-container .product .box {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: #fff;
+    }
+
+    .product-container .product .box-body {
+        padding: 15px;
+        text-align: center;
+    }
+
+    .product-container .product .box-body img {
+        border-radius: 5px;
+        object-fit: cover;
+    }
+
+    .product-container .product .box-body h5 {
+        font-size: 16px;
+        font-family: justify;  
+        margin-bottom: 15px;
+        font-weight: bold;
+    }
+
+    .product-container .product .box-footer {
+        background-color: #f9f9f9;
+        text-align: center;
+        border-top: 1px solid #eee;
+    }
+
+    .product-container .product .box-footer b {
+        font-size: 14px;
+        color: #333;
+    }
+
+    .product-container .product .box-footer div {
+        margin-top: 5px;
+    }
+
+    /* product2 */
+    .product-container .product2:hover {
+        transform: translateY(-5px);
+    }
+
+    .product-container .product2 .box {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: #fff;
+    }
+
+    .product-container .product2 .box-body {
+        padding: 15px;
+        text-align: center;
+    }
+
+    .product-container .product2 .box-body img {
+        border-radius: 5px;
+        object-fit: cover;
+    }
+
+    .product-container .product2 .box-body h5 {
+        font-size: 16px;
+        font-family: justify;  
+        margin-bottom: 15px;
+        font-weight: bold;
+    }
+
+    .product-container .product2 .box-footer {
+        background-color: #f9f9f9;
+        text-align: center;
+        border-top: 1px solid #eee;
+    }
+
+    .product-container .product2 .box-footer b {
+        font-size: 14px;
+        color: #333;
+    }
+
+    .product-container .product2 .box-footer div {
+        margin-top: 5px;
+    }
+
+    .btn-primary {
+        margin-top: 20px;
+        background-color: #007bff;
+        border-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+        color: #fff;
+    }
+
+    .text-center {
+        text-align: center;
+        width: 100%;
+        margin: 20px 0;
+    }
+</style>
+<script>
+ document.addEventListener('DOMContentLoaded', () => {
+        const categoryContainer = document.getElementById('category-container');
+        const productsContainer = document.getElementById('products-container');
+        const productsList = document.getElementById('products-list');
+        const backBtn = document.getElementById('back-btn');
+
+        document.querySelectorAll('.category-img').forEach(img => {
+            img.addEventListener('click', function() {
+                const categoryId = this.getAttribute('data-id');
+                loadProducts(categoryId);
+            });
+        });
+
+        backBtn.addEventListener('click', () => {
+            categoryContainer.classList.remove('hidden');
+            productsContainer.classList.add('hidden');
+        });
+
+        function loadProducts(categoryId) {
+            fetch('fetch_products.php?category_id=' + categoryId)
+                .then(response => response.json())
+                .then(data => {
+                    productsList.innerHTML = '';
+                    data.forEach(product => {
+                        const productHtml = `
+                            <div class='col-sm-3 product2'>
+                                <div class='box box-solid'>
+                                    <div class='box-body prod-body'>
+                                        <img src='${product.photo}' width='100%' height='230px' class='thumbnail'>
+                                        <h5><a href='product.php?product=${product.slug}'>${product.name}</a></h5>
+                                    </div>
+                                    <div class='box-footer'>
+                                        <b>&#8369; ${product.price} each</b>
+                                        <div>Rating: ${getStarRating(product.average_rating)}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        productsList.insertAdjacentHTML('beforeend', productHtml);
+                    });
+                    categoryContainer.classList.add('hidden');
+                    productsContainer.classList.remove('hidden');
+                })
+                .catch(error => console.error('Error loading products:', error));
+        }
+
+        function getStarRating(rating) {
+            const fullStars = Math.floor(rating);
+            const halfStar = rating - fullStars >= 0.5 ? 1 : 0;
+            const emptyStars = 5 - fullStars - halfStar;
+
+            let starsHTML = '';
+            starsHTML += '<i class="fa fa-star-o"></i>'.repeat(emptyStars);
+            if (halfStar) {
+                starsHTML += '<i class="fa fa-star-half-o"></i>';
+            }
+            starsHTML += '<i class="fa fa-star"></i>'.repeat(fullStars);
+
+            return starsHTML;
+        }
+    });
+
+
+    window.addEventListener('load', function() {
+        var preloader = document.getElementById('preloader');
+        preloader.style.display = 'none';
+    });
+</script>
+</body>
+</html>

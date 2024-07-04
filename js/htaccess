@@ -1,0 +1,9 @@
+# Deny all access to this directory
+Order Allow,Deny
+Deny from all
+
+# Allow access to JavaScript files
+<FilesMatch "\.js$">
+    Order Deny,Allow
+    Allow from all
+</FilesMatch>
