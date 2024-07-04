@@ -33,7 +33,6 @@
             <li class="menu-item"><a href="inventory.php"><i class="fa fa-clipboard"></i> <span>&nbsp;Inventory</span></a></li>
             <li class="header" style="background-color: white;">MAINTENANCE</li>
             <li class="menu-item"><a href="customer.php"><i class="fa fa-users"></i> <span>&nbsp;Customer</span></a></li>
-            <li class="menu-item"><a href="rider.php"><i class="fa fa-motorcycle"></i> <span>&nbsp;Rider</span></a></li>
             <li class="menu-item"><a href="category.php"><i class="fa fa-th-list"></i> <span>&nbsp;Category</span></a></li>
             <li class="menu-item"><a href="products.php"><i class="fa fa-barcode"></i> <span>&nbsp;Product</span></a></li>
             <li class="menu-item"><a href="return_product.php"><i class="fa fa-truck"></i> <span>&nbsp;Return</span></a></li>
