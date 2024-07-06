@@ -66,21 +66,58 @@
             display: flex;
             flex-wrap: wrap;
         }
+        .category-image {
+            flex: 0 1 calc(50% - 10px);
+            max-width: calc(50% - 10px);
+        }
 
-        .product-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            margin: 20px 0;
+        @media (max-width: 576px) {
+            .category-image {
+                flex: 0 1 100%;
+                max-width: 100%;
+            }
         }
 
         .product-container .product {
-            flex: 0 1 calc(20% - 20px);
-            margin: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            transition: transform 0.2s ease-in-out;
-        }
+    flex: 0 1 calc(50% - 20px);
+}
+
+@media (max-width: 576px) {
+    .product-container .product {
+        flex: 0 1 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .content-wrapper {
+        padding: 15px;
+    }
+}
+img {
+    max-width: 100%;
+    height: auto;
+}
+@media (max-width: 768px) {
+    .slider-arrow {
+        font-size: 14px;
+        padding: 5px;
+    }
+}
+
+        .product-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.product-container .product {
+    flex: 0 1 calc(20% - 20px);
+    margin: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease-in-out;
+}
 
         .product-container .product:hover {
             transform: translateY(-5px);
@@ -99,8 +136,8 @@
         }
 
         .product-container .product .box-body img {
-            border-radius: 5px;
-            object-fit: cover;
+             height: 200px; 
+    object-fit: cover; 
         }
 
         .product-container .product .box-body h5 {
@@ -124,6 +161,63 @@
         .product-container .product .box-footer div {
             margin-top: 5px;
         }
+
+/*        Mobile view*/
+
+@media (max-width: 768px) {
+    .product-container {
+        gap: 10px;
+    }
+
+    .product-container .product {
+        flex: 0 1 calc(50% - 10px);
+        margin: 5px;
+    }
+
+    .product-container .product .box-body {
+        padding: 10px;
+    }
+
+    .product-container .product .box-body h5 {
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .product-container .product .box-body img {
+        height: 150px;
+        object-fit: cover;
+    }
+
+    .product-container .product .box-footer b {
+        font-size: 12px;
+    }
+
+    .product-container .product .box-footer div {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-container .product {
+        flex: 0 1 100%;
+    }
+
+    .product-container .product .box-body img {
+        height: 200px;
+    }
+}
+
+/* Improve visibility of the back button on mobile */
+@media (max-width: 768px) {
+    #backButton {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1000;
+        padding: 10px 15px;
+        font-size: 16px;
+    }
+}
     </style>
 
     <div class="content-wrapper">
@@ -133,102 +227,10 @@
                 
                 <div class="row">
                     <div class="">
-                    <img src="image/home.jpg" class="img1">
-
+                          <img src="image/home.jpg" class="img1">
                         <!-- CSS for Slider -->
-                        <style>
-                            .slider-container {
-                                overflow: hidden;
-                                position: relative;
-                                width: 100%;
-                            }
-
-                            .slider-wrapper {
-                                display: flex;
-                                transition: transform 0.5s ease-in-out;
-                            }
-
-                            .slide {
-                                flex: 0 0 auto;
-                                width: 100%;
-                            }
-
-                            .slide img {
-                                width: 100%;
-                                height: auto;
-                            }
-
-                            .slider-arrow {
-                                background-color: rgba(255, 255, 255, 0.5);
-                                border: none;
-                                color: black;
-                                cursor: pointer;
-                                font-size: 16px;
-                                outline: none;
-                                padding: 10px;
-                                position: absolute;
-                                top: 50%;
-                                transform: translateY(-50%);
-                                z-index: 1;
-                            }
-
-                            .slider-arrow.left {
-                                left: 0;
-                            }
-
-                            .slider-arrow.right {
-                                right: 0;
-                            }
-                        </style>
-
-                        <!-- JavaScript for Slider Animation -->
-                        <script>
-                            document.addEventListener('DOMContentLoaded', () => {
-                                const sliderWrapper = document.querySelector('.slider-wrapper');
-                                const slides = document.querySelectorAll('.slide');
-                                const totalSlides = slides.length;
-                                let currentIndex = 0;
-
-                                function showSlide(index) {
-                                    sliderWrapper.style.transition = 'transform 0.5s ease-in-out';
-                                    const offset = -index * 100;
-                                    sliderWrapper.style.transform = `translateX(${offset}%)`;
-                                }
-
-                                function nextSlide() {
-                                    currentIndex++;
-                                    if (currentIndex >= totalSlides) {
-                                        sliderWrapper.style.transition = 'none';
-                                        sliderWrapper.style.transform = 'translateX(0)';
-                                        currentIndex = 0;
-                                        setTimeout(() => {
-                                            showSlide(currentIndex);
-                                        }, 50);
-                                    } else {
-                                        showSlide(currentIndex);
-                                    }
-                                }
-
-                                function previousSlide() {
-                                    currentIndex--;
-                                    if (currentIndex < 0) {
-                                        sliderWrapper.style.transition = 'none';
-                                        sliderWrapper.style.transform = `translateX(${-((totalSlides - 1) * 100)}%)`;
-                                        currentIndex = totalSlides - 1;
-                                        setTimeout(() => {
-                                            showSlide(currentIndex);
-                                        }, 50);
-                                    } else {
-                                        showSlide(currentIndex);
-                                    }
-                                }
-
-                                document.querySelector('.slider-arrow.right').addEventListener('click', nextSlide);
-                                document.querySelector('.slider-arrow.left').addEventListener('click', previousSlide);
-
-                                setInterval(nextSlide, 5000); // Change slide every 5 seconds
-                            });
-                        </script>
+                        
+                        
 
                         <hr style="border-top: 5px solid black;">
                         <h2>Categories</h2>
@@ -429,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .img1 {
         width: 100%;
         height: auto; 
-        max-height: 500px; 
+        max-height: 540px; 
         filter: contrast(100%);
         border-radius: 20px;
     }
