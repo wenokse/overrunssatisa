@@ -120,28 +120,31 @@ include 'includes/session.php';
                         </div>
                         </div>
                         <?php
-                        if(isset($_SESSION['user'])){
-                            $conn = mysqli_connect("127.0.0.1;port=3306", "u510162695_root", "1RootEcomm", "u510162695_ecomm");
+                            if(isset($_SESSION['user'])){
+                                $pdo = new Database();
+                                $conn = $pdo->open();
 
-                            if (!$conn) {
-                                echo "Connection Failed";
-                            }
-                            $user_id = $_SESSION['user'];
-                            $query1 = "SELECT * FROM cart WHERE user_id = '$user_id' ";
-                            $query_run1 = mysqli_query($conn, $query1);
+                                if (!$conn) {
+                                    echo "Connection Failed";
+                                } else {
+                                    $user_id = $_SESSION['user'];
+                                    $query1 = "SELECT * FROM cart WHERE user_id = :user_id";
+                                    $stmt = $conn->prepare($query1);
+                                    $stmt->execute(['user_id' => $user_id]);
 
-                            if(mysqli_num_rows($query_run1) > 0) {
-                                echo "
-                                    <form method='post' action='sales.php' id='payment_form'>
-                                      <a class='btn btn-danger btn-lg' href='sales.php?pay=".uniqid()."'>Place Order</a>
-                                    </form>
-                                ";
+                                    if($stmt->rowCount() > 0) {
+                                        echo "
+                                            <form method='post' action='sales.php' id='payment_form'>
+                                            <a class='btn btn-danger btn-lg' href='sales.php?pay=".uniqid()."'>Place Order</a>
+                                            </form>
+                                        ";
+                                    }
+                                }
+                                $pdo->close();
+                            } else {
+                                echo "<h4>You need to <a href='login.php'>Login</a> to checkout.</h4>";
                             }
-                        }
-                        else{
-                            echo "<h4>You need to <a href='login.php'>Login</a> to checkout.</h4>";
-                        }
-                        ?>
+                            ?>
                     </div>
                     <div class="col-sm-3">
                         <?php include 'includes/sidebar.php'; ?>
