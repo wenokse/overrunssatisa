@@ -36,8 +36,6 @@
             <li class="menu-item"><a href="category.php"><i class="fa fa-th-list"></i> <span>&nbsp;Category</span></a></li>
             <li class="menu-item"><a href="products.php"><i class="fa fa-barcode"></i> <span>&nbsp;Product</span></a></li>
             <li class="menu-item"><a href="return_product.php"><i class="fa fa-truck"></i> <span>&nbsp;Return</span></a></li>
-            <li class="header" style="background-color: white;">SYSTEM</li>
-            <li class="menu-item"><a href="admin_edit_image.php"><i class="fa fa-cog"></i> <span>&nbsp;Settings</span></a></li>
           ';
         }
       ?>

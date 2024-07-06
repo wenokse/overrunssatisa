@@ -133,64 +133,7 @@
                 
                 <div class="row">
                     <div class="">
-                        <?php
-                            $slider_enabled = 0; // Default value in case of an error or no value in the database
-                            $conn = $pdo->open();
-                            try {
-                                $stmt = $conn->prepare("SELECT slider_enabled FROM settings WHERE id=1");
-                                $stmt->execute();
-                                $result = $stmt->fetch();
-                                if ($result) {
-                                    $slider_enabled = $result['slider_enabled'];
-                                }
-                            } catch (PDOException $e) {
-                                $_SESSION['error'] = $e->getMessage();
-                            }
-
-                            // Fetch the homepage image URL
-                            try {
-                                $stmt = $conn->prepare("SELECT value FROM settings WHERE name='home_image'");
-                                $stmt->execute();
-                                $home_image = $stmt->fetchColumn();
-                            } catch (PDOException $e) {
-                                $_SESSION['error'] = $e->getMessage();
-                            }
-
-                            // Fetch slider images if slider is enabled
-                            $slider_images = [];
-                            if ($slider_enabled) {
-                                try {
-                                    $stmt = $conn->prepare("SELECT image_path FROM slider_images");
-                                    $stmt->execute();
-                                    $slider_images = $stmt->fetchAll(PDO::FETCH_COLUMN);
-                                } catch (PDOException $e) {
-                                    $_SESSION['error'] = $e->getMessage();
-                                }
-                            }
-                            $pdo->close();
-                        ?>
-
-                        <!-- Homepage Content -->
-                        <div class="homepage-content">
-                            <?php if ($slider_enabled): ?>
-                                <!-- Slider code goes here -->
-                                <div class="slider-container">
-                                    <div class="slider-wrapper">
-                                        <!-- Slider content -->
-                                        <?php foreach ($slider_images as $slider_image): ?>
-                                            <div class="slide">
-                                                <img src="<?php echo htmlspecialchars($slider_image); ?>" alt="Slider Image" class="img1">
-                                            </div>
-                                        <?php endforeach; ?>
-                                    </div>
-                                    <button class="slider-arrow left">&#10094;</button>
-                                    <button class="slider-arrow right">&#10095;</button>
-                                </div>
-                            <?php else: ?>
-                                <!-- Image code goes here -->
-                                <img src="<?php echo htmlspecialchars($home_image); ?>" class="img1">
-                            <?php endif; ?>
-                        </div>
+                    <img src="image/home.jpg" class="img1">
 
                         <!-- CSS for Slider -->
                         <style>
