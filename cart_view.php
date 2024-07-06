@@ -121,7 +121,7 @@ include 'includes/session.php';
                         </div>
                         <?php
                         if(isset($_SESSION['user'])){
-                            $conn = mysqli_connect("localhost", "root", "", "ecomm");
+                            $conn = mysqli_connect("127.0.0.1;port=3306", "u510162695_root", "1RootEcomm", "u510162695_ecomm");
 
                             if (!$conn) {
                                 echo "Connection Failed";
