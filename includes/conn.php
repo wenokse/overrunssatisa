@@ -3,7 +3,7 @@
 Class Database{
  
 	private $server = "mysql:host=77.37.35.3;dbname=u510162695_ecomm";
-	private $username = "root";
+	private $username = "u510162695_root";
 	private $password = "1RootEcomm";
 	private $options  = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,);
 	protected $conn;
