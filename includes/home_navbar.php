@@ -100,11 +100,12 @@
             }
             else{
               echo "
-                <li><a href='login.php'>LOGIN</a></li>
-                <li><a href='signup.php'>SIGNUP</a></li>
+                
               ";
             }
           ?>
+          <li><a href='login.php'>LOGIN</a></li>
+          <li><a href='signup.php'>SIGNUP</a></li>
         </ul>
       </div>
     </div>
