@@ -1,6 +1,6 @@
 <?php
 
-$host = "77.37.35.3";
+$host = "127.0.0.1:3306";
 $username = "u510162695_root";
 $password = "1RootEcomm";
 $database = "u510162695_ecomm";
