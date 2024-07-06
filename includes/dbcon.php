@@ -2,7 +2,7 @@
 
 $host = "77.37.35.3";
 $username = "root";
-$password = "";
+$password = "1RootEcomm";
 $database = "u510162695_ecomm";
 
 $con = mysqli_connect($host, $username, $password, $database);
