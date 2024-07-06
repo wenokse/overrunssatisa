@@ -132,12 +132,22 @@
 
 <?php include 'includes/scripts.php' ?>
 <style>
-    body {
+      body {
         background: rgb(0, 51, 102);
         background-size: cover;
         background-repeat: no-repeat;
     }
 
+    .container {
+        width: 500px;
+        height: 770px;
+        margin: 0 auto 50px;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        background-color: #f9f9f9;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    }
     .larg {
         font-size: 1.2em;
     }
@@ -150,6 +160,14 @@
         line-height: 46px;
     }
 
+    cssCopy<style>
+    /* Existing styles */
+    body {
+        background: rgb(0, 51, 102);
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+
     .container {
         width: 500px;
         height: 770px;
@@ -159,6 +177,69 @@
         border-radius: 20px;
         background-color: #f9f9f9;
         box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* ... (keep other existing styles) ... */
+
+    /* Mobile view styles */
+    @media (max-width: 768px) {
+        .container {
+            width: 90%;
+            height: auto;
+            margin: 20px auto;
+            padding: 15px;
+        }
+
+        .login-box-msg {
+            font-size: 24px;
+        }
+
+        .form-control {
+            font-size: 14px;
+            padding: 8px 12px;
+        }
+
+        .btn {
+            font-size: 14px;
+            padding: 8px 30px;
+        }
+
+        .form-control-feedback1 {
+           position: absolute;
+        right: -142px;
+        top: 45%;
+        transform: translateY(-100%);
+        line-height: 46px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .container {
+            width: 95%;
+            padding: 10px;
+        }
+
+        .login-box-msg {
+            font-size: 20px;
+        }
+
+        .form-control,
+        .btn {
+            font-size: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+    }
+
+    /* Adjustments for the preloader */
+    @media (max-width: 768px) {
+        .loader {
+            width: 80px;
+            height: 80px;
+            border-width: 12px;
+        }
     }
 
     .container input {
@@ -243,6 +324,8 @@
         const selectedBarangay = this.value;
         addressInput.value = selectedMunicipality + ', ' + selectedBarangay;
     });
+
+
 </script>
 
 </body>

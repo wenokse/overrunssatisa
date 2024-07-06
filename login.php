@@ -91,8 +91,69 @@
     border-radius: 20px;
     background-color: #f9f9f9;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-   
-    
+}
+
+/* Add these new styles for mobile responsiveness */
+@media (max-width: 768px) {
+    .container2 {
+        width: 90%;
+        height: auto;
+        margin: 20px auto;
+        padding: 15px;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .animate__slideInLeft {
+        font-size: 28px;
+    }
+
+    .container2 input {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+
+    .container2 button {
+        font-size: 14px;
+        padding: 8px 30px;
+    }
+
+    .checkbox-wrapper-46 .cbx span:last-child {
+        font-size: 14px;
+    }
+
+    .glitch {
+        font-size: 100px;
+    }
+
+    body {
+        background-size: cover;
+        background-position: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .container2 {
+        width: 95%;
+        padding: 10px;
+    }
+
+    .animate__slideInLeft {
+        font-size: 24px;
+    }
+
+    .container2 input,
+    .container2 button {
+        font-size: 12px;
+    }
+
+    .checkbox-wrapper-46 .cbx span:last-child {
+        font-size: 12px;
+    }
+
+    .glitch {
+        font-size: 80px;
+    }
+}
   }
   .container2 input{
     background-color: #eee;
@@ -171,7 +232,7 @@
     </button>
 </div>
 </form>
-<a href="password_forgot.php">Forgot Password?</a><br>
+<!-- <a href="password_forgot.php">Forgot Password?</a><br> -->
 <p style="color: rgb(0, 51, 102); ">Don't have an account? 
 <a href="signup.php" class="text-center">Register</a><br>
 </div>
