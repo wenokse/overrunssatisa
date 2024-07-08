@@ -108,13 +108,13 @@ if(!isset($_SESSION['user'])){
                                                         <p class="btn-sm btn-warning text-center"><i class='fa fa-spinner'></i> Pending</p>
                                                     <?php } ?>
                                                     <?php if ($row['status'] == 1) { ?>
-                                                        <p class="btn-sm btn-success text-center"><i class='fa fa-flag'></i> Accepted</p>
+                                                        <p class="btn-sm btn-info text-center"><i class='fa fa-flag'></i> Accepted</p>
                                                     <?php } ?>
                                                     <?php if ($row['status'] == 2) { ?>
                                                         <p class="btn-sm btn-primary text-center"><i class='fa fa-bicycle'></i> On Delivery</p>
                                                     <?php } ?>
                                                     <?php if ($row['status'] == 3) { ?>
-                                                        <p class="btn-sm btn-danger text-center"><i class='fa fa-thumbs-up'></i> Received</p>
+                                                        <p class="btn-sm btn-success text-center"><i class='fa fa-thumbs-up'></i> Received</p>
                                                     <?php } ?>
                                                 </td>
                                                 <td>

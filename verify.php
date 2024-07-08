@@ -16,11 +16,16 @@
 				if($row['status']){
 					if(password_verify($password, $row['password'])){
 						if($row['type']){
+
 							$_SESSION['admin'] = $row['id'];
 						}
 						else{
 							$_SESSION['user'] = $row['id'];
 						}
+						 $_SESSION['success'] = 'Login successfully';
+                    header('location: profile.php'); 
+                    exit();
+
 					}
 					else{
 						$_SESSION['error'] = 'Incorrect Password';

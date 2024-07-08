@@ -82,13 +82,13 @@
                                   <p class="btn-sm btn-warning text-center" style='border-radius: 8px;'>Pending</p>
                                 <?php } ?>
                                 <?php if ($row['status'] == 1) { ?>
-                                  <p class="btn-sm btn-success text-center" style='border-radius: 8px;'>Accepted</p>
+                                  <p class="btn-sm btn-info text-center" style='border-radius: 8px;'>Accepted</p>
                                 <?php } ?>
                                 <?php if ($row['status'] == 2) { ?>
                                   <p class="btn-sm btn-primary text-center" style='border-radius: 8px;'>Delivered</p>
                                 <?php } ?>
                                 <?php if ($row['status'] == 3) { ?>
-                                  <p class="btn-sm btn-danger text-center" style='border-radius: 8px;'>Received</p>
+                                  <p class="btn-sm btn-success text-center" style='border-radius: 8px;'>Received</p>
                                 <?php } ?>
 
                             </td>

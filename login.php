@@ -9,16 +9,22 @@
 <body class="body">
 <div class="">
 <?php
-  if (isset($_SESSION['error']) || isset($_SESSION['success'])) {
-    $message = isset($_SESSION['error']) ? $_SESSION['error'] : $_SESSION['success'];
-    $icon = isset($_SESSION['error']) ? 'error' : 'success';
+  if(isset($_SESSION['error']) || isset($_SESSION['success'])){
+    if(isset($_SESSION['error'])){
+      $message = $_SESSION['error'];
+      $icon = 'error';
+    } else {
+      $message = $_SESSION['success'];
+      $icon = 'success';
+    }
     echo "
-      <script src='js/sweetalert.min.js'></script>
       <script>
-        swal({
-          title: '". $message ."',
-          icon: '". $icon ."',
-          button: 'OK'
+        document.addEventListener('DOMContentLoaded', function() {
+          swal({
+            title: '" . $message . "',
+            icon: '" . $icon . "',
+            button: 'OK'
+          });
         });
       </script>
     ";
