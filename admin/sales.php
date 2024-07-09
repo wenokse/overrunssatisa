@@ -82,7 +82,7 @@
                                   <p class="btn-sm btn-warning text-center" style='border-radius: 8px;'>Pending</p>
                                 <?php } ?>
                                 <?php if ($row['status'] == 1) { ?>
-                                  <p class="btn-sm btn-info text-center" style='border-radius: 8px;'>Accepted</p>
+                                  <p class="btn-sm text-center" style="background-color: #39FF14; color: #000; border-radius: 8px;">Accepted</p>
                                 <?php } ?>
                                 <?php if ($row['status'] == 2) { ?>
                                   <p class="btn-sm btn-primary text-center" style='border-radius: 8px;'>Delivered</p>
@@ -102,7 +102,7 @@
                               <i class='fa fa-search'></i> View
                             </button>
                             <?php if ($row['status'] == 0) { ?>
-                                  <a href="accept_order.php?sale_id=<?php  echo$row['salesid'] ?>"class='btn btn-success btn-sm btn-flat' style='border-radius: 8px;'>Accept Order</a>
+                                  <a href="accept_order.php?sale_id=<?php  echo$row['salesid'] ?>"class='btn btn-sm btn-flat' style="background-color: #39FF14; color: #000; border-radius: 8px;">Accept Order</a>
                                 <?php } ?>
                                 <?php if ($row['status'] == 0) { ?>
                                       <a href="customer_reciept.php?sale_id=<?php echo $row['salesid']; ?>" class='btn btn-warning btn-sm btn-flat-print' style='border-radius: 8px;'><i class='fa fa-print'></i> Print Receipt</a>
