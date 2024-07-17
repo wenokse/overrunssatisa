@@ -1,7 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
 <?php
 include 'includes/session.php';
 
@@ -22,138 +18,96 @@ if(isset($_GET['sale_id'])) {
             $subtotal = $details['price'] * $details['quantity'] + $details['shipping'];
             $total += $subtotal;
 
-            // Generate HTML for each item in the receipt
-            $output['list'] .= "
-                <tr class='prepend_items'>
-                    <td>".$details['name']."</td>
-                    <td>&#8369; ".number_format($details['price'], 2)."</td>
-                    <td>".$details['size']."</td>
-                    <td>".$details['color']."</td>
-                    <td>".$details['quantity']."</td>
-                    <td>".$details['shipping']."</td>
-                    <td>&#8369; ".number_format($subtotal, 2)."</td>
-                </tr>
-            ";
+            $output['list'] .= '
+            <tr>
+                <td>'.date('M d, Y', strtotime($details['date_added'])).'</td>
+                <td>'.$details['name'].'</td>
+                <td align="right">&#8369; '.number_format($details['price'], 2).'</td>
+                <td align="center">'.$details['quantity'].'</td>
+                <td align="right">&#8369; '.number_format($subtotal, 2).'</td>
+            </tr>
+            ';
         }
 
-        // Generate total HTML
         $output['total'] = '<b>&#8369; '.number_format($total, 2).'</b>';
 
         // Fetch user's information from the database based on the sale ID
         $stmt_user = $conn->prepare("SELECT * FROM sales LEFT JOIN users ON users.id = sales.user_id WHERE sales.id = :id");
         $stmt_user->execute(['id' => $sale_id]);
         $user_info = $stmt_user->fetch();
-
-        // Populate the "SHIP TO" section with user's information
-        $ship_to = "
-            <div class='ship-to'>
-                <strong>SHIP TO</strong><br><br>
-                <!--name--> ".$user_info['firstname']." ".$user_info['lastname']."<br>
-                <!--address--> ".$user_info['address']."<br>
-                <!--address2--> ".$user_info['address2']."<br>
-                <!--contact-->".$user_info['contact_info']."
-            </div>
-        ";
         
         $pdo->close();
     } catch(PDOException $e) {
         echo $e->getMessage();
     }
 
-  
+    // Generate PDF
+    require_once('../tcpdf/tcpdf.php');  
+    $pdf = new TCPDF('P', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);  
+    $pdf->SetCreator(PDF_CREATOR);  
+    $pdf->SetTitle('Receipt: '.$sale_id);  
+    $pdf->SetHeaderData('', '', PDF_HEADER_TITLE, PDF_HEADER_STRING);  
+    $pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));  
+    $pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));  
+    $pdf->SetDefaultMonospacedFont('helvetica');  
+    $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);  
+    $pdf->SetMargins(PDF_MARGIN_LEFT, '10', PDF_MARGIN_RIGHT);  
+    $pdf->setPrintHeader(false);  
+    $pdf->setPrintFooter(false);  
+    $pdf->SetAutoPageBreak(TRUE, 10);  
+    $pdf->SetFont('helvetica', '', 11);  
+    $pdf->AddPage();  
+    
+    $content = '';  
+    $content .= '
+    <style>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+    </style>
+    ';
+
+    // Add image and header
+    $content .= '<img src="../images/LOGO.png" style="width: 300px; height: auto;" />';
+    $content .= '<h1 style="text-align: center;">RECEIPT</h1>';
+
+    // Add user information
+    $content .= '
+    <table style="margin-bottom: 20px;">
+        <tr>
+            <td><strong>FROM:</strong><br>Overruns Sa Tisa Online Shop<br>P.Lozada St Binaobao, Bantayan, Cebu</td>
+            <td><strong>SHIP TO:</strong><br>'.$user_info['firstname'].' '.$user_info['lastname'].'<br>'.$user_info['address'].'<br>'.$user_info['address2'].'<br>'.$user_info['contact_info'].'</td>
+            <td><strong>RECEIPT#:</strong> '.$user_info['pay_id'].'<br><strong>DATE:</strong> '.date('M d, Y').'</td>
+        </tr>
+    </table>';
+
+    // Add items table
+    $content .= '
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Subtotal</th>
+        </tr>
+        '.$output['list'].'
+        <tr>
+            <td colspan="4" align="right"><b>Total</b></td>
+            <td align="right">'.$output['total'].'</td>
+        </tr>
+    </table>
+    ';
+
+    $pdf->writeHTML($content);  
+    $pdf->Output('receipt_'.$sale_id.'.pdf', 'I');
+
 } else {
     echo "Sale ID is not provided.";
 }
 ?>
-
-<style>
-  .receipt {
-    width: 210mm; 
-    margin: auto;
-    padding: 20mm; 
-    font-family: 'Arial', sans-serif;
-  }
-  .header, .info, .items, .total {
-    margin-bottom: 50px;
-  }
-  .header {
-    text-align: center;
-  }
-  .info {
-    display: flex;
-    justify-content: space-between;
-  }
-  .info > div {
-    flex-basis: calc(33% - 40px);
-  }
-  .items table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  .items table, .items th, .items td {
-    border: 1px solid #000;
-  }
-  .items th, .items td {
-    padding: 5px;
-    text-align: center;
-  }
-  .total {
-    text-align: right;
-  }
-</style>
-
-</head>
-<body>
-<div class="receipt">
-  <div class="header">
-    <img src="../images/LOGO.png" width="700" height="150" align="center"><br>
-    <h1>RECEIPT</h1>
-  </div>
-  <div class="info">
-    <div class="bill-to">
-      <strong>FROM</strong><br><br>
-      Overruns Sa Tisa Online Shop<br>
-      P.Lozada St Binaobao, Bantayan, Cebu
-    </div>
-    <div class="ship-to">
-      <strong>SHIP TO</strong><br><br>
-      <?php echo $user_info['firstname'] . ' ' . $user_info['lastname']; ?><br>
-      <?php echo $user_info['address']; ?><br>
-      <?php echo $user_info['address2']; ?><br>
-      <?php echo $user_info['contact_info']; ?>
-    </div>
-    <div class="receipt-info">
-      <b>RECEIPT#:</b> &nbsp; <?php echo isset($user_info['pay_id']) ? $user_info['pay_id'] : 'N/A'; ?><br><br>
-      <b>DATE:</b>&nbsp; <?php echo date('M d, Y'); ?><br><br>
-    </div>
-  </div>
-  <div class="items">
-    <table>
-      <tr>
-        <th>Product</th>
-        <th>Price</th>
-        <th>Size</th>
-        <th>Color</th>
-        <th class="text-center">Quantity</th>
-        <th>Shipping</th>
-        <th>Subtotal</th>
-      </tr>
-      <?php if(isset($output['list'])) { echo $output['list']; } ?>
-    </table>
-  </div>
-  <div class="total">
-    <strong>Total: </strong> <?php if(isset($output['total'])) { echo $output['total']; } ?>
-  </div>
-</div>
-<center>
-  <button id="downloadBtn" style="background-color: green; color: white;">Download PDF</button>
-</center>
-
-<script>
-document.getElementById("downloadBtn").addEventListener("click", function() {
-  window.open("generate_pdf.php?sale_id=<?php echo $sale_id; ?>", "_blank");
-});
-</script>
-
-</body>
-</html>
