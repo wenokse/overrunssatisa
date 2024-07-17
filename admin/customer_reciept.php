@@ -106,7 +106,7 @@ if(isset($_GET['sale_id'])) {
 <body>
 <div class="receipt">
   <div class="header">
-    <img src="../images/LOGO.png" width="500" height="100" align="center"><br>
+    <img src="../images/LOGO.png" width="700" height="100" align="center"><br>
     <h1>RECEIPT</h1>
   </div>
   <div class="info">
