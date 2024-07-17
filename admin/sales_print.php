@@ -60,22 +60,26 @@
 	    $pdf->SetAutoPageBreak(TRUE, 10);  
 	    $pdf->SetFont('helvetica', '', 11);  
 	    $pdf->AddPage();  
-	    $content = '';  
+	    $content .= '
+		<table>
+			<tr>
+				<td width="50%"><img src="../images/LOGO.png" width="200" height="100" /></td>
+				<td width="50%" style="text-align: center;">
+					<h2>Overruns Sa Tisa Online Shop</h2>
+					<h4>SALES REPORT</h4>
+					<h4>'.$from_title." - ".$to_title.'</h4>
+				</td>
+			</tr>
+		</table>';
 
-	    // Add image
-		$image_file = '..images/LOGO.png';
-	    $pdf->Image($image_file, 10, 10, 50, 20, 'JPG', '', 'T', false, 300, '', false, false, 1, false, false, false);
-
-	    $content .= '<h2 align="center">Overruns Sa Tisa Online Shop</h2>';
-	    $content .= '<h4 align="center">SALES REPORT</h4>';
-	    $content .= '<h4 align="center">'.$from_title." - ".$to_title.'</h4>';
-	    $content .= '<table border="1" cellspacing="0" cellpadding="3">  
-	                   <tr>  
-	                   		<th width="15%" align="center"><b>Date</b></th>
-	                        <th width="23%" align="center"><b>Buyer Name</b></th>
+		$content .= '<br />';
+		$content .= '<table border="1" cellspacing="0" cellpadding="3">  
+					<tr>  
+							<th width="15%" align="center"><b>Date</b></th>
+							<th width="23%" align="center"><b>Buyer Name</b></th>
 							<th width="43%" align="center"><b>Transaction #</b></th>
 							<th width="20%" align="center"><b>Amount</b></th>  
-	                   </tr>';  
+					</tr>';  
 	    $content .= generateRow($from, $to, $conn);  
 	    $content .= '</table>';  
 	    $pdf->writeHTML($content);  
