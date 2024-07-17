@@ -18,16 +18,16 @@ if(isset($_GET['sale_id'])) {
             $output['list'] .= '
             <tr>
                 <td>'.$details['name'].'</td>
-                <td>₱ '.number_format($details['price'], 2).'</td>
+                <td> '.number_format($details['price'], 2).'</td>
                 <td>'.$details['size'].'</td>
                 <td>'.$details['color'].'</td>
                 <td>'.$details['quantity'].'</td>
-                <td>₱ '.number_format($subtotal, 2).'</td>
+                <td> '.number_format($subtotal, 2).'</td>
             </tr>
             ';
         }
 
-        $output['total'] = '<b>₱ '.number_format($total, 2).'</b>';
+        $output['total'] = '<b> '.number_format($total, 2).'</b>';
 
         // Fetch user's information from the database based on the sale ID
         $stmt_user = $conn->prepare("SELECT * FROM sales LEFT JOIN users ON users.id = sales.user_id WHERE sales.id = :id");
@@ -84,25 +84,22 @@ if(isset($_GET['sale_id'])) {
         </tr>
     </table>';
 
-    $content .= '<br><br>';
+    $content .= '<br>';
     $content .= '
     <table>
         <tr>
-            <th class="text-center">Product</th>
-            <th class="text-center">Price</th>
-            <th class="text-center">Size</th>
-            <th class="text-center">Color</th>
-            <th class="text-center">Quantity</th>
-            <th class="text-center">Subtotal</th>
+            <th align="center">Product</th>
+            <th align="center">Price</th>
+            <th align="center">Size</th>
+            <th align="center">Color</th>
+            <th align="center">Quantity</th>
+            <th align="center">Subtotal</th>
         </tr>
         '.$output['list'].'
-        <tr>
-            <td colspan="4" align="right"><b>Total</b></td>
-            <td align="right">'.$output['total'].'</td>
-        </tr>
+       
     </table>
     ';
-
+    $content .= '<p style="text-align: right;"><b>Total: </b>'.$output['total'].'</p>';
     $pdf->writeHTML($content);  
     $pdf->Output('receipt_'.$sale_id.'.pdf', 'I');
 
