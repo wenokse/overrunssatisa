@@ -63,9 +63,7 @@
 	    $content = '';  
 
 	    // Add image
-	    $content .= '<img src="image/logo.jpeg" width="200" height="100" align="center" /><br /><br />';
-
-	    $content .= '<h2 align="center">Overruns Sa Tisa Online Shop</h2>';
+	    $content .= '<img src="../images/LOGO.png" width="200" height="100" align="center" /><br /><br />';
 	    $content .= '<h4 align="center">SALES REPORT</h4>';
 	    $content .= '<h4 align="center">'.$from_title." - ".$to_title.'</h4>';
 	    $content .= '<table border="1" cellspacing="0" cellpadding="3">  
