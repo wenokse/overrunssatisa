@@ -1,11 +1,8 @@
 <?php
 include 'includes/session.php';
 
-// Check if sale_id is set in the URL
 if(isset($_GET['sale_id'])) {
     $sale_id = $_GET['sale_id'];
-
-    // Fetch sale details from the database using the provided sale_id
     $conn = $pdo->open();
     $output = array('list' => '', 'total' => '');
 
@@ -20,16 +17,17 @@ if(isset($_GET['sale_id'])) {
 
             $output['list'] .= '
             <tr>
-                <td>'.date('M d, Y', strtotime($details['date_added'])).'</td>
                 <td>'.$details['name'].'</td>
-                <td align="right">&#8369; '.number_format($details['price'], 2).'</td>
-                <td align="center">'.$details['quantity'].'</td>
-                <td align="right">&#8369; '.number_format($subtotal, 2).'</td>
+                <td>₱ '.number_format($details['price'], 2).'</td>
+                <td>'.$details['size'].'</td>
+                <td>'.$details['color'].'</td>
+                <td>'.$details['quantity'].'</td>
+                <td>₱ '.number_format($subtotal, 2).'</td>
             </tr>
             ';
         }
 
-        $output['total'] = '<b>&#8369; '.number_format($total, 2).'</b>';
+        $output['total'] = '<b>₱ '.number_format($total, 2).'</b>';
 
         // Fetch user's information from the database based on the sale ID
         $stmt_user = $conn->prepare("SELECT * FROM sales LEFT JOIN users ON users.id = sales.user_id WHERE sales.id = :id");
@@ -72,11 +70,11 @@ if(isset($_GET['sale_id'])) {
     </style>
     ';
 
-    // Add image and header
+   
     $content .= '<img src="../images/LOGO.png" width="500" height="100" align="center" />';
     $content .= '<h1 style="text-align: center;">RECEIPT</h1>';
 
-    // Add user information
+   
     $content .= '
     <table style="margin-bottom: 20px;">
         <tr>
@@ -86,15 +84,16 @@ if(isset($_GET['sale_id'])) {
         </tr>
     </table>';
 
-    // Add items table
+    $content .= '<br><br>';
     $content .= '
     <table>
         <tr>
-            <th>Date</th>
-            <th>Product</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            <th>Subtotal</th>
+            <th class="text-center">Product</th>
+            <th class="text-center">Price</th>
+            <th class="text-center">Size</th>
+            <th class="text-center">Color</th>
+            <th class="text-center">Quantity</th>
+            <th class="text-center">Subtotal</th>
         </tr>
         '.$output['list'].'
         <tr>
