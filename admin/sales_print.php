@@ -63,7 +63,7 @@
 	    $content = '';  
 
 	    // Add image
-	    $content .= '<img src="../images/LOGO.png" width="500" height="100" align="center" /><br /><br />';
+	    $content .= '<img src="../images/LOGO.png" width="500" height="100" align="center" /><br/>';
 	    $content .= '<h4 align="center">SALES REPORT</h4>';
 	    $content .= '<h4 align="center">'.$from_title." - ".$to_title.'</h4>';
 	    $content .= '<table border="1" cellspacing="0" cellpadding="3">  
