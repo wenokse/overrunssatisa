@@ -63,12 +63,13 @@
 	    $content .= '
 		<table>
 			<tr>
-				<td width="50%"><img src="../images/LOGO.png" width="200" height="100" /></td>
 				<td width="50%" style="text-align: center;">
-					<h2>Overruns Sa Tisa Online Shop</h2>
-					<h4>SALES REPORT</h4>
-					<h4>'.$from_title." - ".$to_title.'</h4>
+				<td width="50%">
+					<img src="../images/LOGO.png" width="200" height="100"/>
 				</td>
+				<h4>'.$from_title." - ".$to_title.'</h4>
+			</td>
+
 			</tr>
 		</table>';
 
