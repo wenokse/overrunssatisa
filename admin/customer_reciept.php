@@ -62,6 +62,7 @@ if(isset($_GET['sale_id'])) {
     table {
         border-collapse: collapse;
         width: 100%;
+         margin: 20px 0;
     }
     th, td {
         border: 1px solid black;
@@ -76,7 +77,7 @@ if(isset($_GET['sale_id'])) {
 
    
     $content .= '
-    <table style="margin-bottom: 20px;">
+    <table>
         <tr>
             <td><strong>FROM:</strong><br>Overruns Sa Tisa Online Shop<br>P.Lozada St Binaobao, Bantayan, Cebu</td>
             <td><strong>SHIP TO:</strong><br>'.$user_info['firstname'].' '.$user_info['lastname'].'<br>'.$user_info['address'].'<br>'.$user_info['address2'].'<br>'.$user_info['contact_info'].'</td>
@@ -86,7 +87,7 @@ if(isset($_GET['sale_id'])) {
 
     $content .= '<br><br>';
     $content .= '
-    <table style="margin-bottom: 20px;">
+    <table>
         <tr>
             <th align="center">Product</th>
             <th align="center">Price</th>
