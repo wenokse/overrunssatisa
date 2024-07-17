@@ -66,14 +66,14 @@ if(isset($_GET['sale_id'])) {
         width: 100%;
     }
     th, td {
-        border: 1px solid #ddd;
+        border: 1px solid black;
         padding: 8px;
     }
     </style>
     ';
 
     // Add image and header
-    $content .= '<img src="../images/LOGO.png" style="width: 300px; height: auto;" />';
+    $content .= '<img src="../images/LOGO.png" width="500" height="100" align="center" />';
     $content .= '<h1 style="text-align: center;">RECEIPT</h1>';
 
     // Add user information
@@ -82,7 +82,7 @@ if(isset($_GET['sale_id'])) {
         <tr>
             <td><strong>FROM:</strong><br>Overruns Sa Tisa Online Shop<br>P.Lozada St Binaobao, Bantayan, Cebu</td>
             <td><strong>SHIP TO:</strong><br>'.$user_info['firstname'].' '.$user_info['lastname'].'<br>'.$user_info['address'].'<br>'.$user_info['address2'].'<br>'.$user_info['contact_info'].'</td>
-            <td><strong>RECEIPT#:</strong> '.$user_info['pay_id'].'<br><strong>DATE:</strong> '.date('M d, Y').'</td>
+            <td><strong>RECEIPT#:</strong> '.$user_info['pay_id'].'<br><strong>DATE:</strong> '.date('M d, Y').'</td><br><br>
         </tr>
     </table>';
 
