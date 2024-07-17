@@ -60,10 +60,8 @@ if(isset($_GET['sale_id'])) {
         echo $e->getMessage();
     }
 
-    // Now, you can print the receipt using the $output array
-    // You can echo the HTML for the receipt here, including the $ship_to variable
+  
 } else {
-    // If sale_id is not set, redirect or show an error message
     echo "Sale ID is not provided.";
 }
 ?>
@@ -108,8 +106,8 @@ if(isset($_GET['sale_id'])) {
 <body>
 <div class="receipt">
   <div class="header">
+    <img src="../images/LOGO.png" style="max-width: 100px;"><br>
     <h1>RECEIPT</h1>
-    <img src="image/overrun.png" style="max-width: 100px;">
   </div>
   <div class="info">
     <div class="bill-to">
