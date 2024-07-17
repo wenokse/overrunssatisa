@@ -84,9 +84,9 @@ if(isset($_GET['sale_id'])) {
         </tr>
     </table>';
 
-    $content .= '<br>';
+    $content .= '<br><br>';
     $content .= '
-    <table>
+    <table style="margin-bottom: 20px;">
         <tr>
             <th align="center">Product</th>
             <th align="center">Price</th>
