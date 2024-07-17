@@ -60,25 +60,30 @@
 	    $pdf->SetAutoPageBreak(TRUE, 10);  
 	    $pdf->SetFont('helvetica', '', 11);  
 	    $pdf->AddPage();  
-	    $content = '';  
+	    $content .= '
+			<table>
+				<tr>
+					<td width="50%"><img src="images/logo1.png" width="200" height="100" /></td>
+					<td width="50%" style="text-align: right;">
+						<h2>Overruns Sa Tisa Online Shop</h2>
+						<h4>SALES REPORT</h4>
+						<h4>'.$from_title." - ".$to_title.'</h4>
+					</td>
+				</tr>
+			</table>';
 
-	    // Add image
-	    $content .= '<img src="image/logo.jpeg" width="200" height="100" align="center" /><br /><br />';
-
-	    $content .= '<h2 align="center">Overruns Sa Tisa Online Shop</h2>';
-	    $content .= '<h4 align="center">SALES REPORT</h4>';
-	    $content .= '<h4 align="center">'.$from_title." - ".$to_title.'</h4>';
-	    $content .= '<table border="1" cellspacing="0" cellpadding="3">  
-	                   <tr>  
-	                   		<th width="15%" align="center"><b>Date</b></th>
-	                        <th width="23%" align="center"><b>Buyer Name</b></th>
-							<th width="43%" align="center"><b>Transaction #</b></th>
-							<th width="20%" align="center"><b>Amount</b></th>  
-	                   </tr>';  
-	    $content .= generateRow($from, $to, $conn);  
-	    $content .= '</table>';  
-	    $pdf->writeHTML($content);  
-	    $pdf->Output('sales.pdf', 'I');
+			$content .= '<br />';
+			$content .= '<table border="1" cellspacing="0" cellpadding="3">  
+						<tr>  
+								<th width="15%" align="center"><b>Date</b></th>
+								<th width="23%" align="center"><b>Buyer Name</b></th>
+								<th width="43%" align="center"><b>Transaction #</b></th>
+								<th width="20%" align="center"><b>Amount</b></th>  
+						</tr>';  
+			$content .= generateRow($from, $to, $conn);  
+			$content .= '</table>';  
+			$pdf->writeHTML($content);  
+			$pdf->Output('sales.pdf', 'I');
 
 	    $pdo->close();
 
