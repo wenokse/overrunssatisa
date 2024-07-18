@@ -72,7 +72,7 @@ if(isset($_GET['sale_id'])) {
     ';
 
    
-    $content .= '<img src="../images/LOGO.png" width="500" height="100" align="center" />';
+    $content .= '<img src="../images/print.png" width="500" height="100" align="center" />';
     $content .= '<h1 style="text-align: center;">RECEIPT</h1>';
 
    
