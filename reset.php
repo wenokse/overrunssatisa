@@ -28,7 +28,7 @@ try {
             $mail->Subject = "Password Reset";
             $mail->isHTML(true);
             $mail->Body = <<<END
-            Click <a href="http://localhost/overrunssatisa/password_reset.php?token=$token">here</a> 
+            Click <a href="http://overrunssatisa.com/password_reset.php?token=$token">here</a> 
             to reset your password.
             END;
 
