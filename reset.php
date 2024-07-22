@@ -1,42 +1,33 @@
 <?php
-
 include 'includes/session.php';
 
-$email = $_POST["email"];
+if(isset($_POST['email'])){
+    $email = $_POST['email'];
 
+    $conn = $pdo->open();
 
-$token = bin2hex(random_bytes(16));
-$token_hash = hash("sha256", $token);
+    $stmt = $conn->prepare("SELECT *, COUNT(*) AS numrows FROM users WHERE email=:email");
+    $stmt->execute(['email'=>$email]);
+    $row = $stmt->fetch();
 
+    if($row['numrows'] > 0){
+        
+        $token = bin2hex(random_bytes(16));
+        $token_hash = hash("sha256", $token);
+        $expiry = date("Y-m-d H:i:s", time() + 60 * 30); 
 
-$expiry = date("Y-m-d H:i:s", time() + 60 * 5);
-$conn = $pdo->open();
+      
+        $stmt = $conn->prepare("UPDATE users SET reset_token_hash=:token, reset_token_expires_at=:expiry WHERE email=:email");
+        $stmt->execute(['token'=>$token_hash, 'expiry'=>$expiry, 'email'=>$email]);
 
-$sql = "UPDATE users
-        SET reset_token_hash = :reset_token_hash,
-            reset_token_expires_at = :reset_token_expires_at
-        WHERE email = :email";
-
-$stmt = $conn->prepare($sql);
-
-// Bind parameters
-$stmt->bindParam(':reset_token_hash', $token_hash);
-$stmt->bindParam(':reset_token_expires_at', $expiry);
-$stmt->bindParam(':email', $email);
-
-if ($stmt->execute()) {
-   
-    if ($stmt->rowCount() > 0) {
-
-     
+       
         $mail = require __DIR__ . "/mailer.php";
-
         $mail->setFrom("overrunssatisa@gmail.com");
         $mail->addAddress($email);
         $mail->Subject = "Password Reset";
         $mail->isHTML(true);
         $mail->Body = <<<END
-        Click <a href="http://localhost/OverrunsSaTisaShopSystem123/password_reset.php?token=$token">here</a> 
+        Click <a href="http://localhost/overrunssatisa/password_reset.php?token=$token">here</a> 
         to reset your password.
         END;
 
@@ -44,17 +35,17 @@ if ($stmt->execute()) {
             $mail->send();
             $_SESSION['success'] = 'Message sent, please check your inbox.';
         } catch (Exception $e) {
-            echo "Message could not be sent. Mailer error: {$mail->ErrorInfo}";
+            $_SESSION['error'] = "Message could not be sent. Mailer error: {$mail->ErrorInfo}";
         }
-    } else {
+    }
+    else{
         $_SESSION['error'] = 'Email not found';
     }
-} else {
-    echo "Failed to execute query.";
+
+    $pdo->close();
+}
+else{
+    $_SESSION['error'] = 'Input email associated with account';
 }
 
-
-$pdo->close();
 header('location: password_forgot.php');
-?>
-
