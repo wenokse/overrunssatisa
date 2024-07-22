@@ -238,7 +238,7 @@
     </button>
 </div>
 </form>
-<a href="password_forgot.php">Forgot Password?</a><br>
+<!-- <a href="password_forgot.php">Forgot Password?</a><br> -->
 <p style="color: rgb(0, 51, 102); ">Don't have an account? 
 <a href="signup.php" class="text-center">Register</a><br>
 </div>
