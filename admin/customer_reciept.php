@@ -75,8 +75,8 @@ if(isset($_GET['sale_id'])) {
     $content .= '<img src="../images/print.png" width="500" height="140" align="center" />';
     $content .= '<h1 style="text-align: center;">RECEIPT</h1>';
 
-   
-    $content .= '
+    
+    $content .= '&nbsp;&nbsp;
     <table>
         <tr>
             <td><strong>FROM:</strong><br>Overruns Sa Tisa Online Shop<br>P.Lozada St Binaobao, Bantayan, Cebu</td>
