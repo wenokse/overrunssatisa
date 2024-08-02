@@ -135,6 +135,7 @@ $pdo->close();
                                         <img src="<?php echo (!empty($product['photo'])) ? 'images/'.$product['photo'] : 'images/noimage.jpg'; ?>" id="show-img" class="zoom img1" data-magnify-src="images/large-<?php echo $product['photo']; ?>">
                                     </div>
                                     <br>
+                                    <label for="size">Size</label>
                                     <?php if (!empty($sizes) && !in_array($category_name, ['bags', 'accessories'])) : ?>
                                     <div class="form-group">
                                         <select class="form-control input-lg" id="size" name="size">
@@ -142,6 +143,7 @@ $pdo->close();
                                         </select>
                                     </div>
                                     <br>
+                                    <label for="color">Color</label>
                                     <?php endif; ?>
                                     <div class="form-group">
                                         <select class="form-control input-lg" id="color" name="color">
@@ -187,7 +189,17 @@ $pdo->close();
                                         <div id="comment_message" class="alert" style="display: none;"></div>
                                         <div id="comment_list"></div>
                                     </div></span>
-                                    <p><b>Stock:</b> <span id="stock"><?php echo $product['stock']; ?></span></p>
+                                     <p><b>Stock:</b> 
+                                        <span id="stock">
+                                            <?php 
+                                            if ($product['stock'] == '0') {
+                                                echo '<span style="color: red;">Out of Stock</span>';
+                                            } else {
+                                                echo $product['stock'];
+                                            }
+                                            ?>
+                                        </span>
+                                    </p>
                                     <p><b>Category:</b> <a href="category.php?category=<?php echo $product['cat_slug']; ?>"><?php echo $product['catname']; ?></a></p>
                                     <p><b>Description:</b></p>
                                     <p1><?php echo $product['description']; ?></p1>
