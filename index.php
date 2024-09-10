@@ -360,22 +360,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     if (navigator.userAgent.match(/Android/i)) {
         document.addEventListener('backbutton', handleBackButton, false);
+    } else {
+        window.addEventListener('popstate', handleBackButton);  // Handles browser back button
     }
 
     function handleBackButton(e) {
-        e.preventDefault();
+        e.preventDefault();  // Prevent default back action
         showExitPopup();
     }
 
     function showExitPopup() {
-        document.getElementById('popupCloseRight').style.display = 'block';
+        popup.style.display = 'block';
     }
 
     function closeApp() {
         if (navigator.app && navigator.app.exitApp) {
             navigator.app.exitApp();
         } else {
-            window.close(); // Fallback, might not work in all cases
+            window.close();  // Fallback
         }
     }
 
@@ -387,7 +389,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('exitNo').addEventListener('click', (e) => {
         e.preventDefault();
-        document.getElementById('popupCloseRight').style.display = 'none';
+        popup.style.display = 'none';
+    });
+
+    // Manage browser history
+    window.history.pushState({ page: 1 }, "", "");
+    window.addEventListener('popstate', function(e) {
+        showExitPopup();  // Show the popup when user presses back button in browser
     });
 });
 </script>
