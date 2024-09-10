@@ -1,19 +1,18 @@
 <?php
 	include 'includes/session.php';
 	
-
 	function generateRow($from, $to, $conn){
 		$contents = '';
 	 	
-		$stmt = $conn->prepare("SELECT *, sales.id AS salesid FROM sales LEFT JOIN users ON users.id=sales.user_id WHERE sales_date BETWEEN '$from' AND '$to' ORDER BY sales_date ASC");
-		$stmt->execute();
+		$stmt = $conn->prepare("SELECT *, sales.id AS salesid FROM sales LEFT JOIN users ON users.id=sales.user_id WHERE sales_date BETWEEN :from AND :to ORDER BY sales_date ASC");
+		$stmt->execute(['from' => $from, 'to' => $to]);
 		$total = 0;
 		foreach($stmt as $row){
-			$stmt = $conn->prepare("SELECT * FROM details LEFT JOIN products ON products.id=details.product_id WHERE sales_id=:id");
-			$stmt->execute(['id'=>$row['salesid']]);
+			$details_stmt = $conn->prepare("SELECT * FROM details LEFT JOIN products ON products.id=details.product_id WHERE sales_id=:id");
+			$details_stmt->execute(['id' => $row['salesid']]);
 			$amount = 0;
-			foreach($stmt as $details){
-				$subtotal = $details['price']*$details['quantity'];
+			foreach($details_stmt as $details){
+				$subtotal = $details['price'] * $details['quantity'];
 				$amount += $subtotal;
 			}
 			$total += $amount;
@@ -50,8 +49,8 @@
 	    $pdf->SetCreator(PDF_CREATOR);  
 	    $pdf->SetTitle('Sales Report: '.$from_title.' - '.$to_title);  
 	    $pdf->SetHeaderData('', '', PDF_HEADER_TITLE, PDF_HEADER_STRING);  
-	    $pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));  
-	    $pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));  
+	    $pdf->setHeaderFont([PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN]);  
+	    $pdf->setFooterFont([PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA]);  
 	    $pdf->SetDefaultMonospacedFont('helvetica');  
 	    $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);  
 	    $pdf->SetMargins(PDF_MARGIN_LEFT, '10', PDF_MARGIN_RIGHT);  
@@ -63,9 +62,11 @@
 	    $content = '';  
 
 	    // Add image
-	    $content .= '<img src="../images/print.png" width="500" height="140" align="center" />';
+	    $content .= '<img src="../image/logo.jpeg" width="200" height="100" align="center" /><br /><br />';
+
+	    $content .= '<h2 align="center">Overruns Sa Tisa Online Shop</h4>';
 	    $content .= '<h4 align="center">SALES REPORT</h4>';
-	    $content .= '<h4 align="center">'.$from_title." - ".$to_title.'</h4>';
+	    $content .= '<h4 align="center">'.$from_title.' - '.$to_title.'</h4>';
 	    $content .= '<table border="1" cellspacing="0" cellpadding="3">  
 	                   <tr>  
 	                   		<th width="15%" align="center"><b>Date</b></th>
@@ -80,8 +81,10 @@
 
 	    $pdo->close();
 
-	}
-	else{
+	 
+	   
+
+	} else {
 		$_SESSION['error'] = 'Need date range to provide sales print';
 		header('location: sales.php');
 	}

@@ -34,16 +34,14 @@
                     </div>
                     <input type="text" class="form-control pull-right col-sm-8" id="reservation" name="date_range">
                   </div>
-                  <button type="submit" class="btn btn-success btn-sm btn-flat" name="print"><span class="glyphicon glyphicon-print"></span>&nbsp;Report Print</button>
-                  <!--<form method="POST" action="customer_reciept.php">
-                    <button type="submit" class="btn btn-success btn-sm btn-flat" name="customer_reciept.php">
-                        <span class="glyphicon glyphicon-print"></span>&nbsp;Customer Receipt
-                    </button>
-                </form>-->
+                  <button type="button" class="btn btn-success btn-sm btn-flat" id="print-report-btn"><span class="glyphicon glyphicon-print"></span>&nbsp;Report Print</button>
+                 
                 </form>
+                
                 
               </div>
             </div>
+            <div class="box-body table-responsive">
             <div class="box-body">
               <table id="example1" class="table table-bordered">
                 <thead>
@@ -56,21 +54,53 @@
                   <th>Full Details</th>
                 </thead>
                 <tbody>
-                  <?php
-                    $conn = $pdo->open();
+                <?php
+                          $conn = $pdo->open();
 
-                    try{
-                      $stmt = $conn->prepare("SELECT *, sales.id AS salesid, sales.status FROM sales LEFT JOIN users ON users.id=sales.user_id ORDER BY   sales.sales_date DESC");
-                      $stmt->execute();
-                      foreach($stmt as $row){
-                        $stmt = $conn->prepare("SELECT * FROM details LEFT JOIN products ON products.id=details.product_id WHERE details.sales_id=:id");
-                        $stmt->execute(['id'=>$row['salesid']]);
-                        $total = 0;
-                        foreach($stmt as $details){
-                          $subtotal = $details['price']*$details['quantity']+$details['shipping'];
-                          $total += $subtotal;
-                        } ?>
-
+                          try {
+                            $user_id = isset($_SESSION['admin']) ? $_SESSION['admin'] : null;
+                        
+                            if ($user_id === null) {
+                                die("Error: User not logged in");
+                            }
+                            $stmt = $conn->prepare("SELECT type FROM users WHERE id = :user_id");
+                            $stmt->execute(['user_id' => $user_id]);
+                            $user = $stmt->fetch();
+                        
+                            if (!$user) {
+                                die("Error: User not found");
+                            }
+                        
+                            $user_type = $user['type'];
+                        
+                            if ($user_type == 1) {
+                               
+                                $stmt = $conn->prepare("SELECT *, sales.id AS salesid, sales.status, users.firstname, users.lastname, users.address, users.address2, users.contact_info 
+                                                        FROM sales 
+                                                        LEFT JOIN users ON users.id = sales.user_id
+                                                        ORDER BY sales.sales_date DESC");
+                                $stmt->execute();
+                            } elseif ($user_type == 2) {
+                                // Vendor: Display sales by vendor ID
+                                $stmt = $conn->prepare("SELECT *, sales.id AS salesid, sales.status, users.firstname, users.lastname, users.address, users.address2, users.contact_info  
+                                                        FROM sales
+                                                        LEFT JOIN users ON users.id = sales.user_id
+                                                        WHERE sales.admin_id = :admin_id
+                                                        ORDER BY sales.sales_date DESC");
+                                $stmt->execute(['admin_id' => $user_id]);
+                            } else {
+                                die("Error: Invalid user type");
+                            }
+                        
+                            foreach ($stmt as $row) {
+                                $stmt_details = $conn->prepare("SELECT * FROM details LEFT JOIN products ON products.id=details.product_id WHERE details.sales_id=:id");
+                                $stmt_details->execute(['id' => $row['salesid']]);
+                                $total = 0;
+                                foreach ($stmt_details as $details) {
+                                    $subtotal = $details['price'] * $details['quantity'] + $details['shipping'];
+                                    $total += $subtotal;
+                                }
+      ?>                        
                           <tr>
                             <td class='hidden'></td>
                             <td><?php echo date('M d, Y', strtotime($row['sales_date']))?></td>
@@ -79,19 +109,19 @@
                             <td>&#8369; <?php echo number_format($total, 2)?></td>
                             <td>
                               <?php if ($row['status'] == 0) { ?>
-                                  <p class="btn-sm btn-warning text-center" style='border-radius: 8px;'>Pending</p>
-                                <?php } ?>
-                                <?php if ($row['status'] == 1) { ?>
-                                  <p class="btn-sm text-center" style="background-color: #39FF14; color: #000; border-radius: 8px;">Accepted</p>
-                                <?php } ?>
-                                <?php if ($row['status'] == 2) { ?>
-                                  <p class="btn-sm btn-primary text-center" style='border-radius: 8px;'>Delivered</p>
-                                <?php } ?>
-                                <?php if ($row['status'] == 3) { ?>
-                                  <p class="btn-sm btn-success text-center" style='border-radius: 8px;'>Received</p>
-                                <?php } ?>
+                                  <p class="btn-sm text-center" style="background: linear-gradient(to right, #00C9FF, #92FE9D); color: #000; border-radius: 8px;">Pending</p>
+                              <?php } ?>
+                              <?php if ($row['status'] == 1) { ?>
+                                  <p class="btn-sm text-center" style="background: linear-gradient(to right, #39FF14, #B4EC51); color: #000; border-radius: 8px;">Accepted</p>
+                              <?php } ?>
+                              <?php if ($row['status'] == 2) { ?>
+                                  <p class="btn-sm text-center" style="background: linear-gradient(to right, #0072ff, #00c6ff); color: #fff; border-radius: 8px;">Delivered</p>
+                              <?php } ?>
+                              <?php if ($row['status'] == 3) { ?>
+                                  <p class="btn-sm text-center" style="background: linear-gradient(to right, #00C9A7, #FF3F5E); color: #fff; border-radius: 8px;">Received</p>
+                              <?php } ?>
+                          </td>
 
-                            </td>
                             <td>
                             <button type='button' class='btn btn-info btn-sm btn-flat transact' style='border-radius: 8px;'
                                     data-id="<?php echo $row['salesid']; ?>"
@@ -102,20 +132,27 @@
                               <i class='fa fa-search'></i> View
                             </button>
                             <?php if ($row['status'] == 0) { ?>
-                                  <a href="accept_order.php?sale_id=<?php  echo$row['salesid'] ?>"class='btn btn-sm btn-flat' style="background-color: #39FF14; color: #000; border-radius: 8px;">Accept Order</a>
-                                <?php } ?>
-                                <?php if ($row['status'] == 0) { ?>
-                                      <a href="customer_reciept.php?sale_id=<?php echo $row['salesid']; ?>" class='btn btn-warning btn-sm btn-flat-print' style='border-radius: 8px;'><i class='fa fa-print'></i> Print Receipt</a>
-                                  <?php } ?>
-                                <?php if ($row['status'] == 1) { ?>
-                                  <a href="deliver_order.php?sale_id=<?php  echo$row['salesid'] ?>"class='btn btn-primary btn-sm btn-flat' style='border-radius: 8px;'>Deliver Order</a>
-                                <?php } ?>
-                                <?php if ($row['status'] == 2) { ?>
-                                  <a href="order_receive.php?sale_id=<?php  echo$row['salesid'] ?>"class='btn btn-warning btn-sm btn-flat' style='border-radius: 8px;'>Order Received</a>
-                                <?php } ?>
-                                
-
+                                <button 
+                                onclick="printReceipt('<?php echo $row['salesid']; ?>')" 
+                                    class="btn btn-warning btn-sm btn-flat" 
+                                    style="background: linear-gradient(to right, #FFA502, #FF7E5F); color: #000; border-radius: 8px;">
+                                    <i class="fa fa-print"></i> Print Receipt
+                                </button>
+                            <?php } ?>
+                            <?php if ($user_type != 1) { ?>
+                            <?php if ($row['status'] == 0) { ?>
+                                <a href="accept_order.php?sale_id=<?php echo $row['salesid']; ?>" class="btn btn-sm btn-flat" style="background: linear-gradient(to right, #39FF14, #B4EC51); color: #000; border-radius: 8px;">Accept Order</a>
+                            <?php } ?>
+                            
+                            <?php if ($row['status'] == 1) { ?>
+                                <a href="deliver_order.php?sale_id=<?php echo $row['salesid']; ?>" class="btn btn-primary btn-sm btn-flat" style="background: linear-gradient(to right, #0072ff, #00c6ff); color: #fff; border-radius: 8px;">Deliver Order</a>
+                            <?php } ?>
+                            <?php if ($row['status'] == 2) { ?>
+                                <a href="order_receive.php?sale_id=<?php echo $row['salesid']; ?>" class="btn btn-warning btn-sm btn-flat" style="background: linear-gradient(to right, #FFAA00, #FF4E00); color: #fff; border-radius: 8px;">Order Received</a>
+                            <?php } ?>
+                        <?php } ?>
                             </td>
+
 
                           </tr>
 
@@ -131,6 +168,7 @@
               </table>
             </div>
           </div>
+          </div>
         </div>
       </div>
     </section>
@@ -142,6 +180,100 @@
 
 </div>
 <!-- ./wrapper -->
+<script>
+
+function printReceipt(saleId) {
+    $.ajax({
+        url: 'customer_reciept.php',  
+        method: 'GET',
+        data: {sale_id: saleId},
+        success: function(response) {
+            // Create an iframe element for printing
+            var printFrame = document.createElement('iframe');
+            printFrame.style.position = 'fixed';
+            printFrame.style.width = '0px';
+            printFrame.style.height = '0px';
+            printFrame.style.border = 'none';
+            document.body.appendChild(printFrame);
+
+            // Write the receipt content into the iframe
+            var printDoc = printFrame.contentWindow.document;
+            printDoc.open();
+            printDoc.write(`
+                <html>
+                <head><title>Receipt</title></head>
+                <body>
+                    ${response} <!-- Include the fetched receipt content -->
+                </body>
+                </html>
+            `);
+            printDoc.close();
+
+            // Trigger the print dialog
+            printFrame.contentWindow.focus();
+            printFrame.contentWindow.print();
+
+            // Remove the iframe after printing
+            setTimeout(function() {
+                document.body.removeChild(printFrame);
+            }, 1000);
+        },
+        error: function() {
+            alert('Failed to fetch receipt. Please try again.');
+        }
+    });
+}
+
+document.getElementById('print-report-btn').addEventListener('click', function() {
+    var dateRange = document.getElementById('reservation').value;
+    if (dateRange) {
+        var ex = dateRange.split(' - ');
+        var from = new Date(ex[0]);
+        var to = new Date(ex[1]);
+        $.ajax({
+            url: 'fetch_sales_data.php',
+            method: 'POST',
+            data: {from: from.toISOString().split('T')[0], to: to.toISOString().split('T')[0]},
+            success: function(response) {
+                var printFrame = document.createElement('iframe');
+                printFrame.style.position = 'fixed';
+                printFrame.style.width = '0px';
+                printFrame.style.height = '0px';
+                printFrame.style.border = 'none';
+                document.body.appendChild(printFrame);
+                var printDoc = printFrame.contentWindow.document;
+                printDoc.open();
+                printDoc.write(`
+                    <html>
+                    <head><title>Sales Report</title></head>
+                    <body>
+                        <div style="text-align: center;">
+                            <img src="../image/logo.jpeg" width="200" height="100" style="display: block; margin: 0 auto;" /><br />
+                            <h2>Overruns Sa Tisa Online Shop</h2>
+                            <h4>SALES REPORT</h4>
+                            <h4>${ex[0]} - ${ex[1]}</h4>
+                        </div>
+                        <table border="1" cellspacing="0" cellpadding="3" width="100%">
+                            <tr><th>Date</th><th>Buyer Name</th><th>Transaction #</th><th>Amount</th></tr>
+                            ${response}
+                        </table>
+                    </body>
+                    </html>
+                `);
+                printDoc.close();
+
+                printFrame.contentWindow.focus();
+                printFrame.contentWindow.print();
+                setTimeout(function() {
+                    document.body.removeChild(printFrame);
+                }, 1000);
+            }
+        });
+    } else {
+        alert('Please select a date range.');
+    }
+});
+</script>
 <style>
    .content-wrapper {
       background: white;
@@ -252,5 +384,6 @@ $(function(){
 });
 
 </script>
+
 </body>
 </html>

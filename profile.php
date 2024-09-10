@@ -18,7 +18,7 @@ if(!isset($_SESSION['user'])){
             <!-- Main content -->
             <section class="content">
                 <div class="row">
-                    <div class="">
+                    <div class="col-xs-12">
                         <?php
                         if (isset($_SESSION['error']) || isset($_SESSION['success'])) {
                             $message = isset($_SESSION['error']) ? $_SESSION['error'] : $_SESSION['success'];
@@ -36,32 +36,34 @@ if(!isset($_SESSION['user'])){
                             unset($_SESSION['success']);
                         }
                         ?>
-                        <div class="box box-solid" style="border-radius: 10px;">
+                       <div class="box box-solid" style="border-radius: 10px;">
                             <div class="box-body">
-                                <div class="col-sm-2">
-                                    <img src="<?php echo (!empty($user['photo'])) ? 'images/'.$user['photo'] : 'images/profile.jpg'; ?>" width="100%">
-                                </div>
-                                <div class="col-sm-9">
-                                    <div class="row">
-                                        <div class="col-sm-3">
-                                            <h4>Name:</h4>
-                                            <h4>Email:</h4>
-                                            <h4>Contact No:</h4>
-                                            <h4>Address:</h4>
-                                            <h4>Purok:</h4>
-                                            <h4>Member Since:</h4>
-                                        </div>
-                                        <div class="col-sm-9">
-                                            <h4><?php echo $user['firstname'].' '.$user['lastname']; ?>
-                                                <span class="pull-right">
-                                                    <a href="#edit" class="btn btn-success btn-flat btn-sm" style="border-radius: 8px;" data-toggle="modal"><i class="fa fa-edit"></i> Edit</a>
-                                                </span>
-                                            </h4>
-                                            <h4><?php echo $user['email']; ?></h4>
-                                            <h4><?php echo (!empty($user['contact_info'])) ? $user['contact_info'] : 'N/A'; ?></h4>
-                                            <h4><?php echo (!empty($user['address'])) ? $user['address'] : 'N/A'; ?></h4>
-                                            <h4><?php echo (!empty($user['address2'])) ? $user['address2'] : 'N/A'; ?></h4>
-                                            <h4><?php echo date('M d, Y', strtotime($user['created_on'])); ?></h4>
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-2 text-center">
+                                        <img src="<?php echo (!empty($user['photo'])) ? 'images/'.$user['photo'] : 'images/profile.jpg'; ?>" class="img-responsive center-block" style="max-width: 100%; margin-bottom: 15px;">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-10">
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-3">
+                                                <h4>Name:</h4>
+                                                <h4>Email:</h4>
+                                                <h4>Contact No:</h4>
+                                                <h4>Address:</h4>
+                                                <h4>Purok:</h4>
+                                                <h4>Member Since:</h4>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-9">
+                                                <h4><?php echo $user['firstname'].' '.$user['lastname']; ?>
+                                                    <span class="pull-right">
+                                                        <a href="#edit" class="btn btn-success btn-flat btn-sm" style="border-radius: 8px;" data-toggle="modal"><i class="fa fa-edit"></i> Edit</a>
+                                                    </span>
+                                                </h4>
+                                                <h4><?php echo $user['email']; ?></h4>
+                                                <h4><?php echo (!empty($user['contact_info'])) ? $user['contact_info'] : 'N/A'; ?></h4>
+                                                <h4><?php echo (!empty($user['address'])) ? $user['address'] : 'N/A'; ?></h4>
+                                                <h4><?php echo (!empty($user['address2'])) ? $user['address2'] : 'N/A'; ?></h4>
+                                                <h4><?php echo date('M d, Y', strtotime($user['created_on'])); ?></h4>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -71,7 +73,7 @@ if(!isset($_SESSION['user'])){
                             <div class="box-header with-border">
                                 <h4 class="box-title"><i class="fa fa-calendar"></i> <b>Transaction History</b></h4>
                             </div>
-                            <div class="box-body">
+                            <div class="box-body table-responsive">
                                 <table class="table table-bordered" id="example1" style="border-radius: 10px;">
                                     <thead>
                                         <th class="hidden"></th>

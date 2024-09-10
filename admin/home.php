@@ -23,8 +23,12 @@
 
   <div class="content-wrapper">
     <section class="content-header">
-      <h1>
+    <h1>
+    <?php if ($admin['type'] == 1): ?>
         <b>Dashboard</b>
+        <?php else: ?>
+        <b>Vendor Dashboard</b>
+        <?php endif; ?>
       </h1>
       <ol class="breadcrumb">
         <li><a href="home.php"><i class="fa fa-dashboard"></i> Home</a></li>
@@ -50,49 +54,263 @@
           unset($_SESSION['success']);
         }
       ?>
+<!-- For Administrator -->
+
+      <?php if ($admin['type'] == 1): ?>
       <div class="row">
+      <?php
+    function createSmallBox($title, $icon, $query, $params, $conn, $link) {
+      $stmt = $conn->prepare($query);
+      $stmt->execute($params);
+      $total = 0;
+      foreach ($stmt as $row) {
+        $subtotal = $row['price'] * $row['quantity'];
+        $total += $subtotal + $row['shipping'];
+      }
+      $formattedTotal = number_format_short($total, 2);
+      echo "
+        <div class='col-lg-4 col-xs-6'>
+          <div class='small-box gradient-box1'>
+            <div class='inner'>
+              <h3>&#8369; $formattedTotal</h3>
+              <p>$title</p>
+            </div>
+            <div class='icon'>
+              <i class='fa $icon'></i>
+            </div>
+            <a href='$link' class='small-box-footer'>More info <i class='fa fa-arrow-circle-right'></i></a>
+          </div>
+        </div>
+      ";
+    }
+
+    $admin_id = $_SESSION['admin'];
+    $user_condition = ($admin['type'] == 1) ? "" : "AND p.user_id = :user_id";
+    $params = ($admin['type'] == 1) ? [] : ['user_id' => $admin_id];
+
+    createSmallBox("Total Sales", "fa-money", 
+      "SELECT d.*, p.price FROM details d 
+      LEFT JOIN products p ON p.id = d.product_id 
+      WHERE 1=1 $user_condition", 
+      $params, $conn, "sales.php");
+
+    createSmallBox("Sales This Year", "fa-money", 
+      "SELECT d.*, p.price FROM details d 
+      LEFT JOIN sales s ON s.id = d.sales_id 
+      LEFT JOIN products p ON p.id = d.product_id 
+      WHERE YEAR(s.sales_date) = :todaysyear $user_condition", 
+      array_merge($params, ['todaysyear' => $todaysyear]), $conn, "sales.php");
+
+    createSmallBox("Sales This Month", "fa-money", 
+      "SELECT d.*, p.price FROM details d 
+      LEFT JOIN sales s ON s.id = d.sales_id 
+      LEFT JOIN products p ON p.id = d.product_id 
+      WHERE MONTH(s.sales_date) = :todaysmonth $user_condition", 
+      array_merge($params, ['todaysmonth' => $todaysmonth]), $conn, "sales.php");
+
+  ?>
+  </div>
+      <div class="row">
+  <?php
+  // Row 2
+  createSmallBox("Sales Today", "fa-money", 
+    "SELECT d.*, p.price FROM details d 
+    LEFT JOIN sales s ON s.id = d.sales_id 
+    LEFT JOIN products p ON p.id = d.product_id 
+    WHERE s.sales_date = :today $user_condition", 
+    array_merge($params, ['today' => $today]), $conn, "sales.php");
+  ?>
+
+  <div class="col-lg-4 col-xs-6">
+    <div class="small-box gradient-box1">
+      <div class="inner">
         <?php
-          function createSmallBox($title, $icon, $query, $conn, $link, $condition = true) {
-            $stmt = $conn->prepare($query);
-            $stmt->execute();
-            $total = 0;
-            foreach ($stmt as $row) {
-              $subtotal = $row['price'] * $row['quantity'];
-              $total += $subtotal;
-            }
-            $formattedTotal = number_format_short($total, 2);
-            $footerLink = $condition ? "<a href='$link' class='small-box-footer'>More info <i class='fa fa-arrow-circle-right'></i></a>" : "<a class='small-box-footer'>More info <i class='fa fa-arrow-circle-right'></i></a>";
-
-            echo "
-              <div class='col-lg-3 col-xs-6'>
-                <div class='small-box gradient-box'>
-                  <div class='inner'>
-                    <h3>&#8369; $formattedTotal</h3>
-                    <p>$title</p>
-                  </div>
-                  <div class='icon'>
-                    <i class='fa $icon'></i>
-                  </div>
-                  $footerLink
-                </div>
-              </div>
-            ";
-          }
-
-          createSmallBox("Total Sales", "fa-money", "SELECT * FROM details LEFT JOIN products ON products.id=details.product_id", $conn, "sales.php", $admin['type'] <= 1);
-          createSmallBox("Sales Today's Year", "fa-money", "SELECT * FROM details LEFT JOIN sales ON sales.id=details.sales_id LEFT JOIN products ON products.id=details.product_id WHERE YEAR(sales_date) = '$todaysyear'", $conn, "sales.php", $admin['type'] <= 1);
-          createSmallBox("Sales Today's Month", "fa-money", "SELECT * FROM details LEFT JOIN sales ON sales.id=details.sales_id LEFT JOIN products ON products.id=details.product_id WHERE MONTH(sales_date) = '$todaysmonth'", $conn, "sales.php", $admin['type'] <= 1);
-          createSmallBox("Sales Today", "fa-money", "SELECT * FROM details LEFT JOIN sales ON sales.id=details.sales_id LEFT JOIN products ON products.id=details.product_id WHERE sales_date='$today'", $conn, "sales.php", $admin['type'] <= 1);
+        if($admin['type'] == 1) {
+          $stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM sales");
+          $stmt->execute();
+        } else {
+          $stmt = $conn->prepare("SELECT COUNT(DISTINCT s.id) AS numrows 
+                                  FROM sales s
+                                  JOIN details d ON s.id = d.sales_id
+                                  JOIN products p ON d.product_id = p.id
+                                  WHERE p.user_id = :user_id");
+          $stmt->execute(['user_id' => $admin['id']]);
+        }
+        $urow = $stmt->fetch();
+        echo "<h3>".$urow['numrows']."</h3>";
         ?>
-        <div class="col-lg-3 col-xs-6">
+        <p>Number of Sales</p>
+      </div>
+      <div class="icon">
+        <i class="fa fa-shopping-cart"></i>
+      </div>
+      <a href="sales.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+
+  <div class="col-lg-4 col-xs-6">
+    <div class="small-box gradient-box1">
+      <div class="inner">
+        <?php
+        if($admin['type'] == 1) {
+          $stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM products");
+          $stmt->execute();
+        } else {
+          $stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM products WHERE user_id = :user_id");
+          $stmt->execute(['user_id' => $admin['id']]);
+        }
+        $prow = $stmt->fetch();
+        echo "<h3>".$prow['numrows']."</h3>";
+        ?>
+        <p>Number of Products</p>
+      </div>
+      <div class="icon">
+        <i class="fa fa-barcode"></i>
+      </div>
+      <a href="products.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+</div>
+<div class="row">
+        <div class="col-lg-4 col-xs-6">
+      <div class="small-box gradient-box1">
+        <div class="inner">
+        <?php
+          if($admin['type'] == 1) {
+            $stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM return_products");
+            $stmt->execute();
+          } else {
+            $stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM return_products 
+                                    WHERE user_id = :user_id");
+            $stmt->execute(['user_id' => $admin['id']]);
+          }
+          $prow = $stmt->fetch();
+          echo "<h3>".$prow['numrows']."</h3>";
+          ?>
+          <p>Number of Return Products</p>
+        </div>
+        <div class="icon">
+          <i class="fa fa-truck"></i>
+        </div>
+        <a href="return_product.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
+        <div class="col-lg-4 col-xs-6">
           <div class="small-box gradient-box1">
             <div class="inner">
-              <?php
-                $stmt = $conn->prepare("SELECT *, COUNT(*) AS numrows FROM sales");
-                $stmt->execute();
+            <?php
+                $stmt = $conn->prepare("SELECT *, COUNT(*) AS numrows FROM users WHERE type=:type");
+                $stmt->execute(['type'=>0]);
                 $urow = $stmt->fetch();
                 echo "<h3>".$urow['numrows']."</h3>";
               ?>
+              <p>Number of Customers</p>
+            </div>
+            <div class="icon">
+              <i class="fa fa-users"></i>
+            </div>
+            <a href="customer.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+    
+    
+    <div class="col-lg-4 col-xs-6">
+      <div class="small-box gradient-box1">
+        <div class="inner">
+          <?php
+          $stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM users WHERE type=:type");
+          $stmt->execute(['type'=>2]);
+          $urow = $stmt->fetch();
+          echo "<h3>".$urow['numrows']."</h3>";
+          ?>
+          <p>Number of Vendors</p>
+        </div>
+        <div class="icon">
+          <i class="fa fa-users"></i>
+        </div>
+        <a href="vendor.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
+   
+ <!-- for vendor -->
+    <?php else: ?>
+      <div class="row">
+      <?php
+    function createSmallBox($title, $icon, $query, $params, $conn, $link) {
+      $stmt = $conn->prepare($query);
+      $stmt->execute($params);
+      $total = 0;
+      foreach ($stmt as $row) {
+        $subtotal = $row['price'] * $row['quantity'];
+        $total += $subtotal + $row['shipping'];
+      }
+      $formattedTotal = number_format_short($total, 2);
+      echo "
+        <div class='col-lg-3 col-xs-6'>
+          <div class='small-box gradient-box'>
+            <div class='inner'>
+              <h3>&#8369; $formattedTotal</h3>
+              <p>$title</p>
+            </div>
+            <div class='icon'>
+              <i class='fa $icon'></i>
+            </div>
+            <a href='$link' class='small-box-footer'>More info <i class='fa fa-arrow-circle-right'></i></a>
+          </div>
+        </div>
+      ";
+    }
+
+    $admin_id = $_SESSION['admin'];
+    $user_condition = ($admin['type'] == 1) ? "" : "AND p.user_id = :user_id";
+    $params = ($admin['type'] == 1) ? [] : ['user_id' => $admin_id];
+
+    createSmallBox("Total Sales", "fa-money", 
+      "SELECT d.*, p.price FROM details d 
+      LEFT JOIN products p ON p.id = d.product_id 
+      WHERE 1=1 $user_condition", 
+      $params, $conn, "sales.php");
+
+    createSmallBox("Sales This Year", "fa-money", 
+      "SELECT d.*, p.price FROM details d 
+      LEFT JOIN sales s ON s.id = d.sales_id 
+      LEFT JOIN products p ON p.id = d.product_id 
+      WHERE YEAR(s.sales_date) = :todaysyear $user_condition", 
+      array_merge($params, ['todaysyear' => $todaysyear]), $conn, "sales.php");
+
+    createSmallBox("Sales This Month", "fa-money", 
+      "SELECT d.*, p.price FROM details d 
+      LEFT JOIN sales s ON s.id = d.sales_id 
+      LEFT JOIN products p ON p.id = d.product_id 
+      WHERE MONTH(s.sales_date) = :todaysmonth $user_condition", 
+      array_merge($params, ['todaysmonth' => $todaysmonth]), $conn, "sales.php");
+
+    createSmallBox("Sales Today", "fa-money", 
+      "SELECT d.*, p.price FROM details d 
+      LEFT JOIN sales s ON s.id = d.sales_id 
+      LEFT JOIN products p ON p.id = d.product_id 
+      WHERE s.sales_date = :today $user_condition", 
+      array_merge($params, ['today' => $today]), $conn, "sales.php");
+      
+  ?>
+        <div class="col-lg-3 col-xs-6">
+          <div class="small-box gradient-box">
+            <div class="inner">
+            <?php
+      if($admin['type'] == 1) {
+        $stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM sales");
+        $stmt->execute();
+      } else {
+        $stmt = $conn->prepare("SELECT COUNT(DISTINCT s.id) AS numrows 
+                                FROM sales s
+                                JOIN details d ON s.id = d.sales_id
+                                JOIN products p ON d.product_id = p.id
+                                WHERE p.user_id = :user_id");
+        $stmt->execute(['user_id' => $admin['id']]);
+      }
+      $urow = $stmt->fetch();
+      echo "<h3>".$urow['numrows']."</h3>";
+      ?>
               <p>Number of Sales</p>
             </div>
             <div class="icon">
@@ -104,12 +322,17 @@
         <div class="col-lg-3 col-xs-6">
           <div class="small-box">
             <div class="inner">
-              <?php
-                $stmt = $conn->prepare("SELECT *, COUNT(*) AS numrows FROM products");
+                  <?php
+              if($admin['type'] == 1) {
+                $stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM products");
                 $stmt->execute();
-                $prow = $stmt->fetch();
-                echo "<h3>".$prow['numrows']."</h3>";
-              ?>
+              } else {
+                $stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM products WHERE user_id = :user_id");
+                $stmt->execute(['user_id' => $admin['id']]);
+              }
+              $prow = $stmt->fetch();
+              echo "<h3>".$prow['numrows']."</h3>";
+            ?>
               <p>Number of Products</p>
             </div>
             <div class="icon">
@@ -119,26 +342,33 @@
           </div>
         </div>
         <div class="col-lg-3 col-xs-6">
-          <div class="small-box gradient-box1">
-            <div class="inner">
-              <?php
-                $stmt = $conn->prepare("SELECT *, COUNT(*) AS numrows FROM return_products");
-                $stmt->execute();
-                $prow = $stmt->fetch();
-                echo "<h3>".$prow['numrows']."</h3>";
-              ?>
-              <p>Number of Return Products</p>
-            </div>
-            <div class="icon">
-              <i class="fa fa-truck"></i>
-            </div>
-            <a href="return_product.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
-          </div>
+      <div class="small-box gradient-box">
+        <div class="inner">
+        <?php
+          if($admin['type'] == 1) {
+            $stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM return_products");
+            $stmt->execute();
+          } else {
+            // Assuming return_products table has a user_id column
+            $stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM return_products 
+                                    WHERE user_id = :user_id");
+            $stmt->execute(['user_id' => $admin['id']]);
+          }
+          $prow = $stmt->fetch();
+          echo "<h3>".$prow['numrows']."</h3>";
+          ?>
+          <p>Number of Return Products</p>
         </div>
+        <div class="icon">
+          <i class="fa fa-truck"></i>
+        </div>
+        <a href="return_product.php" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
         <div class="col-lg-3 col-xs-6">
           <div class="small-box">
             <div class="inner">
-              <?php
+            <?php
                 $stmt = $conn->prepare("SELECT *, COUNT(*) AS numrows FROM users WHERE type=:type");
                 $stmt->execute(['type'=>0]);
                 $urow = $stmt->fetch();
@@ -153,6 +383,8 @@
           </div>
         </div>
       </div>
+      <?php endif; ?>
+    
       <div class="row">
         <div class="col-xs-12">
           <div class="box">
@@ -204,6 +436,10 @@
   .gradient-box {
     background: linear-gradient(to right, #FBAED2, #D8BFD8);
   }
+  .gradient-box1 {
+    background: linear-gradient(to right, #99FFDD, #FBA2CC);
+  }
+  
   
 
   .content-wrapper {
@@ -219,13 +455,26 @@
   $sales = array();
   for( $m = 1; $m <= 12; $m++ ) {
     try{
-      $stmt = $conn->prepare("SELECT * FROM details LEFT JOIN sales ON sales.id=details.sales_id LEFT JOIN products ON products.id=details.product_id WHERE MONTH(sales_date)=:month AND YEAR(sales_date)=:year");
-      $stmt->execute(['month'=>$m, 'year'=>$year]);
-      $total = 0;
-      foreach($stmt as $srow){
-        $subtotal = $srow['price']*$srow['quantity'];
-        $total += $subtotal;    
+      if($admin['type'] == 1) {
+      
+        $stmt = $conn->prepare("SELECT SUM(d.quantity * p.price) as total 
+                                FROM details d 
+                                LEFT JOIN sales s ON s.id=d.sales_id 
+                                LEFT JOIN products p ON p.id=d.product_id 
+                                WHERE MONTH(s.sales_date)=:month AND YEAR(s.sales_date)=:year");
+        $stmt->execute(['month'=>$m, 'year'=>$year]);
+      } else {
+       
+        $stmt = $conn->prepare("SELECT SUM(d.quantity * p.price) as total 
+                                FROM details d 
+                                LEFT JOIN sales s ON s.id=d.sales_id 
+                                LEFT JOIN products p ON p.id=d.product_id 
+                                WHERE MONTH(s.sales_date)=:month AND YEAR(s.sales_date)=:year AND p.user_id=:user_id");
+        $stmt->execute(['month'=>$m, 'year'=>$year, 'user_id'=>$admin['id']]);
       }
+      $total = 0;
+      $row = $stmt->fetch();
+      $total = $row['total'] ?? 0;
       array_push($sales, round($total, 2));
     }
     catch(PDOException $e){
@@ -254,8 +503,8 @@ $(function(){
     datasets: [
       {
         label               : 'SALES',
-        fillColor           : 'rgba(60,141,188,0.9)',
-        strokeColor         : 'rgba(60,141,188,0.8)',
+        fillColor           : '#6dd5ed',
+        strokeColor         : '#a8e063',
         pointColor          : '#3b8bba',
         pointStrokeColor    : 'rgba(60,141,188,1)',
         pointHighlightFill  : '#fff',
@@ -264,35 +513,8 @@ $(function(){
       }
     ]
   }
-  //barChartData.datasets[1].fillColor   = '#00a65a'
-  //barChartData.datasets[1].strokeColor = '#00a65a'
-  //barChartData.datasets[1].pointColor  = '#00a65a'
   var barChartOptions                  = {
-    //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
-    scaleBeginAtZero        : true,
-    //Boolean - Whether grid lines are shown across the chart
-    scaleShowGridLines      : true,
-    //String - Colour of the grid lines
-    scaleGridLineColor      : 'rgba(0,0,0,.05)',
-    //Number - Width of the grid lines
-    scaleGridLineWidth      : 1,
-    //Boolean - Whether to show horizontal lines (except X axis)
-    scaleShowHorizontalLines: true,
-    //Boolean - Whether to show vertical lines (except Y axis)
-    scaleShowVerticalLines  : true,
-    //Boolean - If there is a stroke on each bar
-    barShowStroke           : true,
-    //Number - Pixel width of the bar stroke
-    barStrokeWidth          : 2,
-    //Number - Spacing between each of the X value sets
-    barValueSpacing         : 5,
-    //Number - Spacing between data sets within X values
-    barDatasetSpacing       : 1,
-    //String - A legend template
-    legendTemplate          : '<ul class="<%=name.toLowerCase()%>-legend"><% for (var i=0; i<datasets.length; i++){%><li><span style="background-color:<%=datasets[i].fillColor%>"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>',
-    //Boolean - whether to make the chart responsive
-    responsive              : true,
-    maintainAspectRatio     : true
+    // ... (keep your existing options here)
   }
 
   barChartOptions.datasetFill = false
