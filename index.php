@@ -528,11 +528,74 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 </style>
+<script type="text/javascript" src="cordova.js"></script>
 <script>
-    window.addEventListener('load', function() {
-        var preloader = document.getElementById('preloader');
-        preloader.style.display = 'none';
+document.addEventListener("deviceready", onDeviceReady, false);
+
+function onDeviceReady() {
+    // Your existing DOMContentLoaded code
+    const categoriesContainer = document.getElementById('categories-container');
+    const backButton = document.getElementById('backButton');
+
+    document.querySelectorAll('.category-image').forEach(element => {
+        element.addEventListener('click', () => {
+            const categoryId = element.getAttribute('data-category');
+            
+            // Hide all category images
+            document.querySelectorAll('.category-image').forEach(img => {
+                img.style.display = 'none';
+            });
+
+            // Show only the selected category's products
+            document.querySelectorAll('.product-container').forEach(container => {
+                if (container.getAttribute('data-category') === categoryId) {
+                    container.classList.remove('hidden');
+                } else {
+                    container.classList.add('hidden');
+                }
+            });
+
+            // Show the back button
+            backButton.style.display = 'block';
+        });
     });
+
+    backButton.addEventListener('click', () => {
+        // Show all category images
+        document.querySelectorAll('.category-image').forEach(img => {
+            img.style.display = 'block';
+        });
+
+        // Hide all product containers
+        document.querySelectorAll('.product-container').forEach(container => {
+            container.classList.add('hidden');
+        });
+
+        // Hide the back button
+        backButton.style.display = 'none';
+    });
+
+    // Hide splashscreen after 4 seconds
+    setTimeout(function() {
+        navigator.splashscreen.hide();
+    }, 4000);
+
+    // Register back button event listener
+    document.addEventListener("backbutton", onBackKeyDown, false);
+}
+
+function onBackKeyDown() {
+    if (confirm("Are you sure you want to close this app?")) {
+        navigator.app.exitApp(); // Close the app
+    }
+}
+
+// Preloader script
+window.addEventListener('load', function() {
+    var preloader = document.getElementById('preloader');
+    preloader.style.display = 'none';
+});
 </script>
+
 </body>
 </html>
