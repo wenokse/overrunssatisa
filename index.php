@@ -304,7 +304,13 @@ img {
             </div>
         </section>
     </div>
-</div>
+    </div>
+    <div id="popupCloseRight" class="ui-content" style="display: none;">
+        <p id="ms">Are you sure you want to close the app?</p>
+        <a href="#" id="exitYes" class="btn btn-primary">Yes</a>
+        <a href="#" id="exitNo" class="btn btn-secondary">No</a>
+    </div>
+
     <?php include 'includes/footer.php'; ?>
 </div>
 
@@ -358,14 +364,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleBackButton(e) {
         e.preventDefault();
-        if (confirm('Are you sure you want to exit this app?')) {
+        showExitPopup();
+    }
+
+    function showExitPopup() {
+        document.getElementById('popupCloseRight').style.display = 'block';
+    }
+
+    function closeApp() {
+        if (navigator.app && navigator.app.exitApp) {
             navigator.app.exitApp();
+        } else {
+            window.close(); // Fallback, might not work in all cases
         }
     }
+
+    // Add event listeners for the popup buttons
+    document.getElementById('exitYes').addEventListener('click', (e) => {
+        e.preventDefault();
+        closeApp();
+    });
+
+    document.getElementById('exitNo').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('popupCloseRight').style.display = 'none';
+    });
 });
 </script>
 
 <style>
+    #popupCloseRight {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        z-index: 1001;
+        text-align: center;
+    }
+
+    #popupCloseRight .btn {
+        display: inline-block;
+        margin: 10px;
+        padding: 10px 20px;
+        text-decoration: none;
+        color: white;
+        border-radius: 5px;
+    }
+
+    #popupCloseRight .btn-primary {
+        background-color: #007bff;
+    }
+
+    #popupCloseRight .btn-secondary {
+        background-color: #6c757d;
+    }
     
     h3 {
         font-weight: bolder;
