@@ -352,6 +352,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hide the back button
         backButton.style.display = 'none';
     });
+    if (navigator.userAgent.match(/Android/i)) {
+        document.addEventListener('backbutton', handleBackButton, false);
+    }
+
+    function handleBackButton(e) {
+        e.preventDefault();
+        if (confirm('Are you sure you want to exit this app?')) {
+            navigator.app.exitApp();
+        }
+    }
 });
 </script>
 

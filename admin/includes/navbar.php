@@ -1,8 +1,8 @@
 <header class="main-header">
   <!-- Logo -->
   <a href="home.php" class="logo">
-    <span class="logo-lg" style="font-size: 12px;"><b>Overruns Sa Tisa Online Shop</b></span>
-  </a>
+  <span class="logo-lg" style="font-size: 12px;"><b>  <?php echo $admin['store']; ?></b></span>
+</a>
   <!-- Header Navbar: style can be found in header.less -->
   <nav class="navbar navbar-static-top">
     <!-- Sidebar toggle button-->
