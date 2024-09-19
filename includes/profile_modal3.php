@@ -8,7 +8,7 @@
         </button>
         <h4 class="modal-title"><b>Transaction Full Details</b></h4>
       </div>
-      <div class="modal-body">
+      <div class="modal-body table-responsive">
         <p>
           Name: <span id="name"></span><span class="pull-right">Transaction #: <span id="transid"></span></span><br>
           Address: <span id="address"></span> <span id="address2"></span><span class="pull-right">Date: <span id="date"></span></span><br>

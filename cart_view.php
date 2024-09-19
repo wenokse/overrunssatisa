@@ -85,9 +85,11 @@ include 'includes/session.php';
                             <div class='box-header with-border'>
                                 <h3 class='box-title'>YOUR CART</h3>
                             </div>
-                            <div class="box-body">
+                            
+                            <div class="box-body table-responsive">
                                 <table class="table table-bordered">
                                     <thead>
+                                    <th><input type="checkbox" id="select-all"></th>
                                         <th></th>
                                         <th>Photo</th>
                                         <th>Name</th>
@@ -98,12 +100,58 @@ include 'includes/session.php';
                                         <th class="shipping">Shipping</th>
                                         <th>Subtotal</th>
                                     </thead>
+                                    
                                     <tbody id="tbody">
-                                    </tbody>
+    <?php
+        $conn = $pdo->open();
+        try {
+            $stmt = $conn->prepare("SELECT *, cart.id AS cartid FROM cart LEFT JOIN products ON products.id=cart.product_id WHERE cart.user_id=:user_id");
+            $stmt->execute(['user_id' => $user['id']]);
+            foreach ($stmt as $row) {
+                $image = (!empty($row['photo'])) ? 'images/' . $row['photo'] : 'images/noimage.jpg';
+                echo "
+                <tr>
+                    <td><input type='checkbox' class='product-checkbox' data-id='" . $row['cartid'] . "' data-price='" . $row['price'] . "' data-quantity='" . $row['quantity'] . "' data-shipping='" . $row['shipping'] . "' /></td>
+                    <td>
+                        <button class='btn btn-danger btn-sm cart_delete' data-id='" . $row['cartid'] . "'><i class='fa fa-trash'></i></button>
+                    </td>
+                    <td><img src='" . $image . "' width='30px' height='30px'></td>
+                    <td>" . $row['name'] . "</td>
+                    <td>" . $row['size'] . "</td>
+                    <td>" . $row['color'] . "</td>
+                    <td>" . number_format($row['price'], 2) . "</td>
+                    <td class='input-group'>
+                        <span class='input-group-btn'>
+                            <button type='button' id='minus' class='btn btn-default btn-sm btn-flat minus' data-id='" . $row['cartid'] . "'><i class='fa fa-minus'></i></button>
+                        </span>
+                        <input type='text' class='form-control input-sm' value='" . $row['quantity'] . "' id='qty_" . $row['cartid'] . "'>
+                        <span class='input-group-btn'>
+                            <button type='button' id='add' class='btn btn-default btn-sm btn-flat add' data-id='" . $row['cartid'] . "'><i class='fa fa-plus'></i>
+                            </button>
+                        </span>
+                    </td>
+                    <td>" . $row['shipping'] . "</td>
+                    <td>" . number_format($row['price'] * $row['quantity'], 2) . "</td>
+                </tr>
+                ";
+            }
+        } catch (PDOException $e) {
+            echo "There is some problem in connection: " . $e->getMessage();
+        }
+
+        $pdo->close();
+    ?>
+</tbody>
+
+
                                 </table>
                             </div>
                         </div>
-
+                        <div class="box box-solid">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title"><b>Selected Total: <span id="selected-total">₱ 0.00</span></b></h3>
+                                        </div>
+                                    </div>
                         <div class="box box-solid">
                         <div class="box-header with-border">
                         <div id="cod_shipping" style="">
@@ -135,7 +183,8 @@ include 'includes/session.php';
                                     if($stmt->rowCount() > 0) {
                                         echo "
                                             <form method='post' action='sales.php' id='payment_form'>
-                                            <a class='btn btn-danger btn-lg' href='sales.php?pay=".uniqid()."'>Place Order</a>
+                                            <input type='hidden' name='selected_products' id='selected-products'>
+                                            <button type='submit' class='btn btn-danger btn-lg checkout-btn' disabled>Place Order</button>
                                             </form>
                                         ";
                                     }
@@ -192,6 +241,8 @@ $(function(){
         });
     });
 
+
+
     $(document).on('click', '.minus', function(e){
         e.preventDefault();
         var id = $(this).data('id');
@@ -247,11 +298,119 @@ $(function(){
             });
         }
     });
+    
 
     getDetails();
     getTotal();
+    
 
+    $(document).ajaxComplete(function(event, xhr, settings) {
+        if (settings.url === "cart_details.php") {
+            loadCheckedState();
+        }
+    });
 });
+
+$(function() {
+    $(document).on('change', '.product-checkbox', function() {
+        updateTotal();
+        saveCheckedState();
+    });
+
+    $('#select-all').change(function() {
+        $('.product-checkbox').prop('checked', $(this).prop('checked'));
+        updateTotal();
+        saveCheckedState();
+    });
+
+    function updateTotal() {
+        var selectedTotal = 0;
+        var selectedProducts = [];
+        $('.product-checkbox:checked').each(function() {
+            var price = parseFloat($(this).data('price'));
+            var quantity = parseInt($(this).data('quantity'));
+            var shipping = parseFloat($(this).data('shipping'));
+            selectedTotal += (price * quantity) + shipping;
+            selectedProducts.push($(this).data('id'));
+        });
+        $('#selected-total').text('₱ ' + selectedTotal.toFixed(2));
+
+        // Enable/disable checkout button
+        $('.checkout-btn').prop('disabled', selectedProducts.length === 0);
+
+        // Set selected products to hidden input
+        $('#selected-products').val(selectedProducts.join(','));
+    }
+
+    function saveCheckedState() {
+        var checkedProducts = [];
+        $('.product-checkbox:checked').each(function() {
+            checkedProducts.push($(this).data('id'));
+        });
+        localStorage.setItem('checkedProducts', JSON.stringify(checkedProducts));
+    }
+
+    function loadCheckedState() {
+        var checkedProducts = JSON.parse(localStorage.getItem('checkedProducts')) || [];
+        checkedProducts.forEach(function(id) {
+            $('.product-checkbox[data-id="' + id + '"]').prop('checked', true);
+        });
+        updateTotal();
+    }
+
+    loadCheckedState();
+});
+
+
+function saveCheckedState() {
+    var checkedProducts = [];
+    $('.product-checkbox:checked').each(function() {
+        checkedProducts.push($(this).data('id'));
+    });
+    localStorage.setItem('checkedProducts', JSON.stringify(checkedProducts));
+}
+
+
+function loadCheckedState() {
+    var checkedProducts = JSON.parse(localStorage.getItem('checkedProducts')) || [];
+    checkedProducts.forEach(function(id) {
+        $('.product-checkbox[data-id="' + id + '"]').prop('checked', true);
+    });
+    updateTotal();
+}
+$(document).on('change', '.product-checkbox', function() {
+    var id = $(this).data('id');
+    $('input[name="selected_products[]"][value="' + id + '"]').prop('checked', $(this).prop('checked'));
+    updateTotal();
+    saveCheckedState();
+});
+
+$('#select-all').change(function() {
+    $('.product-checkbox').prop('checked', $(this).prop('checked'));
+    $('input[name="selected_products[]"]').prop('checked', $(this).prop('checked'));
+    updateTotal();
+    saveCheckedState();
+});
+
+// Individual checkboxes
+$(document).on('change', '.product-checkbox', function() {
+    updateTotal();
+    saveCheckedState();
+});
+
+function updateTotal() {
+    var selectedTotal = 0;
+    $('.product-checkbox:checked').each(function() {
+        var price = parseFloat($(this).data('price'));
+        var quantity = parseInt($(this).data('quantity'));
+        var shipping = parseFloat($(this).data('shipping'));
+        selectedTotal += (price * quantity) + shipping;
+    });
+    $('#selected-total').text('₱ ' + selectedTotal.toFixed(2));
+    
+    // Enable/disable checkout button
+    $('.checkout-btn').prop('disabled', $('.product-checkbox:checked').length === 0);
+}
 
 function getDetails(){
     $.ajax({
@@ -261,6 +420,7 @@ function getDetails(){
         success: function(response){
             $('#tbody').html(response);
             getCart();
+            loadCheckedState(); // Load checked state after details are loaded
         }
     });
 }
@@ -275,6 +435,20 @@ function getTotal(){
         }
     });
 }
+function getCart(){
+        $.ajax({
+            type: 'POST',
+            url: 'cart_fetch.php',
+            dataType: 'json',
+            success: function(response){
+                $('#cart_menu').html(response.list);
+                $('.cart_count').html(response.count);
+            }
+        });
+    }
+
+    // Call getCart() when the page loads
+    getCart();
 
 $('#shipping').change(function() {
     var shipping = $(this).val();
@@ -290,6 +464,7 @@ $('#shipping').change(function() {
     }
     getTotal(); 
 });
+
 </script>
 
 </body>

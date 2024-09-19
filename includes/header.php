@@ -54,6 +54,33 @@
         width: 100px;
       }
     }
+    @media (max-width: 767px) {
+    .content-wrapper .container {
+        width: 100%;
+        padding: 0 15px;
+    }
+    
+    .box-body {
+        padding: 10px;
+    }
+    
+    .table-responsive {
+        border: none;
+    }
+    
+    #example1 {
+        font-size: 12px;
+    }
+    
+    #example1 th, #example1 td {
+        padding: 5px;
+    }
+    
+    .btn-sm {
+        padding: 2px 5px;
+        font-size: 11px;
+    }
+}
 
     /* Medium devices (desktops, 992px and up) */
     @media (min-width: 992px){ 

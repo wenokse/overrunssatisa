@@ -7,7 +7,7 @@
                   <span aria-hidden="true">&times;</span></button>
               <h4 class="modal-title"><b>Transaction Full Details</b></h4>
             </div>
-            <div class="modal-body">
+            <div class="modal-body table-responsive">
               <p>
                 Date: <span id="date"></span>
                 <span class="pull-right">Transaction #: <span id="transid"></span></span> 

@@ -10,16 +10,17 @@ $quantity = $_POST['quantity'];
 $size = $_POST['size']; 
 $color = $_POST['color'];
 $shipping = $_POST['shipping']; 
+$vendor_id = $_POST['vendor_id']; // Get vendor_id from POST data
 
 if(isset($_SESSION['user'])){
     try {
-        // Check available stock for the product
-        $stmt_stock = $conn->prepare("SELECT stock FROM products WHERE id=:product_id");
-        $stmt_stock->execute(['product_id' => $id]);
-        $row_stock = $stmt_stock->fetch();
+        // Fetch product details
+        $stmt_product = $conn->prepare("SELECT stock FROM products WHERE id=:product_id");
+        $stmt_product->execute(['product_id' => $id]);
+        $row_product = $stmt_product->fetch();
 
-        if ($row_stock) {
-            $available_stock = $row_stock['stock'];
+        if ($row_product) {
+            $available_stock = $row_product['stock'];
 
             if ($quantity > $available_stock) {
                 $output['error'] = true;
@@ -28,11 +29,11 @@ if(isset($_SESSION['user'])){
                 exit();
             }
 
-            $stmt_product = $conn->prepare("SELECT COUNT(*) AS numrows, shipping FROM cart WHERE user_id=:user_id AND product_id=:product_id"); 
-            $stmt_product->execute(['user_id' => $user['id'], 'product_id' => $id]); 
-            $row_product = $stmt_product->fetch();
+            $stmt_cart = $conn->prepare("SELECT COUNT(*) AS numrows, shipping FROM cart WHERE user_id=:user_id AND product_id=:product_id"); 
+            $stmt_cart->execute(['user_id' => $user['id'], 'product_id' => $id]); 
+            $row_cart = $stmt_cart->fetch();
 
-            if($row_product['numrows'] < 1){
+            if($row_cart['numrows'] < 1){
                 $shipping = 100;
             }
             else{
@@ -62,8 +63,18 @@ if(isset($_SESSION['user'])){
             }
 
             // Insert new item into cart
-            $stmt = $conn->prepare("INSERT INTO cart (user_id, size, color, product_id, quantity, shipping) VALUES (:user_id, :size, :color, :product_id, :quantity, :shipping)");
-            $stmt->execute(['user_id' => $user['id'], 'size' => $size, 'color' => $color, 'product_id' => $id, 'quantity' => $quantity, 'shipping' => $shipping]);
+            $stmt = $conn->prepare("INSERT INTO cart (user_id, admin_id, product_id, size, color, quantity, shipping) VALUES (:user_id, :admin_id, :product_id, :size, :color, :quantity, :shipping)");
+            $stmt->execute([
+                'user_id' => $user['id'], 
+                'admin_id' => $vendor_id, // Use vendor_id from POST data
+                'product_id' => $id, 
+                'size' => $size, 
+                'color' => $color, 
+                'quantity' => $quantity, 
+                'shipping' => $shipping
+            ]);
+            $new_cart_id = $conn->lastInsertId();
+            $output['cart_id'] = $new_cart_id;
             $output['message'] = 'Item added to cart';
         } else {
             $output['error'] = true;

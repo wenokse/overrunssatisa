@@ -1,76 +1,126 @@
-<?php include 'includes/session.php'; ?>
+<?php
+include 'includes/session.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
+require 'vendor/autoload.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Sanitize user input
+    $email = filter_var($_POST["email"], FILTER_SANITIZE_EMAIL);
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $_SESSION['error'] = "Invalid email address.";
+        header('location: password_forgot.php');
+        exit();
+    }
+
+    // Generate a 6-digit OTP
+    $otp = sprintf("%06d", mt_rand(0, 999999)); 
+    $otp_hash = password_hash($otp, PASSWORD_DEFAULT);
+    $expiry = time() + 600; // 10 minutes from now
+
+    try {
+        $conn = $pdo->open();
+        $sql = "UPDATE users
+        SET reset_code = :reset_code, reset_code_expiry = :expiry
+        WHERE email = :email";
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(':reset_code', $otp);
+        $stmt->bindParam(':expiry', $expiry);
+        $stmt->bindParam(':email', $email);
+
+        if ($stmt->execute()) {
+            if ($stmt->rowCount() > 0) {
+                // Send email
+                $mail = new PHPMailer(true);
+                try {
+                    //Server settings
+                    $mail->isSMTP();
+                    $mail->Host       = 'smtp.gmail.com';
+                    $mail->SMTPAuth   = true;
+                    $mail->Username   = 'overrunssatisa@gmail.com';
+                    $mail->Password   = 'ahuf cbzv bpph caje';
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                    $mail->Port       = 465;
+
+                    $mail->SMTPOptions = array(
+                        'ssl' => array(
+                            'verify_peer' => false,
+                            'verify_peer_name' => false,
+                            'allow_self_signed' => true
+                        )
+                    );
+                    $mail->Timeout = 600; 
+                    $mail->SMTPKeepAlive = true;
+            
+                    //Recipients
+                    $mail->setFrom('overrunssatisa@gmail.com', 'Overruns Sa Tisa Online Shop');
+                    $mail->addAddress($email);
+
+                    //Content
+                    $mail->isHTML(true);
+                    $mail->Subject = 'Password Reset OTP';
+                    $mail->Body    = "Your OTP for password reset is: <strong>$otp</strong>  . It will expire in 10 minutes.";
+
+                    $mail->send();
+                    $_SESSION['success'] = 'OTP sent to your email. Please check your inbox.';
+                    $_SESSION['reset_email'] = $email;
+                    $_SESSION['reset_time'] = $expiry;
+                    header('location: reset_verify.php');
+                    exit();
+                } catch (Exception $e) {
+                    $_SESSION['error'] = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                    error_log("Email sending failed: " . $e->getMessage());
+                }
+            } else {
+                $_SESSION['error'] = 'Email not found in our records.';
+            }
+        } else {
+            $_SESSION['error'] = "Failed to update database.";
+        }
+    } catch(PDOException $e) {
+        $_SESSION['error'] = "Database error: " . $e->getMessage();
+    }
+
+    $pdo->close();
+    header('location: password_forgot.php');
+    exit();
+}
+?>
 <?php include 'includes/header.php'; ?>
-<div id="preloader">
-        <div class="loader"></div>
-    </div>
-    <style>
-        
-        /* Preloader styles */
-        #preloader {
-            position: fixed;
-            left: 0;
-            top: 0;
-            z-index: 999;
-            width: 100%;
-            height: 100%;
-            overflow: visible;
-            background:rgb(0, 51, 102);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .loader {
-            border: 16px solid #f3f3f3; /* Light grey */
-            border-top: 16px solid #3498db; /* Blue */
-            border-radius: 50%;
-            width: 120px;
-            height: 120px;
-            animation: spin 1s linear infinite; /* Adjusted duration to 2s */
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .hidden {
-            display: none;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
-
-        .visible {
-            display: block;
-            opacity: 3;
-        }
-    </style>
-<body class="body">
-
-  	
-    <br><br><br><br><br>
-  	<div class="container2">
-    <a href="login.php" style="color: rgb(0, 51, 102); "><i class="fa fa-arrow-left" style="color: rgb(0, 51, 102);"></i></a></p>
-    	<h1 class="login-box-msg" style="font-size: 20px; color:  rgb(0, 51, 102);"><b>Enter email associated with account</b></h1>
-
-    	<form action="reset.php" method="POST">
-      		<div class="form-group has-feedback">
-        		<input type="email" id="email" class="form-control" name="email" placeholder="Email" required>
-        		<span class="glyphicon glyphicon-envelope form-control-feedback"></span>
-      	
-      	<br>
-          <button type="submit" class="btn btn-primary btn-block btn-flat" name="login"><i class="fa fa-sign-in"></i> Send</button>
-        	
-      		
-    	</form>
-      <br>
-  	</div>
+<script src="js/sweetalert.min.js"></script>
+<body>
+<br><br><br><br>
+<div class="container2">
+<a href="login.php" style="color: rgb(0, 51, 102); "><i class="fa fa-arrow-left" style="color: rgb(0, 51, 102);"></i></a></p>
+    <center> <h2>Forgot Password</h2></center><br>
+   
+    <?php
+  if (isset($_SESSION['error']) || isset($_SESSION['success'])) {
+    $message = isset($_SESSION['error']) ? $_SESSION['error'] : $_SESSION['success'];
+    $icon = isset($_SESSION['error']) ? 'error' : 'success';
+    echo "
+      <script>
+        swal({
+          title: '". $message ."',
+          icon: '". $icon ."',
+          button: 'OK'
+        });
+      </script>
+    ";
+    unset($_SESSION['error']);
+    unset($_SESSION['success']);
+  }
+?>
+    <form action="password_forgot.php" method="POST">
+        <input type="email" id="email" name="email" placeholder="Enter Your Email" required><br>
+        <button type="submit" class="btn btn-primary btn-block " <i class="fa fa-check-square-o"></i>>Send OTP</button>
+    </form>
 </div>
 
-	
-<?php include 'includes/scripts.php' ?>
 <style>
-  .body{
+  body{
     background: rgb(0, 51, 102);
     background-size: cover;
     background-repeat: no-repeat;
@@ -84,6 +134,7 @@
     border-radius: 10px;
     background-color: #f9f9f9;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    align: center;
     
   }
   .container2 input{
@@ -112,11 +163,6 @@
 
   
   </style>
-  <script>
-    window.addEventListener('load', function() {
-        var preloader = document.getElementById('preloader');
-        preloader.style.display = 'none';
-    });
-</script>
 </body>
 </html>
+

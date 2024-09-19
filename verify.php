@@ -1,51 +1,77 @@
 <?php
 include 'includes/session.php';
-$conn = $pdo->open();
 
-if(isset($_POST['login'])){
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+$conn = null;
+$stmt = null;
 
-    try{
+try {
+    $conn = $pdo->open();
+
+    if(isset($_POST['login'])) {
+        
+        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+        $password = $_POST['password'];
+
+        if(!$email || !$password) {
+            throw new Exception('Invalid input');
+        }
+
         $stmt = $conn->prepare("SELECT *, COUNT(*) AS numrows FROM users WHERE email = :email");
-        $stmt->execute(['email'=>$email]);
-        $row = $stmt->fetch();
-        if($row['numrows'] > 0){
-            if($row['status']){
-                if(password_verify($password, $row['password'])){
-                    if($row['type']){
-                        $_SESSION['admin'] = $row['id'];
-                        $_SESSION['success'] = 'Admin Login successfully';
-                        header('location: admin/home.php');
-                    }
-                    else{
-                        $_SESSION['user'] = $row['id'];
-                        $_SESSION['success'] = 'Login successfully';
-                        header('location: profile.php');
-                    }
+        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+        $stmt->execute();
+        
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if($row && $row['numrows'] > 0) {
+            if($row['status'] == 1) { 
+                if(password_verify($password, $row['password'])) {
+                    setSessionVariables($row);
+                     
+                    $redirect = $row['type'] ? 'admin/home.php' : 'profile.php';
+                    header("Location: $redirect");
                     exit();
-                }
-                else{
+                } else {
                     $_SESSION['error'] = 'Incorrect Password';
                 }
-            }
-            else{
+            } elseif($row['status'] == 0) {
+                $_SESSION['error'] = 'Please verify your email address before logging in.';
+            } elseif ($row['status'] == 3) {
+                $_SESSION['error'] = 'Please wait for admin approval.';
+            } else {
                 $_SESSION['error'] = 'Account Deactivated.';
             }
+        } else {
+            $_SESSION['error'] = 'Email Not Found. Please sign up first.';
+            header('Location: signup.php');
+            exit();
         }
-        else{
-            $_SESSION['error'] = 'Email not found';
-        }
+    } else {
+        $_SESSION['error'] = 'Input login credentials first';
     }
-    catch(PDOException $e){
-        $_SESSION['error'] = 'There is some problem in connection: ' . $e->getMessage();
+} catch(PDOException $e) {
+    $_SESSION['error'] = 'Database error occurred. Please try again later.';
+   
+    error_log('Database error in login: ' . $e->getMessage());
+} catch(Exception $e) {
+    $_SESSION['error'] = 'An error occurred. Please try again.';
+   
+    error_log('Error in login: ' . $e->getMessage());
+} finally {
+   
+    if($stmt) {
+        $stmt = null;
+    }
+    if($conn) {
+        $pdo->close();
     }
 }
-else{
-    $_SESSION['error'] = 'Input login credentials first';
+
+
+header('Location: login.php');
+exit();
+
+function setSessionVariables($userData) {
+    $_SESSION[$userData['type'] ? 'admin' : 'user'] = $userData['id'];
+    $_SESSION['success'] = 'Login successful';
 }
-
-$pdo->close();
-
-header('location: login.php');
 ?>

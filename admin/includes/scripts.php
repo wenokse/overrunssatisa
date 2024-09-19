@@ -49,6 +49,37 @@
     unset($_SESSION['success']);
   }
 ?>
+<script>
+  document.addEventListener('contextmenu', function(event) {
+    event.preventDefault();
+  });
+
+  document.addEventListener('keydown', function(event) {
+    if (event.keyCode == 123) { // F12
+      event.preventDefault();
+    }
+    if (event.ctrlKey && event.shiftKey && (event.keyCode == 73 || event.keyCode == 74)) { 
+      event.preventDefault();
+    }
+    if (event.ctrlKey && (event.keyCode == 85 || event.keyCode == 83)) { 
+      event.preventDefault();
+    }
+    if (event.ctrlKey && event.shiftKey && event.keyCode == 67) { 
+      event.preventDefault();
+    }
+  });
+
+  document.addEventListener('dragstart', function(event) {
+    event.preventDefault();
+  });
+
+  document.addEventListener('keydown', function(event) {
+    if (event.ctrlKey && event.keyCode == 65) { 
+      event.preventDefault();
+    }
+  });
+  
+</script>
 
 <script>
 $(function(){
