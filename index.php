@@ -305,12 +305,6 @@ img {
         </section>
     </div>
     </div>
-    <div id="popupCloseRight" class="ui-content" style="display: none;">
-        <p id="ms">Are you sure you want to close the app?</p>
-        <a href="#" id="exitYes" class="btn btn-primary">Yes</a>
-        <a href="#" id="exitNo" class="btn btn-secondary">No</a>
-    </div>
-
     <?php include 'includes/footer.php'; ?>
 </div>
 
