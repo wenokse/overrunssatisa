@@ -1,3 +1,4 @@
+<!-- navbar -->
 <header class="main-header">
   <nav class="navbar navbar-static-top">
     <div class="container">
@@ -164,19 +165,7 @@
   <div class="sender-list" id="senderList"></div>
 
   <!-- Chat Window -->
-  <div class="chat-window" id="chatWindow" style="display:none;">
-    <div class="chat-header">
-      <h3 id="chatUserName"></h3>
-      <button id="backToSenders">&times;</button>
-    </div>
-    <div class="message-list" id="chatMessageList"></div>
-    <div class="message-form">
-      <form id="sendMessageForm">
-        <input type="text" id="messageInput" placeholder="Type a message..." />
-        <button type="submit">Send</button>
-      </form>
-    </div>
-  </div>
+  
 </div>
 <style>
   .search-bar {
@@ -562,243 +551,12 @@ loadSenders();
   });
 
   function openChat(sender) {
-    senderList.style.display = '';
-    chatWindow.style.display = 'block';
-    chatUserName.textContent = `${sender.firstname} ${sender.lastname}`;
-    currentReceiverId = sender.sender_id;
-    loadChatMessages(sender.sender_id);
-  }
-
-
-  function loadChatMessages(senderId) {
-    fetch(`get_chat.php?sender_id=${senderId}`)
-        .then(response => response.json())
-        .then(data => {
-            const chatMessageList = document.getElementById('chatMessageList');
-            chatMessageList.innerHTML = '';  // Clear the chat message list
-
-            const chatHeader = document.querySelector('.chat-header');
-
-            // Remove the previous delete button if it exists
-            const existingDeleteButton = chatHeader.querySelector('.delete-conversation-btn');
-            if (existingDeleteButton) {
-                existingDeleteButton.remove();
-            }
-
-            // Add the delete conversation button
-            const deleteConversationButton = document.createElement('button');
-            deleteConversationButton.innerHTML = '<i class="fa fa-trash"></i>'; // Use Font Awesome trash icon
-            deleteConversationButton.classList.add('delete-conversation-btn');
-            deleteConversationButton.setAttribute('title', 'Delete Conversation'); // Add tooltip
-            deleteConversationButton.addEventListener('click', () => deleteConversation(senderId));
-            chatHeader.appendChild(deleteConversationButton);
-
-            data.forEach(message => {
-                const isSent = message.sender_id != senderId; // Reversed logic as per your setup
-                
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('message', isSent ? 'sent' : 'received');
-                const messageAlignmentClass = isSent ? 'right-message' : 'left-message';
-                
-                messageElement.innerHTML = `
-                    <div class="message-content ${messageAlignmentClass}">
-                        <img src="${message.photo ? '../images/' + message.photo : '../images/profile.jpg'}" alt="User Photo" class="message-photo" />
-                        <div>
-                            <p>${message.message}</p>
-                        </div>
-                    </div>
-                    <span class="timestamp">${new Date(message.timestamp).toLocaleString()}</span>
-                `;
-                
-                // Add context menu event listener
-                messageElement.addEventListener('contextmenu', (e) => showMessageContextMenu(e, message, isSent));
-                
-                chatMessageList.appendChild(messageElement);
-            });
-            
-            // Scroll to the bottom of the chat
-            chatMessageList.scrollTop = chatMessageList.scrollHeight;
-        });
-}
-
-
-function deleteConversation(senderId) {
-    swal({
-        title: 'Are you sure?',
-        text: 'You are about to delete this entire conversation.',
-        icon: 'warning',
-        buttons: ['Cancel', 'Delete'],
-        dangerMode: true,
-    }).then((willDelete) => {
-        if (willDelete) {
-            fetch('delete_conversation.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ sender_id: senderId }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    swal('Deleted!', 'Conversation deleted successfully', 'success');
-                    // Close the chat window and refresh the sender list
-                    document.getElementById('chatWindow').style.display = 'none';
-                    document.getElementById('senderList').style.display = 'block';
-                    loadSenders();
-                } else {
-                    swal('Failed!', 'Failed to delete conversation', 'error');
-                }
-            });
-        }
-    });
-}
-
-
-function showMessageContextMenu(e, message, isSent) {
-    e.preventDefault();
-    const contextMenu = document.createElement('div');
-    contextMenu.className = 'message-context-menu';
-    
-    let menuItems = `<div class="context-menu-item" data-action="delete">Delete</div>`;
-    
-    if (isSent) {
-        menuItems += `
-            <div class="context-menu-item" data-action="edit">Edit</div>
-            <div class="context-menu-item" data-action="unsend">Unsend</div>
-        `;
+    if (sender && sender.sender_id) {
+        const senderId = sender.sender_id;
+        window.location.href = `shop.php?sender_id=${senderId}`;
+    } else {
+        console.error('Sender ID is missing');
     }
-    
-    contextMenu.innerHTML = menuItems;
-    
-    contextMenu.style.position = 'fixed';
-    contextMenu.style.left = `${e.clientX}px`;
-    contextMenu.style.top = `${e.clientY}px`;
-    
-    document.body.appendChild(contextMenu);
-    
-    contextMenu.addEventListener('click', (event) => {
-        const action = event.target.getAttribute('data-action');
-        if (action) {
-            handleMessageAction(action, message);
-        }
-        contextMenu.remove();
-    });
-    
-    // Close context menu when clicking outside
-    document.addEventListener('click', function closeMessageContextMenu(e) {
-        if (!contextMenu.contains(e.target)) {
-            contextMenu.remove();
-            document.removeEventListener('click', closeMessageContextMenu);
-        }
-    });
-}
-
-function handleMessageAction(action, message) {
-    switch (action) {
-        case 'delete':
-            deleteMessage(message.id);
-            break;
-        case 'edit':
-            editMessage(message);
-            break;
-        case 'unsend':
-            unsendMessage(message.id);
-            break;
-    }
-}
-
-function deleteMessage(messageId) {
-    swal({
-        title: 'Are you sure?',
-        text: 'You are about to delete this message.',
-        icon: 'warning',
-        buttons: ['Cancel', 'Delete'],
-        dangerMode: true,
-    }).then((willDelete) => {
-        if (willDelete) {
-            fetch('delete_message.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message_id: messageId }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    loadChatMessages(currentReceiverId); 
-                    loadSenders();
-                } else {
-                    swal('Failed!', 'Failed to delete message', 'error');
-                }
-            });
-        }
-    });
-}
-
-function editMessage(message) {
-    swal({
-        title: 'Edit your message',
-        content: {
-            element: 'input',
-            attributes: {
-                value: message.message,
-            },
-        },
-        button: {
-            text: 'Update',
-            closeModal: false,
-        },
-    }).then(newMessage => {
-        if (newMessage !== null && newMessage !== message.message) {
-            fetch('edit_message.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message_id: message.id, new_message: newMessage }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    loadChatMessages(currentReceiverId); 
-                    loadSenders();
-                } else {
-                    swal('Failed!', 'Failed to edit message', 'error');
-                }
-            });
-        }
-    });
-}
-
-function unsendMessage(messageId) {
-    swal({
-        title: 'Are you sure?',
-        text: 'You are about to unsend this message.',
-        icon: 'warning',
-        buttons: ['Cancel', 'Unsend'],
-        dangerMode: true,
-    }).then((willUnsend) => {
-        if (willUnsend) {
-            fetch('unsend_message.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message_id: messageId }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    loadChatMessages(currentReceiverId); 
-                    loadSenders();
-                } else {
-                    swal('Failed!', 'Failed to unsend message', 'error');
-                }
-            });
-        }
-    });
 }
 
   function updateUnreadCount() {
@@ -814,57 +572,7 @@ updateUnreadCount();
   setInterval(updateUnreadCount, 60000);
 
  
-  const sendMessageForm = document.getElementById('sendMessageForm');
-  sendMessageForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const message = document.getElementById('messageInput').value.trim();
-    const receiverId = currentReceiverId; 
-    
-    if (message) {
-        fetch('send_message.php', {
-            method: 'POST',
-            body: JSON.stringify({ message, receiver_id: receiverId }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then(response => response.json())
-          .then(data => {
-              loadChatMessages(receiverId); 
-          });
-        document.getElementById('messageInput').value = '';  
-    }
-});
 
   updateUnreadCount();
 });
-</script>
-<script>
-  document.addEventListener('contextmenu', function(event) {
-    event.preventDefault();
-  });
-
-  document.addEventListener('keydown', function(event) {
-    if (event.keyCode == 123) { // F12
-      event.preventDefault();
-    }
-    if (event.ctrlKey && event.shiftKey && (event.keyCode == 73 || event.keyCode == 74)) { 
-      event.preventDefault();
-    }
-    if (event.ctrlKey && (event.keyCode == 85 || event.keyCode == 83)) { 
-      event.preventDefault();
-    }
-    if (event.ctrlKey && event.shiftKey && event.keyCode == 67) { 
-      event.preventDefault();
-    }
-  });
-
-  document.addEventListener('dragstart', function(event) {
-    event.preventDefault();
-  });
-
-  document.addEventListener('keydown', function(event) {
-    if (event.ctrlKey && event.keyCode == 65) { 
-      event.preventDefault();
-    }
-  });
 </script>
