@@ -46,13 +46,13 @@
     border-radius: 10px;
    }
 </style>
-      <div class="">
+      <div class="row">
         <div class="col-xs-12">
-          <div class="">
+          <div class="box">
             <div class="box-header with-border">
-              <a href="#addnew" data-toggle="modal" class="btn btn-primary btn-sm btn-flat" style="border-radius: 8px;"><i class="fa fa-plus"></i> Add Customer</a>
+              <a href="#addnew" data-toggle="modal" class="btn btn-primary btn-sm btn-flat" style="background: linear-gradient(to right, #0072ff, #00c6ff); color: #fff; border-radius: 8px;"><i class="fa fa-plus"></i> Add Customer</a>
             </div>
-            <div class="box-body">
+            <div class="box-body table-responsive">
               <table id="example1" class="table table-bordered">
                 <thead>
                   <th class="hidden"></th>
@@ -90,8 +90,8 @@
                             </td>
                             <td>".date('M d, Y', strtotime($row['created_on']))."</td>
                             <td>
-                              <button class='btn btn-success btn-sm edit btn-flat' style='border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-edit'></i> Edit</button>
-                              <button class='btn btn-danger btn-sm delete btn-flat' style='border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-trash'></i> Delete</button>
+                              <button class='btn btn-success btn-sm edit btn-flat' style='background: linear-gradient(to right, #39FF14, #B4EC51); color: #fff; border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-edit'></i> Edit</button>
+                              <button class='btn btn-danger btn-sm delete btn-flat' style='background: linear-gradient(to right, #FF416C, #FF4B2B); color: #fff; border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-trash'></i> Delete</button>
                             </td>
                           </tr>
                         ";
@@ -110,12 +110,12 @@
         </div>
       </div>
     </section>
-     
+    </div>
   </div>
   	<?php include 'includes/footer.php'; ?>
     <?php include 'includes/customer_modal.php'; ?>
 
-</div>
+
 <!-- ./wrapper -->
 
 <?php include 'includes/scripts.php'; ?>

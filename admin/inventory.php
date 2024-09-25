@@ -5,6 +5,8 @@
     $catid = $_GET['category'];
     $where = 'WHERE category_id ='.$catid;
   }
+  $user_type = $_SESSION['admin'];
+  $user_id = $_SESSION['admin'];
 
 ?>
 <?php include 'includes/header.php'; ?>
@@ -52,93 +54,95 @@
       background: white;
    }
 </style>
-      <div class="">
-        <div class="col-xs-12">
-          <div class="">
-            <div class="box-header with-border">
-              <div class="pull-right">
-                <form class="form-inline">
-                  <div class="form-group">
-                    <label>Category: </label>
-                    <select class="form-control input-sm" id="select_category">
-                      <option value="0">ALL</option>
-                      <?php
-                        $conn = $pdo->open();
-
-                        $stmt = $conn->prepare("SELECT * FROM category");
-                        $stmt->execute();
-
-                        foreach($stmt as $crow){
-                          $selected = ($crow['id'] == $catid) ? 'selected' : ''; 
-                          echo "
-                            <option value='".$crow['id']."' ".$selected.">".$crow['name']."</option>
-                          ";
-                        }
-
-                        $pdo->close();
-                      ?>
-                    </select>
-                  </div>
-                </form>
-              </div>
+<div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <div class="pull-right">
+                                <form class="form-inline">
+                                    <div class="form-group">
+                                        <label>Category: </label>
+                                        <select class="form-control input-sm" id="select_category">
+                                            <option value="0">ALL</option>
+                                            <?php
+                                            $conn = $pdo->open();
+                                            $stmt = $conn->prepare("SELECT * FROM category");
+                                            $stmt->execute();
+                                            foreach ($stmt as $crow) {
+                                                $selected = ($crow['id'] == $catid) ? 'selected' : '';
+                                                echo "<option value='" . $crow['id'] . "' " . $selected . ">" . htmlspecialchars($crow['name'], ENT_QUOTES) . "</option>";
+                                            }
+                                            $pdo->close();
+                                            ?>
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="box-body table-responsive">
+                            <table id="example1" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th class="hidden"></th>
+                                        <th>Product Name</th>
+                                        <th>Photo</th>
+                                        <th>Stock</th>
+                                        <th>Availability</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $conn = $pdo->open();
+                                    try {
+                                        $now = date('Y-m-d');
+                                        if ($user_type == 195) {
+                                            $stmt = $conn->prepare("SELECT * FROM products $where ORDER BY id DESC");
+                                        } else {
+                                            $stmt = $conn->prepare("SELECT * FROM products WHERE user_id = :user_id $where ORDER BY id DESC");
+                                            $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+                                        }
+                                        if (isset($catid)) {
+                                            $stmt->bindParam(':catid', $catid, PDO::PARAM_INT);
+                                        }
+                                        $stmt->execute();
+                                        foreach ($stmt as $row) {
+                                            $image = (!empty($row['photo'])) ? '../images/' . htmlspecialchars($row['photo'], ENT_QUOTES) : '../images/noimage.jpg';
+                                            $avail = ($row['stock']) ? '<span class="label label-success">Stock In</span>' : '<span class="label label-danger">Stock Out</span>';
+                                            $edit_avail = '';
+                                            if ($user_type != 195 && $row['stock']) {
+                                                $edit_avail = '<button class="btn btn-success btn-sm btn-flat edit_stockout" style="background: linear-gradient(to right, #39FF14, #B4EC51); color: #fff; border-radius: 8px;" data-id="' . $row['id'] . '"><i class="fa fa-edit"></i> Edit</button>';
+                                            }
+                                            echo "
+                                            <tr>
+                                                <td class='hidden'></td>
+                                                <td>" . htmlspecialchars($row['name'], ENT_QUOTES) . "</td>
+                                                <td>
+                                                    <img class='pic' src='" . $image . "' alt='Product Image'>
+                                                    <img class='picbig' src='" . $image . "' alt='Product Image Large'>
+                                                </td>
+                                                <td>" . $row['stock'] . "</td>
+                                                <td>" . $avail . "</td>
+                                                <td>" . $edit_avail . "</td>
+                                            </tr>
+                                            ";
+                                        }
+                                    } catch(PDOException $e) {
+                                        echo "There is some problem in connection: " . $e->getMessage();
+                                    }
+                                    $pdo->close();
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="box-body">
-              <table id="example1" class="table table-bordered">
-                <thead>
-                  <th class="hidden"></th>
-                  <th>Product Name</th>
-                  <th>Photo</th>
-                  <th>Stock</th>
-                  <th>Availability</th>
-                  <th>Action</th>
-                </thead>
-                <tbody>
-                  <?php
-                    $conn = $pdo->open();
-
-                    try{
-                      $now = date('Y-m-d');
-                      $stmt = $conn->prepare("SELECT * FROM products $where ORDER BY id DESC");
-                      $stmt->execute();
-                      foreach($stmt as $row){
-                        $image = (!empty($row['photo'])) ? '../images/'.$row['photo'] : '../images/noimage.jpg';
-                        $avail = ($row['stock']) ? '<span class="label label-success">Stock In</span>' : '<span class="label label-danger">Stock Out</span>';
-                        $edit_avail = (!$row['stock']) ? '' : '<button class="btn btn-success btn-sm btn-flat edit_stockout" style="border-radius: 8px;" data-id="'.$row['id'].'"><i class="fa fa-edit"></i> Edit</button>';
-                        echo "
-                          <tr>
-                            <td class='hidden'></td>
-                            <td>".$row['name']."</td>
-                            <td>
-                              <img class='pic' src='".$image."'>
-                              <img class='picbig' src='".$image."'>
-                            </td>
-                            <td>".$row['stock']."</td>
-                            <td>".$avail."</td>
-                            <td>".$edit_avail."</td>
-                          </tr>
-                        ";
-                      }
-                    }
-                    catch(PDOException $e){
-                      echo $e->getMessage();
-                    }
-
-                    $pdo->close();
-                  ?>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-     
-  </div>
-  	<?php include 'includes/footer.php'; ?>
-    <?php include 'includes/inventory_modal.php'; ?>
-
+        </section>
+    </div>
 </div>
-<!-- ./wrapper -->
+<?php include 'includes/footer.php'; ?>
+<?php include 'includes/inventory_modal.php'; ?>
 
 <?php include 'includes/scripts.php'; ?>
 <script>
