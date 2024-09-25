@@ -66,6 +66,7 @@
 ?>
 <br><br>
 <div class="container">
+    
     <p class="login-box-msg" style="font-size: 30px; color: rgb(0, 51, 102);">
         <b>Create an account</b></p>
 
@@ -122,10 +123,11 @@
         <div class="form-group has-feedback">
             <button type="submit" class="btn btn-primary btn-block" name="signup"><i class="fa fa-pencil"></i> Sign Up</button>
         </div>
-
+      
     </form>
     <br>
     <p class="text-center" style="color: rgb(0, 51, 102); ">Already have an account? <a href="login.php">Login</a></p>
+    <p class="text-center" style="color: rgb(0, 51, 102); ">You have a Store? <a href="vendor_signup.php">Signup as Vendor</a></p>
 </div>
 
 </div>
@@ -140,9 +142,9 @@
 
     .container {
         width: 500px;
-        height: 770px;
+        height: 940px;
         margin: 0 auto 50px;
-        padding: 20px;
+        padding: 10px;
         border: 1px solid #ccc;
         border-radius: 20px;
         background-color: #f9f9f9;
@@ -170,7 +172,7 @@
 
     .container {
         width: 500px;
-        height: 770px;
+        height: 780px;
         margin: 0 auto 50px;
         padding: 20px;
         border: 1px solid #ccc;
