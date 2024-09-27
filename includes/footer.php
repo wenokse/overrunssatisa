@@ -2,8 +2,8 @@
 <footer class="main-footer" style="position: center;">
 <div class="footer-content">
 <center>
-<a href="https://www.facebook.com/manilynalmohallas.miranda" target="_blank" class="btn btn-social-icon btn-facebook"><i class="fa fa-facebook"></i></a>
-<span class="footer-text">OverrunsSaTisaOnlineShopSystem &copy; All rights reserved 2024</span> </center>
+<a href="https://www.facebook.com/rowen.ayuces" target="_blank" class="btn btn-social-icon btn-facebook"><i class="fa fa-facebook"></i></a>
+<span class="footer-text">ROWENSECUYA &copy; All rights reserved 2024</span> </center>
 <di>
      
 </footer>

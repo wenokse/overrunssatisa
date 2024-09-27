@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['product_id'])) {
                 $formattedDateTime = (new DateTime($comment['created_at']))->format('Y-m-d H:i');
 
                 // Add delete button for all comments
-                $deleteButton = '<button class="delete-btn btn btn-sm btn-danger" data-comment-id="' . $comment['id'] . '"><i class="fa fa-trash"></i></button>';
+                // $deleteButton = '<button class="delete-btn btn btn-sm btn-danger" data-comment-id="' . $comment['id'] . '"><i class="fa fa-trash"></i></button>';
 
                 $response['comments'] .= '<div class="comment-container" style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1);">
                                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
