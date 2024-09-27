@@ -4,7 +4,7 @@ include 'includes/header.php';
 
 $conn = $pdo->open();
 
-$shop_id = isset($_GET['id']) ? $_GET['id'] : 1; // Default to shop ID 1 if not specified
+$shop_id = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : 1; // Sanitize GET parameter
 $stmt = $conn->prepare("SELECT * FROM users WHERE id = :id");
 $stmt->execute(['id' => $shop_id]);
 $shop = $stmt->fetch();
@@ -45,26 +45,30 @@ $pdo->close();
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 <div class="container">
-   
     <br><br>
     <div class="row">
         <div class="col-md-4">
-            <img src="<?php echo (!empty($shop['photo'])) ? 'images/'.$shop['photo'] : 'images/profile.jpg'; ?>" style="width: 250px; height: 250px; object-fit: cover; border-radius: 50%;"
-                 alt="<?php echo $shop['store']; ?>" 
+            <img src="<?php echo (!empty($shop['photo'])) ? 'images/'.htmlspecialchars($shop['photo']) : 'images/profile.jpg'; ?>" 
+                 style="width: 250px; height: 250px; object-fit: cover; border-radius: 50%;" 
+                 alt="<?php echo htmlspecialchars($shop['store']); ?>" 
                  class="img-responsive shop-image">
         </div>
         <div class="col-md-8 shop-details">
-        <h1><?php echo $shop['store']; ?></h1>
+            <h1><?php echo htmlspecialchars($shop['store']); ?></h1>
             <h3>Contact Us</h3>
-            <p>Email: <?php echo $shop['email']; ?></p>
-            <p>Phone: <?php echo $shop['contact_info']; ?></p>
-            <button id="open-chat-btn" class="open-chat-btn">
-    <i class="fa fa-comments"></i> Chat
-</button>
-
+            <p>Email: <?php echo htmlspecialchars($shop['email']); ?></p>
+            <p>Phone: <?php echo htmlspecialchars($shop['contact_info']); ?></p>
+            <?php 
+                    if (isset($_SESSION['user'])): 
+                ?>
+                    <button id="open-chat-btn" class="open-chat-btn">
+                        <i class="fa fa-comments"></i> Chat
+                    </button>
+                <?php 
+                    endif; 
+                ?>
         </div>
     </div>
-   
 
 <div id="chat-container" class="chat-container" style="display: none;">
     <div class="chat-header">
@@ -88,19 +92,19 @@ $pdo->close();
         <li id="delete-message">Delete</li>
     </ul>
 </div>
-    <h2 class="section-title">Top Sales</h2>
+<h2 class="section-title">Top Sales</h2>
     <div class="row">
         <?php foreach ($top_sales as $product): ?>
             <div class="col-md-3">
                 <div class="card product-card">
-                    <a href="product.php?product=<?php echo $product['slug']; ?>" class="product-link">
-                        <img src="<?php echo (!empty($product['photo'])) ? 'images/'.$product['photo'] : 'images/noimage.jpg'; ?>" 
-                             alt="<?php echo $product['name']; ?>" 
+                    <a href="product.php?product=<?php echo htmlspecialchars($product['slug']); ?>" class="product-link">
+                        <img src="<?php echo (!empty($product['photo'])) ? 'images/'.htmlspecialchars($product['photo']) : 'images/noimage.jpg'; ?>" 
+                             alt="<?php echo htmlspecialchars($product['name']); ?>" 
                              class="card-img-top">
                         <div class="card-body">
-                            <h4 class="card-title"><?php echo $product['name']; ?></h4>
+                            <h4 class="card-title"><?php echo htmlspecialchars($product['name']); ?></h4>
                             <p class="card-price">₱<?php echo number_format($product['price'], 2); ?></p>
-                            <p class="card-sold">Sold: <?php echo $product['sold']; ?></p>
+                            <p class="card-sold">Sold: <?php echo htmlspecialchars($product['sold']); ?></p>
                         </div>
                     </a>
                 </div><br>
@@ -113,12 +117,12 @@ $pdo->close();
         <?php foreach ($all_products as $product): ?>
             <div class="col-md-3">
                 <div class="card product-card">
-                    <a href="product.php?product=<?php echo $product['slug']; ?>" class="product-link">
-                        <img src="<?php echo (!empty($product['photo'])) ? 'images/'.$product['photo'] : 'images/noimage.jpg'; ?>" 
-                             alt="<?php echo $product['name']; ?>" 
+                    <a href="product.php?product=<?php echo htmlspecialchars($product['slug']); ?>" class="product-link">
+                        <img src="<?php echo (!empty($product['photo'])) ? 'images/'.htmlspecialchars($product['photo']) : 'images/noimage.jpg'; ?>" 
+                             alt="<?php echo htmlspecialchars($product['name']); ?>" 
                              class="card-img-top">
                         <div class="card-body">
-                            <h4 class="card-title"><?php echo $product['name']; ?></h4>
+                            <h4 class="card-title"><?php echo htmlspecialchars($product['name']); ?></h4>
                             <p class="card-price">₱<?php echo number_format($product['price'], 2); ?></p>
                         </div>
                     </a>
@@ -126,6 +130,7 @@ $pdo->close();
             </div>
         <?php endforeach; ?>
     </div>
+
 
 <?php include 'includes/footer.php'; ?>
 </div>
