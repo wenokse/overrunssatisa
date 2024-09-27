@@ -21,46 +21,52 @@
             <div class="row">
                 <div class="col-sm-9">
                     <?php
-                        $conn = $pdo->open();
-
-                        $stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM products WHERE name LIKE :keyword");
-                        $stmt->execute(['keyword' => '%'.$_POST['keyword'].'%']);
-                        $row = $stmt->fetch();
-                        if($row['numrows'] < 1){
-                            echo '<h1 class="page-header">No results found for <i>'.$_POST['keyword'].'</i></h1>';
-                        }
-                        else{
-                            echo '<h1 class="page-header">Search results for <i>'.$_POST['keyword'].'</i></h1>';
-                            try{
-                                echo "<div class='product-container'>";
-                                $stmt = $conn->prepare("SELECT * FROM products WHERE name LIKE :keyword");
-                                $stmt->execute(['keyword' => '%'.$_POST['keyword'].'%']);
-
-                                foreach ($stmt as $row) {
-                                    $highlighted = preg_filter('/' . preg_quote($_POST['keyword'], '/') . '/i', '<b>$0</b>', $row['name']);
-                                    $image = (!empty($row['photo'])) ? 'images/'.$row['photo'] : 'images/noimage.jpg';
-                                    echo "
-                                        <div class='col-sm-4 product'>
-                                            <div class='box box-solid'>
-                                                <div class='box-body prod-body'>
-                                                    <img src='".$image."' width='100%' height='230px' class='thumbnail'>
-                                                    <h5><a href='product.php?product=".$row['slug']."'>".$highlighted."</a></h5>
+                        
+                        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                            // Sanitize the input to allow only alphanumeric characters and .-', 
+                            $keyword = preg_replace("/[^A-Za-z0-9.\-', ]/", '', $_POST['keyword']);
+                            
+                            if (empty($keyword)) {
+                                echo '<h1 class="page-header">No results found</h1>';
+                            } else {
+                                $conn = $pdo->open();
+                                $stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM products WHERE name LIKE :keyword");
+                                $stmt->execute(['keyword' => '%' . $keyword . '%']);
+                                $row = $stmt->fetch();
+                                
+                                if ($row['numrows'] < 1) {
+                                    echo '<h1 class="page-header">No results found for <i>' . htmlspecialchars($keyword) . '</i></h1>';
+                                } else {
+                                    echo '<h1 class="page-header">Search results for <i>' . htmlspecialchars($keyword) . '</i></h1>';
+                                    try {
+                                        echo "<div class='product-container'>";
+                                        $stmt = $conn->prepare("SELECT * FROM products WHERE name LIKE :keyword");
+                                        $stmt->execute(['keyword' => '%' . $keyword . '%']);
+                                        foreach ($stmt as $row) {
+                                            $highlighted = preg_filter('/' . preg_quote($keyword, '/') . '/i', '<b>$0</b>', $row['name']);
+                                            $image = (!empty($row['photo'])) ? 'images/' . $row['photo'] : 'images/noimage.jpg';
+                                            echo "
+                                                <div class='col-sm-4 product'>
+                                                    <div class='box box-solid'>
+                                                        <div class='box-body prod-body'>
+                                                            <img src='" . $image . "' width='100%' height='230px' class='thumbnail'>
+                                                            <h5><a href='product.php?product=" . $row['slug'] . "'>" . $highlighted . "</a></h5>
+                                                        </div>
+                                                        <div class='box-footer'>
+                                                            <b>&#8369; " . number_format($row['price'], 2) . "</b>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div class='box-footer'>
-                                                    <b>&#8369; ".number_format($row['price'], 2)."</b>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ";
+                                            ";
+                                        }
+                                        echo "</div>";
+                                    } catch (PDOException $e) {
+                                        echo "There is some problem in connection: " . $e->getMessage();
+                                    }
                                 }
-                                echo "</div>";
-                            }
-                            catch(PDOException $e){
-                                echo "There is some problem in connection: " . $e->getMessage();
+                                $pdo->close();
                             }
                         }
-
-                        $pdo->close();
                     ?>
                 </div>
             </div>

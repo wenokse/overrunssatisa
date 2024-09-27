@@ -34,10 +34,13 @@
           </li>
         </ul>
         <form method="POST" class="navbar-form navbar-left" action="search.php">
-          <div class="input-group">
-              <input type="text" class=" form-control" id="navbar-search-input" style="border-radius: 20px;" name="keyword" placeholder="Search for Product" required>
-          </div>
-        </form>
+    <div class="input-group">
+        <input type="text" class="form-control" id="navbar-search-input" style="border-radius: 20px;" 
+               name="keyword" placeholder="Search for Product" 
+               pattern="[A-Za-z0-9.\-', ]+" 
+               title="Only letters, numbers, spaces, and the symbols .-,' are allowed" required>
+    </div>
+</form>
       </div>
 
       <div class="navbar-custom-menu">
@@ -167,6 +170,12 @@
   <!-- Chat Window -->
   
 </div>
+<script>
+// Ensure only allowed characters can be typed
+document.getElementById('navbar-search-input').addEventListener('input', function(e) {
+    this.value = this.value.replace(/[^A-Za-z0-9.\-', ]/g, '');  // Remove any disallowed characters
+});
+</script>
 <style>
   .search-bar {
   background-color: #f1f1f1;
