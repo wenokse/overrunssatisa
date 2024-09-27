@@ -5,6 +5,7 @@
 
   <?php include 'includes/navbar.php'; ?>
   <?php include 'includes/menubar.php'; ?>
+  <script src="../js/sweetalert2.min.js"></script>
   <script src="../js/sweetalert.min.js"></script>
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">

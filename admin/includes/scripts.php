@@ -30,6 +30,7 @@
 <script src="../bower_components/ckeditor/ckeditor.js"></script>
 <!-- Active Script -->
 
+<script src="../js/sweetalert2.min.js"></script>
 <script src="../js/sweetalert.min.js"></script>
 
 <?php
