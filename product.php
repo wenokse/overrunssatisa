@@ -501,29 +501,51 @@ $(document).ready(function() {
     }
 
     function loadComments() {
+        $.ajax({
+            url: 'fetch_comments.php',
+            method: 'GET',
+            data: { product_id: <?php echo $product['prodid']; ?> },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('#comment_list').html(response.comments);
+                } else {
+                    $('#comment_list').html('<p>No comments yet, Be the first comment.</p>');
+                }
+            }
+        });
+    }
+
+    $(document).on('click', '.delete-btn', function() {
+        var commentId = $(this).data('comment-id');
+        if (confirm('Are you sure you want to delete this comment?')) {
             $.ajax({
-                url: 'fetch_comments.php',
-                method: 'GET',
-                data: { product_id: <?php echo $product['prodid']; ?> },
+                url: 'delete_comment.php',
+                method: 'POST',
+                data: {
+                    comment_id: commentId
+                },
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
-                        let commentsHtml = '';
-                        $.each(response.comments, function(index, comment) {
-                            commentsHtml += `<div class="comment-item" data-comment-id="${comment.id}">
-                                <p>${comment.text}</p>
-                                <button class="btn btn-danger btn-sm delete-comment" data-id="${comment.id}">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </div>`;
+                        swal({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message
                         });
-                        $('#comment_list').html(commentsHtml);
+                        loadComments();
                     } else {
-                        $('#comment_list').html('<p>No comments yet, be the first to comment.</p>');
+                        swal({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: response.message
+                        });
                     }
                 }
             });
         }
+    });
+
 
     loadComments();
 });
