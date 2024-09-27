@@ -519,6 +519,11 @@ $(document).ready(function() {
         loadComments();
     });
 
+
+    
+    loadComments();
+});
+
     </script>
     <style>
         .color-btn {
