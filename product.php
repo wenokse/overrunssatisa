@@ -327,22 +327,21 @@ $pdo->close();
     <?php include 'includes/scripts.php'; ?>
     <script>
         function validateComment() {
-                const comment = document.getElementById('comment').value;
-                const regex = /^[a-zA-Z0-9\s?!\.\-=:]*$/;
+    const comment = document.getElementById('comment').value.trim();
+    const regex = /^[a-zA-Z0-9\s?!.,\-=:]+$/;
 
-                if (!regex.test(comment)) {
-                    alert('Invalid comment! Only letters, numbers, and the symbols ? ! . - = : are allowed.');
-                    return false; 
-                }
-                
-                comment = comment.trim();
-                if (comment.length === 0) {
-                    alert('Comment cannot be empty.');
-                    return false;
-                }
+    if (comment.length === 0) {
+        alert('Comment cannot be empty.');
+        return false;
+    }
 
-                return true; 
-            }
+    if (!regex.test(comment)) {
+        alert('Invalid comment!');
+        return false;
+    }
+
+    return true;
+}
 
         $(function(){
             $('#add').click(function(e){
