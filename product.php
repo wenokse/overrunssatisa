@@ -205,7 +205,7 @@ $pdo->close();
                                     <span><h3><b>&#8369; <span id="price"><?php echo number_format($product['price'], 2); ?> per.</span></b></h3>
                                     <div class="comment-section pull-right">
                                         <h3>Leave a Comment</h3>
-                                        <form id="comment_form">
+                                        <form id="comment_form" onsubmit="return validateComment()">
                                             <div class="form-group">
                                                 <label for="comment">Your Comment:</label>
                                                 <textarea class="form-control" id="comment" name="comment" required></textarea>
@@ -326,6 +326,24 @@ $pdo->close();
     </div>
     <?php include 'includes/scripts.php'; ?>
     <script>
+        function validateComment() {
+                const comment = document.getElementById('comment').value;
+                const regex = /^[a-zA-Z0-9\s?!\.\-=:]*$/;
+
+                if (!regex.test(comment)) {
+                    alert('Invalid comment! Only letters, numbers, and the symbols ? ! . - = : are allowed.');
+                    return false; 
+                }
+                
+                comment = comment.trim();
+                if (comment.length === 0) {
+                    alert('Comment cannot be empty.');
+                    return false;
+                }
+
+                return true; 
+            }
+
         $(function(){
             $('#add').click(function(e){
                 e.preventDefault();
