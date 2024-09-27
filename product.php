@@ -499,23 +499,6 @@ $(document).ready(function() {
             }
         });
     }
-
-    function loadComments() {
-        $.ajax({
-            url: 'fetch_comments.php',
-            method: 'GET',
-            data: { product_id: <?php echo $product['prodid']; ?> },
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    $('#comment_list').html(response.comments);
-                } else {
-                    $('#comment_list').html('<p>No comments yet, Be the first comment.</p>');
-                }
-            }
-        });
-    }
-
     $(document).on('click', '.delete-btn', function() {
         var commentId = $(this).data('comment-id');
         if (confirm('Are you sure you want to delete this comment?')) {
@@ -545,7 +528,21 @@ $(document).ready(function() {
             });
         }
     });
-
+    function loadComments() {
+        $.ajax({
+            url: 'fetch_comments.php',
+            method: 'GET',
+            data: { product_id: <?php echo $product['prodid']; ?> },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('#comment_list').html(response.comments);
+                } else {
+                    $('#comment_list').html('<p>No comments yet, Be the first comment.</p>');
+                }
+            }
+        });
+    }
 
     loadComments();
 });
