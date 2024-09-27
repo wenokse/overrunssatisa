@@ -197,8 +197,8 @@
 
     	<form action="verify.php" method="POST">
       	<div class="form-group has-feedback">
-        	<input type="email" class="form-control" name="email" placeholder="Email" required>
-        	<span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+        <input type="email" class="form-control" name="email" id="emailField" placeholder="Email" required>
+        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
       	</div>
         <div class="form-group has-feedback">
         <input type="password" class="form-control" name="password" id="passwordField" placeholder="Password" required>
@@ -219,6 +219,14 @@
     </div>
 
     <script>
+      function validateEmail() {
+        var emailField = document.getElementById("emailField").value;
+        if (emailField.indexOf("@gmail.com") == -1) {
+            alert("Please enter a valid Gmail address.");
+            return false; // Prevent form submission
+        }
+        return true; 
+    }
         function togglePassword() {
             var checkbox = document.getElementById("cbx-46");
             var passwordField = document.getElementById("passwordField");
