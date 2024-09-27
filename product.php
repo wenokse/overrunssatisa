@@ -500,21 +500,65 @@ $(document).ready(function() {
         });
     }
 
-    function loadComments() {
-            $.ajax({
-                url: 'fetch_comments.php',
-                method: 'GET',
-                data: { product_id: <?php echo $product['prodid']; ?> },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
-                        $('#comment_list').html(response.comments);
-                    } else {
-                        $('#comment_list').html('<p>No comments yet, Be the first comment.</p>');
+    $(document).on('click', '.delete-comment', function() {
+            var commentId = $(this).data('id');
+            if (confirm('Are you sure you want to delete this comment?')) {
+                $.ajax({
+                    url: 'delete_comment.php',
+                    method: 'POST',
+                    data: { comment_id: commentId },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            swal({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: response.message,
+                                onClose: function () {
+                                    loadComments();
+                                }
+                            });
+                        } else {
+                            swal({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: response.message,
+                            });
+                        }
                     }
-                }
-            });
-        }
+                });
+            }
+        });
+
+        $(document).on('click', '.delete-comment', function() {
+            var commentId = $(this).data('id');
+            if (confirm('Are you sure you want to delete this comment?')) {
+                $.ajax({
+                    url: 'delete_comment.php',
+                    method: 'POST',
+                    data: { comment_id: commentId },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            swal({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: response.message,
+                                onClose: function () {
+                                    loadComments();
+                                }
+                            });
+                        } else {
+                            swal({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: response.message,
+                            });
+                        }
+                    }
+                });
+            }
+        });
 
         loadComments();
     });

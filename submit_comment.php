@@ -10,6 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $user_id = $_SESSION['user'];
         $product_id = $_POST['product_id'];
         $comment = $_POST['comment'];
+        
+        // Define allowed characters
         $regex = '/^[a-zA-Z0-9\s?!.,\-=:]+$/';
 
         // Validate comment
