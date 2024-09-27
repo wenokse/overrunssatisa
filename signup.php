@@ -326,6 +326,47 @@
         const selectedBarangay = this.value;
         addressInput.value = selectedMunicipality + ', ' + selectedBarangay;
     });
+    document.querySelector('form').addEventListener('submit', function(event) {
+    var email = document.querySelector('input[name="email"]').value;
+    
+    // Check if the email is empty
+    if (email === '') {
+        swal({
+            title: 'Email is required',
+            icon: 'warning',
+            button: 'OK'
+        });
+        event.preventDefault(); // Prevent form submission
+        return false;
+    }
+
+    // Check if email ends with @gmail.com
+    if (!email.endsWith('@gmail.com')) {
+        swal({
+            title: 'Email must be a @gmail.com address',
+            icon: 'warning',
+            button: 'OK'
+        });
+        event.preventDefault(); // Prevent form submission
+        return false;
+    }
+
+    // Ensure that other fields are also not empty (if necessary)
+    var requiredFields = document.querySelectorAll('input[required], select[required]');
+    for (var i = 0; i < requiredFields.length; i++) {
+        if (requiredFields[i].value.trim() === '') {
+            swal({
+                title: 'All fields are required',
+                icon: 'warning',
+                button: 'OK'
+            });
+            event.preventDefault(); // Prevent form submission
+            return false;
+        }
+    }
+
+    return true; // Allow form submission
+});
 
 
 </script>

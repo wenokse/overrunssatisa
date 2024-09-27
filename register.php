@@ -16,8 +16,19 @@ if(isset($_POST['signup'])){
     $password = $_POST['password'];
     $repassword = $_POST['repassword'];
 
+    if(empty($firstname) || empty($lastname) || empty($email) || empty($password) || empty($repassword) || empty($contact_info) || empty($address) || empty($address2) || empty($municipality) || empty($barangay)){
+    $_SESSION['error'] = 'All fields are required';
+    header('location: signup.php');
+    exit();
+}
+
     if($password != $repassword){
         $_SESSION['error'] = 'Passwords did not match';
+        header('location: signup.php');
+        exit();
+    }
+    if (strpos($email, '@gmail.com') === false) {
+        $_SESSION['error'] = 'Email must be a @gmail.com address';
         header('location: signup.php');
         exit();
     }

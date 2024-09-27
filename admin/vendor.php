@@ -46,13 +46,13 @@
     border-radius: 10px;
    }
 </style>
-      <div class="">
+      <div class="row">
         <div class="col-xs-12">
-          <div class="">
+          <div class="box">
             <div class="box-header with-border">
-              <a href="#addnewvendor" data-toggle="modal" class="btn btn-primary btn-sm btn-flat" style="border-radius: 8px;"><i class="fa fa-plus"></i> Add Vendor</a>
+              <a href="#addnewvendor" data-toggle="modal" class="btn  btn-sm btn-flat" style="background: linear-gradient(to right, #0072ff, #00c6ff); color: #fff; border-radius: 8px;"><i class="fa fa-plus"></i> Add Vendor</a>
             </div>
-            <div class="box-body">
+            <div class="box-body table-responsive">
               <table id="example1" class="table table-bordered">
                 <thead>
                   <th class="hidden"></th>
@@ -65,47 +65,66 @@
                   <th>Action</th>
                 </thead>
                 <tbody>
-                  <?php
-                    $conn = $pdo->open();
+                    <?php
+                      $conn = $pdo->open();
 
-                    try{
-                      $stmt = $conn->prepare("SELECT * FROM users WHERE type=:type ORDER BY id DESC");
-                      $stmt->execute(['type'=>2]);
-                      foreach($stmt as $row){
-                        $image = (!empty($row['photo'])) ? '../images/'.$row['photo'] : '../images/profile.jpg';
-                        $status = ($row['status']) ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Deactive</span>';
+                      try {
+                        $stmt = $conn->prepare("SELECT * FROM users WHERE type=:type ORDER BY id DESC");
+                        $stmt->execute(['type' => 2]);
+                        foreach ($stmt as $row) {
+                          $image = (!empty($row['photo'])) ? '../images/' . $row['photo'] : '../images/profile.jpg';
+                          if ($row['status'] == 1) {
+                            $status = '<span class="label label-success">Active</span>';
+                        } elseif ($row['status'] == 0) {
+                            $status = '<span class="label label-danger">Deactive</span>';
+                        } elseif ($row['status'] == 3) {
+                            $status = '<span class="label label-warning">Pending</span>';
+                        }
                         $active = (!$row['status']) ? '<span class="pull-right"><a href="#activate" class="status"  data-toggle="modal" data-id="'.$row['id'].'"><i class="fa fa-check-square-o"></i></a></span>' : '<span class="pull-right"><a href="#deactivate" class="status" data-toggle="modal" data-id="'.$row['id'].'"><i class="fa fa-check-square-o"></i></a></span>';
-                        echo "
-                          <tr>
-                            <td class='hidden'></td>
-                            <td>
-                              <img class='pic' src='".$image."'>
-                              <img class='picbig' src='".$image."'>
-                              <span class='pull-right'><a href='#edit_photo' class='photo' data-toggle='modal' data-id='".$row['id']."'><i class='fa fa-edit'></i></a></span>
-                            </td>
-                            <td>".$row['email']."</td>
-                            <td>".$row['firstname'].' '.$row['lastname']."</td>
-                              <td>".$row['store']."</td>
-                            <td>
-                              ".$status."
-                              ".$active."
-                            </td>
-                            <td>".date('M d, Y', strtotime($row['created_on']))."</td>
-                            <td>
-                              <button class='btn btn-success btn-sm edit btn-flat' style='border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-edit'></i> Edit</button>
-                              <button class='btn btn-danger btn-sm delete btn-flat' style='border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-trash'></i> Delete</button>
-                            </td>
-                          </tr>
-                        ";
-                      }
-                    }
-                    catch(PDOException $e){
-                      echo $e->getMessage();
-                    }
+                          
+                          $actionButtons = '';
+                            if ($row['status'] == 3) {
+                                $actionButtons = "
+                                    <button class='btn btn-success btn-sm accept btn-flat' style='border-radius: 8px;' data-id='" . $row['id'] . "'><i class='fa fa-check'></i> Accept</button>
+                                    <button class='btn btn-danger btn-sm decline btn-flat' style='border-radius: 8px;' data-id='" . $row['id'] . "'><i class='fa fa-close'></i> Decline</button>
+                                ";
+                            } else {
+                                $actionButtons = "
+                                    <button class='btn btn-success btn-sm edit btn-flat' style='background: linear-gradient(to right, #39FF14, #B4EC51); color: #fff; border-radius: 8px;' data-id='" . $row['id'] . "'><i class='fa fa-edit'></i> Edit</button>
+                                    <button class='btn btn-danger btn-sm delete btn-flat' style='background: linear-gradient(to right, #FF416C, #FF4B2B); color: #fff; border-radius: 8px;' data-id='" . $row['id'] . "'><i class='fa fa-trash'></i> Delete</button>
+                                ";
+                            }
 
-                    $pdo->close();
-                  ?>
-                </tbody>
+                          echo "
+                            <tr>
+                              <td class='hidden'></td>
+                              <td>
+                                <img class='pic' src='" . $image . "'>
+                                <img class='picbig' src='" . $image . "'>
+                                <span class='pull-right'><a href='#edit_photo' class='photo' data-toggle='modal' data-id='" . $row['id'] . "'><i class='fa fa-edit'></i></a></span>
+                              </td>
+                              <td>" . $row['email'] . "</td>
+                              <td>" . $row['firstname'] . ' ' . $row['lastname'] . "</td>
+                              <td>" . $row['store'] . "</td>
+                              <td>
+                                " . $status . "
+                                " . $active . "
+                              </td>
+                              <td>" . date('M d, Y', strtotime($row['created_on'])) . "</td>
+                              <td>
+                                " . $actionButtons . "
+                                </td>
+                            </tr>
+                          ";
+                        }
+                      } catch (PDOException $e) {
+                        echo $e->getMessage();
+                      }
+
+                      $pdo->close();
+                    ?>
+                  </tbody>
+
               </table>
             </div>
           </div>
@@ -151,6 +170,34 @@ $(function(){
   });
 
 });
+$(function() {
+  $(document).on('click', '.accept', function(e) {
+    e.preventDefault();
+    var id = $(this).data('id');
+    updateVendorStatus(id, 1);  // Accept = status 1
+  });
+
+  $(document).on('click', '.decline', function(e) {
+    e.preventDefault();
+    var id = $(this).data('id');
+    updateVendorStatus(id, 0);  // Decline = status 0
+  });
+
+  function updateVendorStatus(id, status) {
+    $.ajax({
+      type: 'POST',
+      url: 'update_vendor_status.php',
+      data: {id: id, status: status},
+      success: function(response) {
+        location.reload();  // Reload the page to reflect the changes
+      },
+      error: function(xhr, status, error) {
+        console.error(error);
+      }
+    });
+  }
+});
+
 
 function getRow(id){
   $.ajax({
