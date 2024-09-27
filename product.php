@@ -216,7 +216,8 @@ $pdo->close();
                                         <br>
                                         <div id="comment_message" class="alert" style="display: none;"></div>
                                         <div id="comment_list"></div>
-                                    </div></span>
+                                    </div>
+                                    </span>
                                     <p><b>Stock:</b> 
                                         <span id="stock">
                                             <?php 
@@ -327,21 +328,21 @@ $pdo->close();
     <?php include 'includes/scripts.php'; ?>
     <script>
         function validateComment() {
-    const comment = document.getElementById('comment').value.trim();
-    const regex = /^[a-zA-Z0-9\s?!.,\-=:]+$/;
+        const comment = document.getElementById('comment').value.trim();
+        const regex = /^[a-zA-Z0-9\s?!.,\-=:]+$/;
 
-    if (comment.length === 0) {
-        alert('Comment cannot be empty.');
-        return false;
+        if (comment.length === 0) {
+            alert('Comment cannot be empty.');
+            return false;
+        }
+
+        if (!regex.test(comment)) {
+            alert('Invalid comment! Only letters, numbers, spaces, and . , ? ! - = : are allowed.');
+            return false;
+        }
+
+        return true;
     }
-
-    if (!regex.test(comment)) {
-        alert('Invalid comment!');
-        return false;
-    }
-
-    return true;
-}
 
         $(function(){
             $('#add').click(function(e){
@@ -430,47 +431,44 @@ $pdo->close();
         });
 
         $(function() {
-    $('#comment_form').on('submit', function(e) {
-        e.preventDefault();
-        var formData = $(this).serialize();
-        $.ajax({
-            url: 'submit_comment.php',
-            method: 'POST',
-            data: formData,
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    swal({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: response.message,
-                        onClose: function () {
-                            $('#comment_message').removeClass('alert-danger').addClass('alert-success').text(response.message).show();
-                            $('#comment_form')[0].reset();
-                            
-                            loadComments();
-                        }
-                    });
-                } else {
-                    swal({
-                        icon: 'error',
-                        title: 'Login First!',
-                        text: response.message.redirect,
-                        onClose: function () {
-                            $('#comment_message').removeClass('alert-success').addClass('alert-danger').text(response.message).show();
-                        }
-                    }).then((willRedirect) => {
-                        if (willRedirect) {
-                            // Redirect to the login page
-                            window.location.href = response.redirect;
-                        }
-                    });
+        $('#comment_form').on('submit', function(e) {
+            e.preventDefault();
+            var formData = $(this).serialize();
+            $.ajax({
+                url: 'submit_comment.php',
+                method: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        swal({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message,
+                            onClose: function () {
+                                $('#comment_message').removeClass('alert-danger').addClass('alert-success').text(response.message).show();
+                                $('#comment_form')[0].reset();
+                                loadComments();
+                            }
+                        });
+                    } else {
+                        swal({
+                            icon: 'error',
+                            title: 'Login First!',
+                            text: response.message.redirect,
+                            onClose: function () {
+                                $('#comment_message').removeClass('alert-success').addClass('alert-danger').text(response.message).show();
+                            }
+                        }).then((willRedirect) => {
+                            if (willRedirect) {
+                                // Redirect to the login page
+                                window.location.href = response.redirect;
+                            }
+                        });
+                    }
                 }
-
-            }
+            });
         });
-    });
-
    
 $(document).ready(function() {
     $(document).on('click', '.like-btn', function() {
@@ -503,29 +501,23 @@ $(document).ready(function() {
     }
 
     function loadComments() {
-        $.ajax({
-            url: 'fetch_comments.php',
-            method: 'GET',
-            data: { product_id: <?php echo $product['prodid']; ?> },
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    $('#comment_list').html(response.comments);
-                } else {
-                    $('#comment_list').html('<p>No comments yet, Be the first comment.</p>');
+            $.ajax({
+                url: 'fetch_comments.php',
+                method: 'GET',
+                data: { product_id: <?php echo $product['prodid']; ?> },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        $('#comment_list').html(response.comments);
+                    } else {
+                        $('#comment_list').html('<p>No comments yet, Be the first comment.</p>');
+                    }
                 }
-            }
-        });
-    }
+            });
+        }
 
-    loadComments();
-});
-
-
-
-    
-    loadComments();
-});
+        loadComments();
+    });
 
     </script>
     <style>
