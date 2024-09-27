@@ -18,27 +18,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['product_id'])) {
             $response['success'] = true;
 
             foreach ($comments as $comment) {
-                // // Calculate the time difference
-                // $currentTime = new DateTime();
-                // $commentTime = new DateTime($comment['created_at']);
-                // $interval = $currentTime->diff($commentTime);
-            
-                // if ($interval->y > 0) {
-                //     $timeAgo = $interval->y . ' year' . ($interval->y > 1 ? 's' : '') . ' ago';
-                // } elseif ($interval->m > 0) {
-                //     $timeAgo = $interval->m . ' month' . ($interval->m > 1 ? 's' : '') . ' ago';
-                // } elseif ($interval->d > 0) {
-                //     $timeAgo = $interval->d . ' day' . ($interval->d > 1 ? 's' : '') . ' ago';
-                // } elseif ($interval->h > 0) {
-                //     $timeAgo = $interval->h . ' hour' . ($interval->h > 1 ? 's' : '') . ' ago';
-                // } elseif ($interval->i > 0) {
-                //     $timeAgo = $interval->i . ' minute' . ($interval->i > 1 ? 's' : '') . ' ago';
-                // } else {
-                //     $timeAgo = 'just now';
-                // }
-                 $formattedDateTime = (new DateTime($comment['created_at']))->format('Y-m-d H:i');
+                $formattedDateTime = (new DateTime($comment['created_at']))->format('Y-m-d H:i');
 
-            
+                // Add delete button if the user is the comment owner or an admin
+                $deleteButton = '';
+                if(isset($_SESSION['user']) && ($_SESSION['user'] == $comment['user_id'] || $_SESSION['user'] == 1)) {
+                    $deleteButton = '<button class="delete-btn btn btn-sm btn-danger" data-comment-id="' . $comment['id'] . '"><i class="fa fa-trash"></i></button>';
+                }
+
                 $response['comments'] .= '<div class="comment-container" style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1);">
                                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                                                 <div>
@@ -48,13 +35,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['product_id'])) {
                                                 <div class="comment-actions" style="display: flex; align-items: center; gap: 10px;">
                                                     <button class="like-btn" data-comment-id="' . $comment['id'] . '">&#128077; ' . $comment['likes'] . '</button>
                                                     <button class="dislike-btn" data-comment-id="' . $comment['id'] . '">&#128078; ' . $comment['dislikes'] . '</button>
+                                                    ' . $deleteButton . '
                                                 </div>
                                             </div>
                                             <p style="margin: 0;">' . htmlspecialchars($comment['comment']) . '</p>
                                           </div>';
             }
-            
-            
         }
     } catch (PDOException $e) {
         $response['message'] = 'There was an error fetching comments: ' . $e->getMessage(); 
@@ -64,5 +50,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['product_id'])) {
 $pdo->close();
 echo json_encode($response);
 ?>
-
-
