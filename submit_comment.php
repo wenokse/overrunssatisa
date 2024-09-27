@@ -22,11 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 $response['success'] = true;
                 $response['message'] = 'Comment submitted successfully.';
+                $response['redirect'] = true;
             } catch (PDOException $e) {
                 $response['message'] = 'There was an error submitting your comment: ' . $e->getMessage();
             }
         } else {
-            $response['message'] = 'Invalid comment! Only letters, numbers, spaces, and . , ? ! - = : are allowed.';
+            $response['message'] = 'Invalid comment!';
             $response['redirect'] = true;
         }
     } else {
