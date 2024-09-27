@@ -272,7 +272,6 @@
 
 <script>
     function containsSpecialCharacters(str) {
-    // Regular expression to match the special characters <>:/$;,?!
     var regex = /[<>:\/\$\;\,\?\!]/;
     return regex.test(str);
 }

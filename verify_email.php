@@ -50,7 +50,7 @@ function sendVerificationEmail($email, $firstname, $lastname, $verification_code
 
 // Process form submission
 if(isset($_POST['verify'])){
-    $user_code = $_POST['verification_code'];
+    $user_code = filter_var($_POST['verification_code'], FILTER_SANITIZE_NUMBER_INT);
     $stored_code = $_SESSION['temp_user_data']['verification_code'];
     $code_time = $_SESSION['temp_user_data']['code_time'];
 
@@ -162,15 +162,20 @@ $is_expired = $remaining_time == 0;
     }
     ?>
     <form action="verify_email.php" method="POST">
-        <label for="verification_code">Enter Verification Code:</label>
-        <input type="text" name="verification_code" required>
-        <button type="submit" name="verify" id="verifyButton">Verify</button>
-    </form>
+    <label for="verification_code">Enter Verification Code:</label>
+    <input type="text" name="verification_code" id="verification_code" pattern="[0-9]{6}" title="Please enter a 6-digit verification code" required>
+    <button type="submit" name="verify" id="verifyButton">Verify</button>
+</form>
     <form action="verify_email.php" method="POST">
         <button type="submit" name="resend" id="resendButton" class="resend-button" <?php echo !$is_expired ? 'style="display:none;"' : ''; ?>>Resend Code</button>
     </form>
 </div>
 <script src="js/sweetalert.min.js"></script>
+<script>
+document.getElementById('verification_code').addEventListener('input', function (e) {
+    this.value = this.value.replace(/[^0-9]/g, ''); 
+});
+</script>
 <style>
 .resend-button {
             background-color: #4CAF50;
