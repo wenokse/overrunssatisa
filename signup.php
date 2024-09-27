@@ -271,31 +271,44 @@
 </style>
 
 <script>
-    function sanitizeInput(input) {
-    const element = document.createElement('div');
-    element.textContent = input;
-    return element.innerHTML; 
+    function containsSpecialCharacters(str) {
+    // Regular expression to match the special characters <>:/$;,?!
+    var regex = /[<>:\/\$\;\,\?\!]/;
+    return regex.test(str);
 }
 
 function validateForm() {
-    const formElements = document.querySelectorAll('input[required], select[required]');
-    let isValid = true;
-    
-    formElements.forEach(function(input) {
-        const sanitizedValue = sanitizeInput(input.value);
-        if (sanitizedValue === '') {
-            swal({
-                title: 'All fields are required',
-                icon: 'warning',
-                button: 'OK'
-            });
-            isValid = false;
-        }
-        input.value = sanitizedValue;
-    });
-    
-    return isValid;
+    var firstname = document.querySelector('input[name="firstname"]').value;
+    var lastname = document.querySelector('input[name="lastname"]').value;
+    var email = document.querySelector('input[name="email"]').value;
+    var password = document.querySelector('input[name="password"]').value;
+
+    // Validate phone number length
+    if (!validatePhoneNumber()) {
+        return false;
+    }
+
+    // Check for special characters in firstname, lastname, email, password
+    if (containsSpecialCharacters(firstname) || containsSpecialCharacters(lastname) || containsSpecialCharacters(email) || containsSpecialCharacters(password)) {
+        swal({
+            title: 'Special characters like <>:/$;,?! are not allowed.',
+            icon: 'warning',
+            button: 'OK'
+        });
+        return false;
+    }
+
+    return true;
 }
+
+// Bind the form submit event to the validation
+document.querySelector('form').addEventListener('submit', function(event) {
+    if (!validateForm()) {
+        event.preventDefault();
+    }
+});
+
+
 
     var input = document.getElementById('contact_info');
     input.addEventListener('input', function() {
@@ -355,29 +368,29 @@ function validateForm() {
     document.querySelector('form').addEventListener('submit', function(event) {
     var email = document.querySelector('input[name="email"]').value;
     
-   
+    // Check if the email is empty
     if (email === '') {
         swal({
             title: 'Email is required',
             icon: 'warning',
             button: 'OK'
         });
-        event.preventDefault(); 
+        event.preventDefault(); // Prevent form submission
         return false;
     }
 
-  
+    // Check if email ends with @gmail.com
     if (!email.endsWith('@gmail.com')) {
         swal({
             title: 'Email must be a @gmail.com address',
             icon: 'warning',
             button: 'OK'
         });
-        event.preventDefault(); 
+        event.preventDefault(); // Prevent form submission
         return false;
     }
 
-   
+    // Ensure that other fields are also not empty (if necessary)
     var requiredFields = document.querySelectorAll('input[required], select[required]');
     for (var i = 0; i < requiredFields.length; i++) {
         if (requiredFields[i].value.trim() === '') {
@@ -386,12 +399,12 @@ function validateForm() {
                 icon: 'warning',
                 button: 'OK'
             });
-            event.preventDefault(); 
+            event.preventDefault(); // Prevent form submission
             return false;
         }
     }
 
-    return true; 
+    return true; // Allow form submission
 });
 
 

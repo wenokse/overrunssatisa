@@ -6,6 +6,11 @@ use PHPMailer\PHPMailer\Exception;
 
 require 'vendor/autoload.php';
 
+function containsSpecialCharacters($str) {
+    // Regular expression to match the special characters <>:/$;,?!
+    return preg_match('/[<>:\/\$\;\,\?\!]/', $str);
+}
+
 if(isset($_POST['signup'])){
     $firstname = $_POST['firstname'];
     $lastname = $_POST['lastname'];
@@ -16,6 +21,12 @@ if(isset($_POST['signup'])){
     $password = $_POST['password'];
     $repassword = $_POST['repassword'];
 
+    if (containsSpecialCharacters($firstname) || containsSpecialCharacters($lastname) || containsSpecialCharacters($email) || containsSpecialCharacters($password)) {
+        $_SESSION['error'] = 'Special characters like <>:/$;,?! are not allowed.';
+        header('location: signup.php');
+        exit();
+    }
+    
     if(empty($firstname) || empty($lastname) || empty($email) || empty($password) || empty($repassword) || empty($contact_info) || empty($address) || empty($address2) || empty($municipality) || empty($barangay)){
     $_SESSION['error'] = 'All fields are required';
     header('location: signup.php');
