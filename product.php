@@ -580,43 +580,43 @@ window.addEventListener('load', function() {
     <style>
 /* Preloader styles */
 #preloader {
-            position: fixed;
-            left: 0;
-            top: 0;
-            z-index: 999;
-            width: 100%;
-            height: 100%;
-            overflow: visible;
-            background: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 999;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+        background: #3498db; /* Change this to your desired background color */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-        .loader {
-            border: 16px solid #f3f3f3; /* Light grey */
-            border-top: 16px solid #3498db; /* Blue */
-            border-radius: 50%;
-            width: 120px;
-            height: 120px;
-            animation: spin 1s linear infinite;
-        }
+    .loader {
+        border: 16px solid #f3f3f3; /* Light grey */
+        border-top: 16px solid #ffffff; /* Change this color if needed */
+        border-radius: 50%;
+        width: 120px;
+        height: 120px;
+        animation: spin 1s linear infinite;
+    }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 
-        .hidden {
-            display: none;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
+    .hidden {
+        display: none;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+    }
 
-        .visible {
-            display: block;
-            opacity: 1;
-        }
+    .visible {
+        display: block;
+        opacity: 1;
+    }
 
         .color-btn {
     border: 2px solid #ddd;
