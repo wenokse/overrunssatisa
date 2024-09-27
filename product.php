@@ -121,16 +121,15 @@ $pdo->close();
 ?>
 
 <?php include 'includes/header.php'; ?>
-<div id="preloader">
-        <div class="loader"></div>
-    </div>
 <body class="hold-transition skin-blue layout-top-nav">
 
     <div id="fb-root"></div>
     <!-- <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v13.0&appId=1346358252525630&autoLogAppEvents=1" nonce="hsdcri7l"></script> -->
     <div class="wrapper">
          <!-- Preloader -->
-    
+         <div id="preloader">
+        <div class="loader"></div>
+    </div>
     <?php 
     if (isset($_SESSION['user'])) {
         include 'includes/navbar.php';
@@ -572,17 +571,11 @@ $(document).ready(function() {
     loadComments();
 });
 
+// Preloader script
 window.addEventListener('load', function() {
-            var preloader = document.getElementById('preloader');
-            var content = document.querySelector('.content');
-            
-            setTimeout(function() {
-                preloader.style.display = 'none';
-                content.style.display = 'block';
-            }, 2000); // Adjust the timeout as needed (currently set to 2 seconds)
-        });
-
-
+    var preloader = document.getElementById('preloader');
+    preloader.style.display = 'none';
+});
     </script>
     <style>
 /* Preloader styles */
