@@ -499,34 +499,7 @@ $(document).ready(function() {
             }
         });
     }
-
-    function loadComments() {
-            $.ajax({
-                url: 'fetch_comments.php',
-                method: 'GET',
-                data: { product_id: <?php echo $product['prodid']; ?> },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
-                        let commentsHtml = '';
-                        $.each(response.comments, function(index, comment) {
-                            commentsHtml += `<div class="comment-item" data-comment-id="${comment.id}">
-                                <p>${comment.text}</p>
-                                <button class="btn btn-danger btn-sm delete-comment" data-id="${comment.id}">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </div>`;
-                        });
-                        $('#comment_list').html(commentsHtml);
-                    } else {
-                        $('#comment_list').html('<p>No comments yet, be the first to comment.</p>');
-                    }
-                }
-            });
-        }
-
-        // Delete comment
-        $(document).on('click', '.delete-comment', function() {
+    $(document).on('click', '.delete-comment', function() {
             var commentId = $(this).data('id');
             if (confirm('Are you sure you want to delete this comment?')) {
                 $.ajax({
@@ -554,6 +527,32 @@ $(document).ready(function() {
                     }
                 });
             }
+        });
+
+    function loadComments() {
+            $.ajax({
+                url: 'fetch_comments.php',
+                method: 'GET',
+                data: { product_id: <?php echo $product['prodid']; ?> },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        let commentsHtml = '';
+                        $.each(response.comments, function(index, comment) {
+                            commentsHtml += `<div class="comment-item" data-comment-id="${comment.id}">
+                                <p>${comment.text}</p>
+                                <button class="btn btn-danger btn-sm delete-comment" data-id="${comment.id}">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>`;
+                        });
+                        $('#comment_list').html(commentsHtml);
+                    } else {
+                        $('#comment_list').html('<p>No comments yet, be the first to comment.</p>');
+                    }
+                }
+            });
+        }
 
     loadComments();
 });
