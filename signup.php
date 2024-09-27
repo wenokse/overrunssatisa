@@ -389,22 +389,6 @@ document.querySelector('form').addEventListener('submit', function(event) {
         event.preventDefault(); // Prevent form submission
         return false;
     }
-
-    // Ensure that other fields are also not empty (if necessary)
-    var requiredFields = document.querySelectorAll('input[required], select[required]');
-    for (var i = 0; i < requiredFields.length; i++) {
-        if (requiredFields[i].value.trim() === '') {
-            swal({
-                title: 'All fields are required',
-                icon: 'warning',
-                button: 'OK'
-            });
-            event.preventDefault(); // Prevent form submission
-            return false;
-        }
-    }
-
-    return true; // Allow form submission
 });
 
 
