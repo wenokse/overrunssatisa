@@ -125,6 +125,10 @@ $pdo->close();
     <div id="fb-root"></div>
     <!-- <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v13.0&appId=1346358252525630&autoLogAppEvents=1" nonce="hsdcri7l"></script> -->
     <div class="wrapper">
+         <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader"></div>
+    </div>
     <?php 
     if (isset($_SESSION['user'])) {
         include 'includes/navbar.php';
@@ -566,8 +570,54 @@ $(document).ready(function() {
     loadComments();
 });
 
+// Preloader script
+window.addEventListener('load', function() {
+    var preloader = document.getElementById('preloader');
+    preloader.style.display = 'none';
+});
+
     </script>
     <style>
+/* Preloader styles */
+#preloader {
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 999;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loader {
+            border: 16px solid #f3f3f3; /* Light grey */
+            border-top: 16px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .visible {
+            display: block;
+            opacity: 1;
+        }
+
         .color-btn {
     border: 2px solid #ddd;
     border-radius: 50%;
