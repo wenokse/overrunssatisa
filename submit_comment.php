@@ -3,7 +3,7 @@ include 'includes/session.php';
 
 $conn = $pdo->open();
 
-$response = array('success' => false, 'message' => '');
+$response = array('success' => false, 'message' => '', 'redirect' => false);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_SESSION['user']) && !empty($_POST['comment'])) {
@@ -26,8 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $response['message'] = 'There was an error submitting your comment: ' . $e->getMessage();
             }
         } else {
-            // Invalid characters in comment
             $response['message'] = 'Invalid comment! Only letters, numbers, spaces, and . , ? ! - = : are allowed.';
+            $response['redirect'] = true;
         }
     } else {
         $response['message'] = 'Please log in to submit a comment.';

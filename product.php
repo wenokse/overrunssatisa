@@ -431,44 +431,57 @@ $pdo->close();
         });
 
         $(function() {
-        $('#comment_form').on('submit', function(e) {
-            e.preventDefault();
-            var formData = $(this).serialize();
-            $.ajax({
-                url: 'submit_comment.php',
-                method: 'POST',
-                data: formData,
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
+    $('#comment_form').on('submit', function(e) {
+        e.preventDefault();
+        var formData = $(this).serialize();
+        $.ajax({
+            url: 'submit_comment.php',
+            method: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    swal({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: response.message,
+                        onClose: function () {
+                            $('#comment_message').removeClass('alert-danger').addClass('alert-success').text(response.message).show();
+                            $('#comment_form')[0].reset();
+                            loadComments();
+                        }
+                    });
+                } else {
+                    if (response.redirect === true) {
                         swal({
-                            icon: 'success',
-                            title: 'Success!',
+                            icon: 'error',
+                            title: 'Invalid Comment',
                             text: response.message,
-                            onClose: function () {
-                                $('#comment_message').removeClass('alert-danger').addClass('alert-success').text(response.message).show();
-                                $('#comment_form')[0].reset();
-                                loadComments();
-                            }
+                        }).then(() => {
+                            // Reload the current page
+                            window.location.reload();
+                        });
+                    } else if (response.redirect) {
+                        swal({
+                            icon: 'error',
+                            title: 'Login Required',
+                            text: response.message,
+                        }).then(() => {
+                            // Redirect to login page
+                            window.location.href = response.redirect;
                         });
                     } else {
                         swal({
                             icon: 'error',
-                            title: 'Login First!',
-                            text: response.message.redirect,
-                            onClose: function () {
-                                $('#comment_message').removeClass('alert-success').addClass('alert-danger').text(response.message).show();
-                            }
-                        }).then((willRedirect) => {
-                            if (willRedirect) {
-                                // Redirect to the login page
-                                window.location.href = response.redirect;
-                            }
+                            title: 'Error!',
+                            text: response.message
                         });
                     }
                 }
-            });
+            }
         });
+    });
+
    
 $(document).ready(function() {
     $(document).on('click', '.like-btn', function() {
