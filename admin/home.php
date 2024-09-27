@@ -19,8 +19,9 @@
 
   <?php include 'includes/navbar.php'; ?>
   <?php include 'includes/menubar.php'; ?>
-  <script src="../js/sweetalert2.min.js"></script>
-  <script src="../js/sweetalert.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
   <div class="content-wrapper">
     <section class="content-header">
