@@ -10,15 +10,27 @@ if (!isset($_GET['product'])) {
 $slug = $_GET['product'];
 
 try {
-    $stmt = $conn->prepare("SELECT *, products.name AS prodname, category.name AS catname, products.id AS prodid FROM products LEFT JOIN category ON category.id=products.category_id WHERE slug=:slug");
+    $stmt = $conn->prepare("
+    SELECT p.*, p.name AS prodname, c.name AS catname, p.id AS prodid, 
+           CASE WHEN p.user_id = 0 THEN 1 ELSE p.user_id END AS vendor_id,
+           u.photo AS vendor_photo, 
+           CASE WHEN p.user_id = 0 THEN 'Overruns sa Tisa' ELSE u.store END AS vendor_store,
+           c.cat_slug
+    FROM products p 
+    LEFT JOIN category c ON c.id = p.category_id 
+    LEFT JOIN users u ON u.id = CASE WHEN p.user_id = 0 THEN 1 ELSE p.user_id END
+    WHERE p.slug = :slug
+    ");
     $stmt->execute(['slug' => $slug]);
     $product = $stmt->fetch();
-
     if (!$product) {
         exit("Product not found");
     }
 
-
+    $stmt = $conn->prepare("SELECT * FROM product_colors WHERE product_id = :product_id");
+    $stmt->execute(['product_id' => $product['prodid']]);
+    $color_options = $stmt->fetchAll();
+    
     $stmt = $conn->prepare("SELECT AVG(rating) as avg_rating FROM ratings WHERE product_id = :product_id");
     $stmt->execute(['product_id' => $product['prodid']]);
     $avg_rating = $stmt->fetch()['avg_rating'];
@@ -111,7 +123,7 @@ $pdo->close();
 <?php include 'includes/header.php'; ?>
 <body class="hold-transition skin-blue layout-top-nav">
     <div id="fb-root"></div>
-    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v13.0&appId=1346358252525630&autoLogAppEvents=1" nonce="hsdcri7l"></script>
+    <!-- <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v13.0&appId=1346358252525630&autoLogAppEvents=1" nonce="hsdcri7l"></script> -->
     <div class="wrapper">
     <?php 
     if (isset($_SESSION['user'])) {
@@ -131,25 +143,33 @@ $pdo->close();
                             </div>
                             <div class="row">
                                 <div class="col-sm-4">
-                                    <div class="show" href="<?php echo (!empty($product['photo'])) ? 'images/'.$product['photo'] : 'images/noimage.jpg'; ?>">
-                                        <img src="<?php echo (!empty($product['photo'])) ? 'images/'.$product['photo'] : 'images/noimage.jpg'; ?>" id="show-img" class="zoom img1" data-magnify-src="images/large-<?php echo $product['photo']; ?>">
-                                    </div>
+                                <div class="show" href="<?php echo (!empty($product['photo'])) ? 'images/'.$product['photo'] : 'images/noimage.jpg'; ?>">
+                                <img src="<?php echo (!empty($product['photo'])) ? 'images/'.$product['photo'] : 'images/noimage.jpg'; ?>" id="product-img" class="zoom img1" data-magnify-src="images/large-<?php echo $product['photo']; ?>">
+                                </div>
+                               
                                     <br>
-                                    <label for="size">Size</label>
+                                   
                                     <?php if (!empty($sizes) && !in_array($category_name, ['bags', 'accessories'])) : ?>
                                     <div class="form-group">
+                                        <label for="size">Size :</label>
                                         <select class="form-control input-lg" id="size" name="size">
                                             <?php echo $sizes; ?>
                                         </select>
                                     </div>
+                                <?php endif; ?>
+
                                     <br>
-                                    <label for="color">Color</label>
-                                    <?php endif; ?>
-                                    <div class="form-group">
-                                        <select class="form-control input-lg" id="color" name="color">
-                                            <?php echo $colors; ?>
-                                        </select>
-                                    </div>
+                                    <label for="color">Color :</label>
+                                    
+                                    <div class="form-group" id="color-buttons">
+                                    <?php foreach ($color_options as $color): ?>
+                                        <button type="button" class="btn btn-default color-btn" 
+                                                style="background-color: <?php echo $color['color']; ?>; width: 30px; height: 30px; margin-right: 5px;"
+                                                data-color="<?php echo $color['color']; ?>"
+                                                data-photo="<?php echo $color['photo']; ?>">
+                                        </button>
+                                    <?php endforeach; ?>
+                                </div>
                                     <br>
                                     <form class="form-inline" id="productForm" method="post" action="cart_add.php">
                                         <div class="input-group col-sm-6">
@@ -160,6 +180,7 @@ $pdo->close();
                                             <span class="input-group-btn">
                                                 <button type="button" id="add" class="btn btn-default btn-flat btn-lg"><i class="fa fa-plus"></i></button>
                                             </span>
+                                            <input type="hidden" value="<?php echo $product['vendor_id']; ?>" name="vendor_id">
                                             <input type="hidden" value="<?php echo $product['prodid']; ?>" name="id">
                                             <input type="hidden" id="selected_size" name="selected_size">
                                             <input type="hidden" id="selected_color" name="selected_color">
@@ -172,6 +193,13 @@ $pdo->close();
                                     </form>
                                 </div>
                                 <div class="col-sm-8">
+                                <div class="vendor-info">
+                                <a href="shop.php?id=<?php echo $product['vendor_id']; ?>" style="color: black;">
+                                    <img src="<?php echo (!empty($product['vendor_photo'])) ? 'images/'.$product['vendor_photo'] : 'images/noimage.jpg'; ?>" 
+                                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
+                                    <strong><?php echo $product['vendor_store']; ?></strong>
+                                </a>
+                                    </div>
                                     <h1 class="page-header"><b><?php echo $product['prodname']; ?></b>
                                    </h1>
                                     <span><h3><b>&#8369; <span id="price"><?php echo number_format($product['price'], 2); ?> per.</span></b></h3>
@@ -189,7 +217,7 @@ $pdo->close();
                                         <div id="comment_message" class="alert" style="display: none;"></div>
                                         <div id="comment_list"></div>
                                     </div></span>
-                                     <p><b>Stock:</b> 
+                                    <p><b>Stock:</b> 
                                         <span id="stock">
                                             <?php 
                                             if ($product['stock'] == '0') {
@@ -200,6 +228,7 @@ $pdo->close();
                                             ?>
                                         </span>
                                     </p>
+
                                     <p><b>Category:</b> <a href="category.php?category=<?php echo $product['cat_slug']; ?>"><?php echo $product['catname']; ?></a></p>
                                     <p><b>Description:</b></p>
                                     <p1><?php echo $product['description']; ?></p1>
@@ -351,6 +380,24 @@ $pdo->close();
                     .catch(error => console.error('Error:', error));
                 });
             });
+            $('.color-btn').click(function() {
+        var selectedColor = $(this).data('color');
+        var selectedPhoto = $(this).data('photo');
+        
+        // Update hidden input for color
+        $('#selected_color').val(selectedColor);
+        
+        // Update product image
+        $('#product-img').attr('src', 'images/colors/' + selectedPhoto);
+        
+        // Update magnify source if you're using image zoom
+        $('#product-img').data('magnify-src', 'images/large-' + selectedPhoto);
+        
+        // Highlight selected color button
+        $('.color-btn').removeClass('selected');
+        $(this).addClass('selected');
+    });
+
 
             function updateStars(productId, rating) {
                 const starRatingDiv = document.querySelector(`.star-rating[data-product-id='${productId}']`);
@@ -464,7 +511,25 @@ $(document).ready(function() {
 });
 
     </script>
-    
+    <style>
+        .color-btn {
+    border: 2px solid #ddd;
+    border-radius: 50%;
+    padding: 0;
+}
+.color-btn.selected {
+    border-color: #333;
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+    .vendor-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    .vendor-info img {
+        margin-right: 10px;
+    }
+</style>
     <style>
         .img1 {
              border-radius: 10px;
