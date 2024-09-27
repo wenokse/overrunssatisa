@@ -499,35 +499,6 @@ $(document).ready(function() {
             }
         });
     }
-    $(document).on('click', '.delete-comment', function() {
-            var commentId = $(this).data('id');
-            if (confirm('Are you sure you want to delete this comment?')) {
-                $.ajax({
-                    url: 'delete_comment.php',
-                    method: 'POST',
-                    data: { comment_id: commentId },
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.success) {
-                            swal({
-                                icon: 'success',
-                                title: 'Deleted!',
-                                text: response.message,
-                                onClose: function () {
-                                    loadComments();
-                                }
-                            });
-                        } else {
-                            swal({
-                                icon: 'error',
-                                title: 'Error!',
-                                text: response.message,
-                            });
-                        }
-                    }
-                });
-            }
-        });
 
     function loadComments() {
             $.ajax({
