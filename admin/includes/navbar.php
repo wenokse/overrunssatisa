@@ -452,6 +452,7 @@
   }
 ?>
 <script src="../js/sweetalert.min.js"></script>
+<script src="../js/sweetalert2.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const messageToggle = document.getElementById('messageToggle');
