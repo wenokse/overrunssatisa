@@ -121,10 +121,11 @@ $pdo->close();
 ?>
 
 <?php include 'includes/header.php'; ?>
-<body class="hold-transition skin-blue layout-top-nav">
 <div id="preloader">
         <div class="loader"></div>
     </div>
+<body class="hold-transition skin-blue layout-top-nav">
+
     <div id="fb-root"></div>
     <!-- <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v13.0&appId=1346358252525630&autoLogAppEvents=1" nonce="hsdcri7l"></script> -->
     <div class="wrapper">
