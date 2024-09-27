@@ -138,7 +138,7 @@ $pdo->close();
     }
     ?>
         <div class="content-wrapper">
-            <div class="container2">
+            <div class="container">
                 <section class="content">
                     <div class="">
                         <div class="">
@@ -599,7 +599,7 @@ window.addEventListener('load', function() {
         border-radius: 50%;
         width: 120px;
         height: 120px;
-        animation: spin 3s linear infinite;
+        animation: spin 5s linear infinite;
     }
 
     @keyframes spin {
