@@ -138,7 +138,7 @@ $pdo->close();
     }
     ?>
         <div class="content-wrapper">
-            <div class="container">
+            <div class="container2">
                 <section class="content">
                     <div class="">
                         <div class="">
