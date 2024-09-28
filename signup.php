@@ -118,20 +118,29 @@
             <input type="password" class="form-control" name="repassword" placeholder="Retype password" required>
             <span class="glyphicon glyphicon-log-in form-control-feedback"></span>
         </div>
-
+        <div class="form-group has-feedback">
+            <input type="checkbox" id="terms" name="terms" required>
+            <label for="terms">I agree to the <a href="terms.php">Terms and Conditions</a></label>
+        </div>
       
         <div class="form-group has-feedback">
-            <button type="submit" class="btn btn-primary btn-block" name="signup"><i class="fa fa-pencil"></i> Sign Up</button>
+            <button type="submit" class="btn btn-primary btn-block" name="signup" id="signupButton" disabled><i class="fa fa-pencil"></i> Sign Up</button>
         </div>
       
     </form>
     <br>
+    
     <p class="text-center" style="color: rgb(0, 51, 102); ">Already have an account? <a href="login.php">Login</a></p>
     <!-- <p class="text-center" style="color: rgb(0, 51, 102); ">You have a Store? <a href="vendor_signup.php">Signup as Vendor</a></p> -->
 </div>
 
 </div>
-
+<script>
+    document.getElementById('terms').addEventListener('change', function() {
+        var signupButton = document.getElementById('signupButton');
+        signupButton.disabled = !this.checked; // Enable button only if terms checkbox is checked
+    });
+</script>
 <?php include 'includes/scripts.php' ?>
 <style>
       body {
