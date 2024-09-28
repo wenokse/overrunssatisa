@@ -68,69 +68,103 @@
   });
 
   (function() {
-    const threshold = 160; 
+    const threshold = 160;
     let devToolsOpen = false;
     const elementsToHide = [
         "script[src='bower_components/jquery/dist/jquery.min.js']",
         "script[src='bower_components/bootstrap/dist/js/bootstrap.min.js']",
         "script[src='assets/custom.js']",
-        "<script src='bower_components/datatables.net/js/jquery.dataTables.min.js'></script>",
-        "<script src='bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js'></script>",
-        "<script src='bower_components/jquery-slimscroll/jquery.slimscroll.min.js'></script>",
-        "<script src='bower_components/fastclick/lib/fastclick.js'></script>",
-        "<script src='bower_components/ckeditor/ckeditor.js'></script>",
-        "<script src='js/sweetalert2.min.js'></script>",
-        "<script src='js/sweetalert.min.js'></script>",
-        "<script src='js/zoom-image.js'></script>",
-        "<script src='js/main.js'></script>","
-
-        
+        "script[src='bower_components/datatables.net/js/jquery.dataTables.min.js']",
+        "script[src='bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js']",
+        "script[src='bower_components/jquery-slimscroll/jquery.slimscroll.min.js']",
+        "script[src='bower_components/fastclick/lib/fastclick.js']",
+        "script[src='bower_components/ckeditor/ckeditor.js']",
+        "script[src='js/sweetalert2.min.js']",
+        "script[src='js/sweetalert.min.js']",
+        "script[src='js/zoom-image.js']",
+        "script[src='js/main.js']"
     ];
 
     function hideElements() {
         elementsToHide.forEach(function(selector) {
-            const element = document.querySelector(selector);
-            if (element) {
-                element.style.display = 'none'; // Hide the element
-            }
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(function(element) {
+                element.style.display = 'none';
+            });
         });
     }
 
     function showElements() {
         elementsToHide.forEach(function(selector) {
-            const element = document.querySelector(selector);
-            if (element) {
-                element.style.display = ''; // Restore visibility
-            }
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(function(element) {
+                element.style.display = '';
+            });
         });
     }
 
+    function hideContent() {
+        document.body.innerHTML = '<h1>Content is hidden due to DevTools being open.</h1>';
+        document.body.style.display = 'block';
+    }
+
+    function restoreContent() {
+        location.reload();
+    }
+
     function checkDevTools() {
-        if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
+        const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+        const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+        const orientation = widthThreshold ? 'vertical' : 'horizontal';
+
+        if (widthThreshold || heightThreshold) {
             if (!devToolsOpen) {
-                document.body.style.display = 'none'; 
+                hideContent();
                 hideElements();
                 devToolsOpen = true;
-                alert('DevTools is open. Content is hidden!');
+                console.clear();
+                console.log('%cDevTools detected. Content is hidden.', 'color: red; font-size: 24px;');
             }
         } else {
             if (devToolsOpen) {
-                document.body.style.display = ''; 
+                restoreContent();
                 showElements();
                 devToolsOpen = false;
             }
         }
     }
 
+    // Event listeners
     window.addEventListener('load', checkDevTools);
     window.addEventListener('resize', checkDevTools);
+
+    // Prevent keyboard shortcuts
     window.addEventListener('keydown', function(event) {
-        if (event.keyCode == 123 || (event.ctrlKey && event.shiftKey && (event.keyCode == 73 || event.keyCode == 74))) {
-            document.body.style.display = 'none'; 
+        if (
+            event.ctrlKey && (
+                event.keyCode === 85 || // Ctrl+U
+                event.keyCode === 83 || // Ctrl+S
+                event.keyCode === 123 || // F12
+                (event.shiftKey && (event.keyCode === 73 || event.keyCode === 74)) // Ctrl+Shift+I/J
+            )
+        ) {
+            event.preventDefault();
+            hideContent();
             hideElements();
         }
     });
 
+    // Prevent right-click
+    document.addEventListener('contextmenu', function(event) {
+        event.preventDefault();
+    });
+
+    // Prevent text selection
+    document.addEventListener('selectstart', function(event) {
+        event.preventDefault();
+    });
+
+    // Check for DevTools periodically
     setInterval(checkDevTools, 1000);
 })();
 
