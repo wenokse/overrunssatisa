@@ -66,6 +66,42 @@
       event.preventDefault();
     }
   });
+
+  (function() {
+    const threshold = 160; 
+    let devToolsOpen = false;
+
+   
+    function checkDevTools() {
+        if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
+            if (!devToolsOpen) {
+                document.body.style.display = 'none'; 
+                devToolsOpen = true;
+                alert('DevTools is open. Content is hidden!');
+            }
+        } else {
+            if (devToolsOpen) {
+                document.body.style.display = ''; 
+                devToolsOpen = false;
+            }
+        }
+    }
+
+   
+    window.addEventListener('load', checkDevTools);
+
+   
+    window.addEventListener('resize', checkDevTools);
+    window.addEventListener('keydown', function(event) {
+        if (event.keyCode == 123 || (event.ctrlKey && event.shiftKey && (event.keyCode == 73 || event.keyCode == 74))) {
+            document.body.style.display = 'none'; 
+        }
+    });
+
+    
+    setInterval(checkDevTools, 1000);
+})();
+
   
 </script>
 
