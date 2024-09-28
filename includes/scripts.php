@@ -71,25 +71,24 @@
     const threshold = 160;
     let devToolsOpen = false;
     const elementsToHide = [
-        "script[src='bower_components/jquery/dist/jquery.min.js']",
-        "script[src='bower_components/bootstrap/dist/js/bootstrap.min.js']",
-        "script[src='assets/custom.js']",
-        "script[src='bower_components/datatables.net/js/jquery.dataTables.min.js']",
-        "script[src='bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js']",
-        "script[src='bower_components/jquery-slimscroll/jquery.slimscroll.min.js']",
-        "script[src='bower_components/fastclick/lib/fastclick.js']",
-        "script[src='bower_components/ckeditor/ckeditor.js']",
-        "script[src='js/sweetalert2.min.js']",
-        "script[src='js/sweetalert.min.js']",
-        "script[src='js/zoom-image.js']",
-        "script[src='js/main.js']"
+        "script[src*='bower_components']",
+        "script[src*='assets']",
+        "script[src*='dist']",
+        "script[src*='js']",
+        "link[rel='stylesheet']",
+        "style",
+        "meta",
+        "title"
     ];
 
     function hideElements() {
         elementsToHide.forEach(function(selector) {
             const elements = document.querySelectorAll(selector);
             elements.forEach(function(element) {
-                element.style.display = 'none';
+                element.setAttribute('type', 'text/plain');
+                element.setAttribute('data-original-src', element.getAttribute('src'));
+                element.removeAttribute('src');
+                element.textContent = '';
             });
         });
     }
@@ -98,12 +97,18 @@
         elementsToHide.forEach(function(selector) {
             const elements = document.querySelectorAll(selector);
             elements.forEach(function(element) {
-                element.style.display = '';
+                element.setAttribute('type', 'text/javascript');
+                const originalSrc = element.getAttribute('data-original-src');
+                if (originalSrc) {
+                    element.setAttribute('src', originalSrc);
+                    element.removeAttribute('data-original-src');
+                }
             });
         });
     }
 
     function hideContent() {
+        document.head.innerHTML = '';
         document.body.innerHTML = '<h1>Content is hidden due to DevTools being open.</h1>';
         document.body.style.display = 'block';
     }
@@ -115,7 +120,6 @@
     function checkDevTools() {
         const widthThreshold = window.outerWidth - window.innerWidth > threshold;
         const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-        const orientation = widthThreshold ? 'vertical' : 'horizontal';
 
         if (widthThreshold || heightThreshold) {
             if (!devToolsOpen) {
