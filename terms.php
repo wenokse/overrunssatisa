@@ -40,11 +40,13 @@
     }
 
     .container {
-        width: 80%;
+        width: 500px;
+        height: 960px;
         margin: 0 auto 50px;
-        padding: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 20px;
         background-color: #f9f9f9;
-        border-radius: 10px;
         box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
     }
 
@@ -61,35 +63,46 @@
 </script>
 
 <div class="container">
-    <h1>Terms and Conditions</h1>
+<a href="signup.php" style="color: rgb(0, 51, 102); "><i class="fa fa-arrow-left" style="color: rgb(0, 51, 102);"></i></a></p><br><br>
+<h2>Terms and Conditions</h2>
+<p>Welcome to Overruns Sa Tisa Online Shop. By using our website and services, you agree to the following terms and conditions.</p>
 
-    <p><b>Effective Date:</b> [Insert Date]</p>
+<h3>1. Introduction</h3>
+<p>This website is operated by Rowen G. Secuya. Throughout the site, the terms "we", "us" and "our" refer to Overruns Sa Tisa. We offer this website, including all information, tools, and services available from this site, to you, the user, conditioned upon your acceptance of all terms, conditions, policies, and notices stated here.</p>
 
-    <p>Welcome to <b>overrunssatisa.com</b> ("the Website"). By accessing or using this Website, you agree to comply with and be bound by the following terms and conditions of use. If you do not agree to these terms, please do not use this Website.</p>
+<h3>2. User Accounts</h3>
+<p>You may be required to create an account to access certain features of the site. You agree to provide accurate, current, and complete information during registration and update your information as necessary. You are responsible for safeguarding your password and for any activities or actions under your account.</p>
 
-    <h2>1. Acceptance of Terms</h2>
-    <p>By accessing or using <b>overrunssatisa.com</b>, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions of Use.</p>
+<h3>3. Products and Services</h3>
+<p>We strive to provide accurate descriptions of our products, but we do not guarantee that any description is complete, current, or free of errors. Product availability and prices are subject to change without notice.</p>
 
-    <h2>2. Use of the Website</h2>
-    <p>You may use the Website for lawful purposes only. You agree not to:</p>
-    <ul>
-        <li>Violate any laws, regulations, or international treaties.</li>
-        <li>Engage in any activity that could harm the Website's functionality or security.</li>
-        <li>Use automated systems without prior written permission.</li>
-    </ul>
+<h3>4. Orders and Payments</h3>
+<p>All prices are in [Currency]. We reserve the right to refuse or cancel any order due to pricing errors, stock issues, or potential fraud. Payment must be completed before the shipment of goods.</p>
 
-    <h2>3. Intellectual Property</h2>
-    <p>All content on this Website is the property of <b>overrunssatisa.com</b> and its licensors and is protected by copyright laws. Unauthorized use of any materials is prohibited.</p>
+<h3>5. Returns and Refunds</h3>
+<p>If you are not satisfied with your purchase, you may return the item within [X] days of receiving it, but you still pay the shipping fee for the rider, provided it is in its original condition. [Additional return policy details].</p>
 
-    <h2>4. Limitation of Liability</h2>
-    <p><b>overrunssatisa.com</b> will not be liable for any damages arising from your use of the Website.</p>
+<h3>6. Pricing </h3>
+<p>Prices listed on our site are subject to change without notice.</p>
 
-    <h2>5. Governing Law</h2>
-    <p>These terms are governed by the laws of [Insert Location].</p>
+<h3>7. User Conduct</h3>
+<p>Users agree to use the site only for lawful purposes and in a manner that does not infringe on the rights of others or restrict the use of the site. Prohibited activities include, but are not limited to, harassment, defamation, and uploading viruses or harmful code.</p>
 
-    <h2>6. Contact Us</h2>
-    <p>If you have any questions about these Terms and Conditions, please contact us at:</p>
-    <p>Email: rowensecuya25@gmail.com<br></p>
+<h3>8. Intellectual Property</h3>
+<p>All content on this site, including text, images, logos, and designs, are owned by or licensed to Overruns Sa Tisa Online Shop and are protected by intellectual property laws. Unauthorized use of this content is prohibited.</p>
+
+<h3>9. Limitation of Liability</h3>
+<p>We do not warrant that the use of our service will be uninterrupted, timely, or error-free. In no case shall Overruns Sa Tisa Online Shop, our directors, officers, employees, affiliates, agents, or contractors be liable for any injury, loss, claim, or any direct or indirect damages resulting from your use of our website.</p>
+
+<h3>10. Governing Law</h3>
+<p>These Terms and any separate agreements shall be governed by and construed in accordance with the laws of Philippines.</p>
+
+<h3>11. Amendments</h3>
+<p>We reserve the right to modify these terms at any time. Changes will be effective immediately upon posting on the website.</p>
+
+<h3>12. Contact Information</h3>
+<p>If you have any questions about these Terms and Conditions, please contact us at rowensecuya25@gmail.com.</p>
+
 </div>
 
 <?php include 'includes/scripts.php'; ?>

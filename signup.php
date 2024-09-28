@@ -119,7 +119,7 @@
             <span class="glyphicon glyphicon-log-in form-control-feedback"></span>
         </div>
         <div class="form-group has-feedback">
-            <input type="checkbox" id="terms" name="terms" required>
+            <input type="checkbox" id="terms" name="terms" class="form-control-feedback1" required>
             <label for="terms">I agree to the <a href="terms.php">Terms and Conditions</a></label>
         </div>
       
@@ -151,7 +151,7 @@
 
     .container {
         width: 500px;
-        height: 940px;
+        height: 960px;
         margin: 0 auto 50px;
         padding: 10px;
         border: 1px solid #ccc;
