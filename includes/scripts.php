@@ -108,10 +108,32 @@
     }
 
     function hideContent() {
-        document.head.innerHTML = '';
-        document.body.innerHTML = '<h1>Content is hidden due to DevTools being open.</h1>';
-        document.body.style.display = 'block';
+        document.head.innerHTML = `
+            <style>
+                body {
+                    background-color: black;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                    font-family: Arial, sans-serif;
+                }
+                h1 {
+                    color: #39FF14;
+                    text-shadow: 0 0 10px #39FF14, 0 0 20px #39FF14, 0 0 30px #39FF14;
+                    animation: bounce 1s infinite alternate;
+                    text-align: center;
+                }
+                @keyframes bounce {
+                    from { transform: translateY(0px); }
+                    to { transform: translateY(-20px); }
+                }
+            </style>
+        `;
+        document.body.innerHTML = '<h1>DevTools detected.<br>Content is hidden.</h1>';
     }
+
 
     function restoreContent() {
         location.reload();
