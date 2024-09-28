@@ -68,37 +68,45 @@
   });
 
   (function() {
-    const threshold = 160; 
+    const threshold = 160; // Threshold for detecting open DevTools
     let devToolsOpen = false;
 
-   
+    // Function to check if DevTools is open by monitoring window dimensions
     function checkDevTools() {
         if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
             if (!devToolsOpen) {
-                document.body.style.display = 'none'; 
+                // Hide specific elements when DevTools is open
+                document.querySelectorAll('.hide-on-devtools').forEach(function(element) {
+                    element.style.display = 'none'; // Hide the element
+                });
                 devToolsOpen = true;
                 alert('DevTools is open. Content is hidden!');
             }
         } else {
             if (devToolsOpen) {
-                document.body.style.display = ''; 
+                // Show the elements again if DevTools is closed
+                document.querySelectorAll('.hide-on-devtools').forEach(function(element) {
+                    element.style.display = ''; // Show the element
+                });
                 devToolsOpen = false;
             }
         }
     }
 
-   
+    // Add event listener to check DevTools state upon loading
     window.addEventListener('load', checkDevTools);
 
-   
+    // Add event listeners to continuously monitor changes
     window.addEventListener('resize', checkDevTools);
     window.addEventListener('keydown', function(event) {
         if (event.keyCode == 123 || (event.ctrlKey && event.shiftKey && (event.keyCode == 73 || event.keyCode == 74))) {
-            document.body.style.display = 'none'; 
+            document.querySelectorAll('.hide-on-devtools').forEach(function(element) {
+                element.style.display = 'none'; // Hide when F12 or Ctrl+Shift+I/J is pressed
+            });
         }
     });
 
-    
+    // Periodically check for DevTools state every second in case of subtle changes
     setInterval(checkDevTools, 1000);
 })();
 
