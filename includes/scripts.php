@@ -68,133 +68,144 @@
   });
 
   (function() {
-    const threshold = 160;
-    let devToolsOpen = false;
-    const elementsToHide = [
-        "script[src*='bower_components']",
-        "script[src*='assets']",
-        "script[src*='dist']",
-        "script[src*='js']",
-        "link[rel='stylesheet']",
-        "style",
-        "meta",
-        "title"
-    ];
+    // Function to generate a random string
+    function randomString(length) {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        return Array.from({length}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    }
 
-    function hideElements() {
-        elementsToHide.forEach(function(selector) {
-            const elements = document.querySelectorAll(selector);
-            elements.forEach(function(element) {
-                element.setAttribute('type', 'text/plain');
-                element.setAttribute('data-original-src', element.getAttribute('src'));
-                element.removeAttribute('src');
-                element.textContent = '';
+    // Obfuscated script content
+    const scriptContent = `
+    (${function() {
+        const ${randomString(5)} = ${160};
+        let ${randomString(5)} = false;
+        const ${randomString(5)} = [
+            "script[src*='bower_components']",
+            "script[src*='assets']",
+            "script[src*='dist']",
+            "script[src*='js']",
+            "link[rel='stylesheet']",
+            "style",
+            "meta",
+            "title"
+        ];
+
+        function ${randomString(8)}() {
+            ${randomString(5)}.forEach(function(selector) {
+                document.querySelectorAll(selector).forEach(function(element) {
+                    element.setAttribute('type', 'text/plain');
+                    element.setAttribute('data-original-src', element.getAttribute('src'));
+                    element.removeAttribute('src');
+                    element.textContent = '';
+                });
             });
-        });
-    }
+        }
 
-    function showElements() {
-        elementsToHide.forEach(function(selector) {
-            const elements = document.querySelectorAll(selector);
-            elements.forEach(function(element) {
-                element.setAttribute('type', 'text/javascript');
-                const originalSrc = element.getAttribute('data-original-src');
-                if (originalSrc) {
-                    element.setAttribute('src', originalSrc);
-                    element.removeAttribute('data-original-src');
-                }
+        function ${randomString(8)}() {
+            ${randomString(5)}.forEach(function(selector) {
+                document.querySelectorAll(selector).forEach(function(element) {
+                    element.setAttribute('type', 'text/javascript');
+                    const originalSrc = element.getAttribute('data-original-src');
+                    if (originalSrc) {
+                        element.setAttribute('src', originalSrc);
+                        element.removeAttribute('data-original-src');
+                    }
+                });
             });
-        });
-    }
+        }
 
-    function hideContent() {
-        document.head.innerHTML = `
-            <style>
-                body {
-                    background-color: black;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100vh;
-                    margin: 0;
-                    font-family: Arial, sans-serif;
+        function ${randomString(8)}() {
+            document.head.innerHTML = \`
+                <style>
+                    body {
+                        background-color: black;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                        margin: 0;
+                        font-family: Arial, sans-serif;
+                    }
+                    h1 {
+                        color: #39FF14;
+                        text-shadow: 0 0 10px #39FF14, 0 0 20px #39FF14, 0 0 30px #39FF14;
+                        animation: bounce 1s infinite alternate;
+                        text-align: center;
+                    }
+                    @keyframes bounce {
+                        from { transform: translateY(0px); }
+                        to { transform: translateY(-20px); }
+                    }
+                </style>
+            \`;
+            document.body.innerHTML = '<h1>DevTools detected.<br>Content is hidden.</h1>';
+        }
+
+        function ${randomString(8)}() {
+            location.reload();
+        }
+
+        function ${randomString(8)}() {
+            const widthThreshold = window.outerWidth - window.innerWidth > ${randomString(5)};
+            const heightThreshold = window.outerHeight - window.innerHeight > ${randomString(5)};
+
+            if (widthThreshold || heightThreshold) {
+                if (!${randomString(5)}) {
+                    ${randomString(8)}();
+                    ${randomString(8)}();
+                    ${randomString(5)} = true;
+                    console.clear();
+                    console.log('%cDevTools detected. Content is hidden.', 'color: #39FF14; font-size: 24px; text-shadow: 0 0 10px #39FF14;');
                 }
-                h1 {
-                    color: #39FF14;
-                    text-shadow: 0 0 10px #39FF14, 0 0 20px #39FF14, 0 0 30px #39FF14;
-                    animation: bounce 1s infinite alternate;
-                    text-align: center;
+            } else {
+                if (${randomString(5)}) {
+                    ${randomString(8)}();
+                    ${randomString(8)}();
+                    ${randomString(5)} = false;
                 }
-                @keyframes bounce {
-                    from { transform: translateY(0px); }
-                    to { transform: translateY(-20px); }
-                }
-            </style>
-        `;
-        document.body.innerHTML = '<h1>DevTools detected.<br>Content is hidden.</h1>';
-    }
-
-
-    function restoreContent() {
-        location.reload();
-    }
-
-    function checkDevTools() {
-        const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-        const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-
-        if (widthThreshold || heightThreshold) {
-            if (!devToolsOpen) {
-                hideContent();
-                hideElements();
-                devToolsOpen = true;
-                console.clear();
-                console.log('%cDevTools detected. Content is hidden.', 'color: red; font-size: 24px;');
-            }
-        } else {
-            if (devToolsOpen) {
-                restoreContent();
-                showElements();
-                devToolsOpen = false;
             }
         }
-    }
 
-    // Event listeners
-    window.addEventListener('load', checkDevTools);
-    window.addEventListener('resize', checkDevTools);
+        window.addEventListener('load', ${randomString(8)});
+        window.addEventListener('resize', ${randomString(8)});
 
-    // Prevent keyboard shortcuts
-    window.addEventListener('keydown', function(event) {
-        if (
-            event.ctrlKey && (
-                event.keyCode === 85 || // Ctrl+U
-                event.keyCode === 83 || // Ctrl+S
-                event.keyCode === 123 || // F12
-                (event.shiftKey && (event.keyCode === 73 || event.keyCode === 74)) // Ctrl+Shift+I/J
-            )
-        ) {
+        window.addEventListener('keydown', function(event) {
+            if (
+                event.ctrlKey && (
+                    event.keyCode === 85 || 
+                    event.keyCode === 83 || 
+                    event.keyCode === 123 || 
+                    (event.shiftKey && (event.keyCode === 73 || event.keyCode === 74))
+                )
+            ) {
+                event.preventDefault();
+                ${randomString(8)}();
+                ${randomString(8)}();
+            }
+        });
+
+        document.addEventListener('contextmenu', function(event) {
             event.preventDefault();
-            hideContent();
-            hideElements();
-        }
-    });
+        });
 
-    // Prevent right-click
-    document.addEventListener('contextmenu', function(event) {
-        event.preventDefault();
-    });
+        document.addEventListener('selectstart', function(event) {
+            event.preventDefault();
+        });
 
-    // Prevent text selection
-    document.addEventListener('selectstart', function(event) {
-        event.preventDefault();
-    });
+        setInterval(${randomString(8)}, 1000);
+    }})();
+    `;
 
-    // Check for DevTools periodically
-    setInterval(checkDevTools, 1000);
+    // Create a new script element
+    const script = document.createElement('script');
+    
+    // Set the content of the script
+    script.textContent = scriptContent;
+
+    // Append the script to the document body
+    document.body.appendChild(script);
 })();
 
-  
 </script>
 
 <script>
