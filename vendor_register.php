@@ -2,6 +2,7 @@
 	include 'includes/session.php';
 
 	if(isset($_POST['signup'])){
+		// Sanitize other fields
 		$store = htmlspecialchars($_POST['store']);
 		$firstname = htmlspecialchars($_POST['firstname']);
 		$lastname = htmlspecialchars($_POST['lastname']);
@@ -9,8 +10,11 @@
 		$address2 = htmlspecialchars($_POST['address2']);
 		$contact_info = htmlspecialchars($_POST['contact_info']);
 		$email = htmlspecialchars($_POST['email']);
+		
+		// Password fields do not require htmlspecialchars but should be securely hashed
 		$password = $_POST['password'];
 		$repassword = $_POST['repassword'];
+		
 		$photo = htmlspecialchars($_POST['photo']);
 		$business_permit = htmlspecialchars($_POST['business_permit']);
 
@@ -43,6 +47,8 @@
 			}
 			else{
 				$now = date('Y-m-d');
+				
+				// Hash the password before storing it
 				$password = password_hash($password, PASSWORD_DEFAULT);
 
 				try{
@@ -64,5 +70,4 @@
 		$_SESSION['error'] = 'Fill up signup form first';
 		header('location: vendor_signup.php');
 	}
-
 ?>
