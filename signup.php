@@ -125,7 +125,7 @@
       <?php
             if(!isset($_SESSION['captcha'])){
               echo '
-                <di class="form-group" style="width:100%;">
+                <di class="form-group has-feedback">
                   <div class="g-recaptcha" data-sitekey="6LfmdVQqAAAAAGDAr09cjmfyP3veq9SJe5lN0doF"></div>
                 </di>
               ';
@@ -189,7 +189,7 @@
 
     .container {
         width: 500px;
-        height: 880px;
+        height: 940px;
         margin: 0 auto 50px;
         padding: 20px;
         border: 1px solid #ccc;
