@@ -160,7 +160,7 @@
 
     .container {
         width: 500px;
-        height: 1150px;
+        height: 1190px;
         margin: 0 auto 50px;
         padding: 20px;
         border: 1px solid #ccc;
@@ -190,7 +190,7 @@
 
     .container {
         width: 500px;
-        height: 1050px;
+        height: 1150px;
         margin: 0 auto 50px;
         padding: 20px;
         border: 1px solid #ccc;
