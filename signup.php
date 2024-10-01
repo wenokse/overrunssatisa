@@ -125,8 +125,8 @@
       <?php
             if(!isset($_SESSION['captcha'])){
               echo '
-                <di class="form-group has-feedback">
-                  <div data-sitekey="6LfmdVQqAAAAAGDAr09cjmfyP3veq9SJe5lN0doF"></div>
+                <di class="form-group" style="width:100%; align: center;">
+                  <div class="g-recaptcha" data-sitekey="6LfmdVQqAAAAAGDAr09cjmfyP3veq9SJe5lN0doF"></div>
                 </di>
               ';
             }
@@ -157,11 +157,7 @@
         background-repeat: no-repeat;
     }
 
-    .g-recaptcha {
-    margin: 8px 0;
-    border-radius: 10px;
-    overflow: hidden;
-}
+    
     .container {
         width: 500px;
         height: 1000px;
@@ -204,19 +200,7 @@
     }
 
     /* ... (keep other existing styles) ... */
-    @media (max-width: 768px) {
-    .g-recaptcha {
-        transform: scale(0.9);
-        transform-origin: 0 0;
-    }
-}
 
-@media (max-width: 480px) {
-    .g-recaptcha {
-        transform: scale(0.8);
-        transform-origin: 0 0;
-    }
-}
     /* Mobile view styles */
     @media (max-width: 768px) {
         .container {
