@@ -21,6 +21,22 @@
 		// Special character validation for store and name fields
 		$invalid_chars = "/[<>:\/$;,?!]/";
 
+		if(!isset($_SESSION['captcha'])){
+			require('recaptcha/src/autoload.php');
+			$recaptcha = new \ReCaptcha\ReCaptcha('6LdGIWQfAAAAAMzd7G5PAdIeEhqqZHO-dgBrZeMo', new \ReCaptcha\RequestMethod\SocketPost());
+			$resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+
+			if (!$resp->isSuccess()){
+		  		$_SESSION['error'] = 'Please answer recaptcha correctly';
+		  		header('location: signup.php');
+		  		exit();	
+		  	}	
+		  	else{
+		  		$_SESSION['captcha'] = time() + (10*60);
+		  	}
+
+		}
+
 		if (preg_match($invalid_chars, $store) || preg_match($invalid_chars, $firstname) || preg_match($invalid_chars, $lastname)) {
 			$_SESSION['error'] = 'Special characters like <>:/$;,?! are not allowed.';
 			header('location: vendor_signup.php');
