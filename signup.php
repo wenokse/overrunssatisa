@@ -151,7 +151,7 @@
 
     .container {
         width: 500px;
-        height: 960px;
+        height: 1000px;
         margin: 0 auto 50px;
         padding: 10px;
         border: 1px solid #ccc;
