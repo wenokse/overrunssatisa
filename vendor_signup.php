@@ -130,11 +130,11 @@
           <div class="form-group has-feedback">
               <input type="file" id="business_permit" name="business_permit" required>
            </div>
-           <?php
+      <?php
             if(!isset($_SESSION['captcha'])){
               echo '
                 <di class="form-group" style="width:100%;">
-                  <div class="g-recaptcha" data-sitekey="6LdGIWQfAAAAADXr_mp6tJBzWnI5u_BgShiN4kqq"></div>
+                  <div class="g-recaptcha" data-sitekey="6LfmdVQqAAAAAGDAr09cjmfyP3veq9SJe5lN0doF"></div>
                 </di>
               ';
             }

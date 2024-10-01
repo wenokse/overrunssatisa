@@ -22,20 +22,20 @@ if(isset($_POST['signup'])){
     $repassword = $_POST['repassword'];
 
     if(!isset($_SESSION['captcha'])){
-        require('recaptcha/src/autoload.php');
-        $recaptcha = new \ReCaptcha\ReCaptcha('6LdGIWQfAAAAAMzd7G5PAdIeEhqqZHO-dgBrZeMo', new \ReCaptcha\RequestMethod\SocketPost());
-        $resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+			require('recaptcha/src/autoload.php');
+			$recaptcha = new \ReCaptcha\ReCaptcha('6LfmdVQqAAAAAELMHS60poazcKSqrkR8DU2Me7OY', new \ReCaptcha\RequestMethod\SocketPost());
+			$resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
 
-        if (!$resp->isSuccess()){
-              $_SESSION['error'] = 'Please answer recaptcha correctly';
-              header('location: signup.php');
-              exit();	
-          }	
-          else{
-              $_SESSION['captcha'] = time() + (10*60);
-          }
+			if (!$resp->isSuccess()){
+		  		$_SESSION['error'] = 'Please answer recaptcha correctly';
+		  		header('location: signup.php');
+		  		exit();	
+		  	}	
+		  	else{
+		  		$_SESSION['captcha'] = time() + (10*60);
+		  	}
 
-    }
+		}
 
     if (containsSpecialCharacters($firstname) || containsSpecialCharacters($lastname) || containsSpecialCharacters($email) || containsSpecialCharacters($password)) {
         $_SESSION['error'] = 'Special characters like <>:/$;,?! are not allowed.';
