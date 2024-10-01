@@ -279,6 +279,43 @@
         cursor: pointer;
     }
 </style>
+<script>
+    // Email validation for Gmail and special character validation
+    function validateForm() {
+        const email = document.querySelector('input[name="email"]').value;
+        const invalidChars = /[<>:\/$;,?!]/;
+        const fields = ['store', 'firstname', 'lastname'];
+
+        // Gmail validation
+        if (!email.endsWith('@gmail.com')) {
+            swal({
+                title: 'Email must be a Gmail account (@gmail.com)',
+                icon: 'warning',
+                button: 'OK'
+            });
+            return false;
+        }
+
+        // Check for special characters
+        for (let i = 0; i < fields.length; i++) {
+            const field = document.querySelector(`input[name="${fields[i]}"]`).value;
+            if (invalidChars.test(field)) {
+                swal({
+                    title: 'Special characters like <>:/$;,?! are not allowed.',
+                    icon: 'warning',
+                    button: 'OK'
+                });
+                return false;
+            }
+        }
+
+        return true;
+    }
+    
+    // Attach validation to the form
+    const form = document.querySelector('form');
+    form.onsubmit = validateForm;
+</script>
 
 <script>
     var input = document.getElementById('contact_info');

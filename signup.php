@@ -131,7 +131,7 @@
     <br>
     
     <p class="text-center" style="color: rgb(0, 51, 102); ">Already have an account? <a href="login.php">Login</a></p>
-    <!-- <p class="text-center" style="color: rgb(0, 51, 102); ">You have a Store? <a href="vendor_signup.php">Signup as Vendor</a></p> -->
+    <p class="text-center" style="color: rgb(0, 51, 102); ">You have a Store? <a href="vendor_signup.php">Signup as Vendor</a></p>
 </div>
 
 </div>

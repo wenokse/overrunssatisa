@@ -2,24 +2,36 @@
 	include 'includes/session.php';
 
 	if(isset($_POST['signup'])){
-		$store = $_POST['store'];
-		$firstname = $_POST['firstname'];
-		$lastname = $_POST['lastname'];
-		$address = $_POST['address'];
-		$address2 = $_POST['address2'];
-		$contact_info = $_POST['contact_info'];
-		$email = $_POST['email'];
+		$store = htmlspecialchars($_POST['store']);
+		$firstname = htmlspecialchars($_POST['firstname']);
+		$lastname = htmlspecialchars($_POST['lastname']);
+		$address = htmlspecialchars($_POST['address']);
+		$address2 = htmlspecialchars($_POST['address2']);
+		$contact_info = htmlspecialchars($_POST['contact_info']);
+		$email = htmlspecialchars($_POST['email']);
 		$password = $_POST['password'];
 		$repassword = $_POST['repassword'];
-		$photo = $_POST['photo'];
-		$business_permit = $_POST['business_permit'];
+		$photo = htmlspecialchars($_POST['photo']);
+		$business_permit = htmlspecialchars($_POST['business_permit']);
 
+		// Special character validation for store and name fields
+		$invalid_chars = "/[<>:\/$;,?!]/";
 
-		if($password != $repassword){
+		if (preg_match($invalid_chars, $store) || preg_match($invalid_chars, $firstname) || preg_match($invalid_chars, $lastname)) {
+			$_SESSION['error'] = 'Special characters like <>:/$;,?! are not allowed.';
+			header('location: vendor_signup.php');
+		}
+		// Ensure email is Gmail
+		else if (!preg_match("/^[a-zA-Z0-9._%+-]+@gmail\.com$/", $email)) {
+			$_SESSION['error'] = 'Email must be a Gmail account (@gmail.com)';
+			header('location: vendor_signup.php');
+		}
+		// Check if passwords match
+		else if ($password != $repassword) {
 			$_SESSION['error'] = 'Passwords did not match';
 			header('location: vendor_signup.php');
 		}
-		else{
+		else {
 			$conn = $pdo->open();
 			$stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM users WHERE email=:email");
 			$stmt->execute(['email'=>$email]);
@@ -38,17 +50,15 @@
 					$stmt->execute(['email'=>$email, 'password'=>$password, 'firstname'=>$firstname, 'lastname'=>$lastname, 'store'=>$store, 'address'=>$address, 'address2'=>$address2, 'contact_info'=>$contact_info, 'photo'=>$photo, 'business_permit'=>$business_permit, 'type'=>2, 'status'=>3, 'created_on'=>$now]);
 					$_SESSION['success'] = 'Account created successfully, waiting for admin approval.';
 					header('location: login.php');
-				  }
-				  catch (PDOException $e){
+				}
+				catch (PDOException $e){
 					$_SESSION['error'] = $e->getMessage();
 					header('location: vendor_register.php');
-				  }
+				}
 
 				$pdo->close();
 			}
-
 		}
-
 	}
 	else{
 		$_SESSION['error'] = 'Fill up signup form first';
