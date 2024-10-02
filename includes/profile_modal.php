@@ -124,7 +124,7 @@
     </div>
 </div>
 <script>
-     var input = document.getElementById('contact_info');
+    var input = document.getElementById('contact_info');
     input.addEventListener('input', function() {
         this.value = this.value.replace(/[^0-9]/g, '');
     });
@@ -141,4 +141,28 @@
         }
         return true;
     }
+
+    function validateForm() {
+        var email = document.getElementById('email').value;
+        var specialChars = /[<>:\/\$;,?!]/;
+        if (!email.endsWith("@gmail.com")) {
+            swal({
+                title: 'Email must be a @gmail.com address.',
+                icon: 'warning',
+                button: 'OK'
+            });
+            return false;
+        }
+        if (specialChars.test(email) || specialChars.test(document.getElementById('firstname').value) || specialChars.test(document.getElementById('lastname').value)) {
+            swal({
+                title: 'Special characters like <>:/$;,?! are not allowed.',
+                icon: 'warning',
+                button: 'OK'
+            });
+            return false;
+        }
+        return validatePhoneNumber();
+    }
+
+    document.querySelector('form').addEventListener('submit', validateForm);
 </script>
