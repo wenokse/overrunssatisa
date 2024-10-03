@@ -12,8 +12,6 @@
 <!-- AdminLTE App -->
 <script src="dist/js/adminlte.min.js"></script>
 
-<!-- <script src="assets/js/jquery-3.6.0.min.js"></script> -->
-<!-- <script src="assets/js/bootstrap5.bundle.min.js"></script> -->
 <script src="assets/custom.js"></script>
 <!-- CK Editor -->
 <script src="bower_components/ckeditor/ckeditor.js"></script>
@@ -21,6 +19,17 @@
 <script src="js/sweetalert.min.js"></script>
 
 <?php
+  function detect_wapiti() {
+    if (isset($_SERVER['HTTP_USER_AGENT'])) {
+        $user_agent = strtolower($_SERVER['HTTP_USER_AGENT']);
+        if (strpos($user_agent, 'wapiti') !== false) {
+            die('Access Denied: Potential Security Threat Detected.');
+        }
+    }
+  }
+
+  detect_wapiti(); 
+  
   if (isset($_SESSION['error']) || isset($_SESSION['success'])) {
     $message = isset($_SESSION['error']) ? $_SESSION['error'] : $_SESSION['success'];
     $icon = isset($_SESSION['error']) ? 'error' : 'success';
@@ -134,7 +143,6 @@
         document.body.innerHTML = '<h1>DevTools detected.<br>Content is hidden.</h1>';
     }
 
-
     function restoreContent() {
         location.reload();
     }
@@ -229,14 +237,12 @@
             dataType: 'json',
             success: function(response){
                 if(response.redirect) {
-                    // Display message first
                     swal({
                         title: response.message,
                         icon: 'info',
                         button: 'OK'
                     }).then((willRedirect) => {
                         if (willRedirect) {
-                            // Redirect to the login page
                             window.location.href = response.redirect;
                         }
                     });
@@ -256,8 +262,6 @@
                 }
             }
         });
-
-
     });
 
     $(document).on('click', '.close', function(){
@@ -294,7 +298,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <!--Magnify -->
 <script src="js/zoom-image.js"></script>
 <script src="js/main.js"></script>
-<!-- <script src="magnify/magnify.min.js"></script> -->
 <script>
   $(function(){
     $('.show').zoomImage();
