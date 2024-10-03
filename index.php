@@ -304,7 +304,7 @@ img {
             </div>
         </section>
     </div>
-    </div>
+</div>
     <?php include 'includes/footer.php'; ?>
 </div>
 
@@ -354,76 +354,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     if (navigator.userAgent.match(/Android/i)) {
         document.addEventListener('backbutton', handleBackButton, false);
-    } else {
-        window.addEventListener('popstate', handleBackButton);  // Handles browser back button
     }
 
     function handleBackButton(e) {
-        e.preventDefault();  // Prevent default back action
-        showExitPopup();
-    }
-
-    function showExitPopup() {
-        popup.style.display = 'block';
-    }
-
-    function closeApp() {
-        if (navigator.app && navigator.app.exitApp) {
+        e.preventDefault();
+        if (confirm('Are you sure you want to exit this app?')) {
             navigator.app.exitApp();
-        } else {
-            window.close();  // Fallback
         }
     }
-
-    // Add event listeners for the popup buttons
-    document.getElementById('exitYes').addEventListener('click', (e) => {
-        e.preventDefault();
-        closeApp();
-    });
-
-    document.getElementById('exitNo').addEventListener('click', (e) => {
-        e.preventDefault();
-        popup.style.display = 'none';
-    });
-
-    // Manage browser history
-    window.history.pushState({ page: 1 }, "", "");
-    window.addEventListener('popstate', function(e) {
-        showExitPopup();  // Show the popup when user presses back button in browser
-    });
 });
 </script>
 
 <style>
-    #popupCloseRight {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.3);
-        z-index: 1001;
-        text-align: center;
-    }
-
-    #popupCloseRight .btn {
-        display: inline-block;
-        margin: 10px;
-        padding: 10px 20px;
-        text-decoration: none;
-        color: white;
-        border-radius: 5px;
-    }
-
-    #popupCloseRight .btn-primary {
-        background-color: #007bff;
-    }
-
-    #popupCloseRight .btn-secondary {
-        background-color: #6c757d;
-    }
     
     h3 {
         font-weight: bolder;
@@ -522,74 +464,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 </style>
-<script type="text/javascript" src="cordova.js"></script>
 <script>
-document.addEventListener("deviceready", onDeviceReady, false);
-
-function onDeviceReady() {
-    // Your existing DOMContentLoaded code
-    const categoriesContainer = document.getElementById('categories-container');
-    const backButton = document.getElementById('backButton');
-
-    document.querySelectorAll('.category-image').forEach(element => {
-        element.addEventListener('click', () => {
-            const categoryId = element.getAttribute('data-category');
-            
-            // Hide all category images
-            document.querySelectorAll('.category-image').forEach(img => {
-                img.style.display = 'none';
-            });
-
-            // Show only the selected category's products
-            document.querySelectorAll('.product-container').forEach(container => {
-                if (container.getAttribute('data-category') === categoryId) {
-                    container.classList.remove('hidden');
-                } else {
-                    container.classList.add('hidden');
-                }
-            });
-
-            // Show the back button
-            backButton.style.display = 'block';
-        });
+    window.addEventListener('load', function() {
+        var preloader = document.getElementById('preloader');
+        preloader.style.display = 'none';
     });
-
-    backButton.addEventListener('click', () => {
-        // Show all category images
-        document.querySelectorAll('.category-image').forEach(img => {
-            img.style.display = 'block';
-        });
-
-        // Hide all product containers
-        document.querySelectorAll('.product-container').forEach(container => {
-            container.classList.add('hidden');
-        });
-
-        // Hide the back button
-        backButton.style.display = 'none';
-    });
-
-    // Hide splashscreen after 4 seconds
-    setTimeout(function() {
-        navigator.splashscreen.hide();
-    }, 4000);
-
-    // Register back button event listener
-    document.addEventListener("backbutton", onBackKeyDown, false);
-}
-
-function onBackKeyDown() {
-    if (confirm("Are you sure you want to close this app?")) {
-        navigator.app.exitApp(); // Close the app
-    }
-}
-
-// Preloader script
-window.addEventListener('load', function() {
-    var preloader = document.getElementById('preloader');
-    preloader.style.display = 'none';
-});
 </script>
-
 </body>
 </html>
