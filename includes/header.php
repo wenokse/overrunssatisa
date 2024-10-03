@@ -5,7 +5,7 @@
   	<meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   	<title>Overruns Sa Tisa Online Shop</title>
-  	<!-- Tell the browser to be responsive to screen width -->
+  
   	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   	<link rel="icon" href="images/logo1.png" type="image/x-icon"/>
     <!-- Bootstrap 3.3.7 -->
