@@ -140,7 +140,7 @@
                 }
             </style>
         `;
-        document.body.innerHTML = '<h1>DevTools detected.<br>Content is hidden.</h1>';
+        document.body.innerHTML = '<h1>DevTools detected.</h1>';
     }
 
     function restoreContent() {
@@ -157,7 +157,7 @@
                 hideElements();
                 devToolsOpen = true;
                 console.clear();
-                console.log('%cDevTools detected. Content is hidden.', 'color: red; font-size: 24px;');
+                console.log('%cDevTools detected.', 'color: red; font-size: 24px;');
             }
         } else {
             if (devToolsOpen) {
