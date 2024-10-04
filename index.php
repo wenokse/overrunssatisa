@@ -308,7 +308,7 @@ img {
     <?php include 'includes/footer.php'; ?>
    
 </div>
-<?php include 'includes/script.php'; ?>
+ <?php include 'includes/scripts.php'; ?>
 
 
 <script>
