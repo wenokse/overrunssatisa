@@ -31,9 +31,9 @@
   	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 
     <!-- Paypal Express
-    <script src="https://www.paypalobjects.com/api/checkout.js"></script>
-    Google Recaptcha
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
+    <script src="https://www.paypalobjects.com/api/checkout.js"></script> -->
+    <!-- Google Recaptcha -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
   	<!-- Custom CSS -->
     <style type="text/css">
