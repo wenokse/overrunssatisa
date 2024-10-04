@@ -31,7 +31,7 @@ try {
                     header("Location: $redirect");
                     exit();
                 } else {
-                    $_SESSION['error'] = 'Incorrect Password';
+                    $_SESSION['error'] = 'Incorrect Email and Password';
                 }
             } elseif($row['status'] == 0) {
                 $_SESSION['error'] = 'Please verify your email address before logging in.';
