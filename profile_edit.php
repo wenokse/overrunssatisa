@@ -4,7 +4,7 @@
     $conn = $pdo->open();
 
     if(isset($_POST['edit'])){
-        // Anti-scripting: Strip tags and special character sanitization
+        // Sanitize input fields
         $curr_password = htmlspecialchars(strip_tags($_POST['curr_password']));
         $email = htmlspecialchars(strip_tags($_POST['email']));
         $password = htmlspecialchars(strip_tags($_POST['password']));
@@ -15,17 +15,43 @@
         $address2 = htmlspecialchars(strip_tags($_POST['address2']));
         $photo = $_FILES['photo']['name'];
 
-        // Email validation: Must be @gmail.com
+        // Check if any field is empty or consists of only spaces
+        if (empty(trim($firstname)) || empty(trim($lastname)) || empty(trim($email)) || empty(trim($password)) || empty(trim($address)) || empty(trim($contact_info))) {
+            $_SESSION['error'] = 'Please fill out all required fields properly.';
+            header('location: profile.php');
+            exit();
+        }
+
+        // Regular expressions for validations
+        $specialChars = "/[<>:\/\$;,?!]/";
+        $hasUppercase = "/[A-Z]/";
+        $hasLowercase = "/[a-z]/";
+        $hasNumber = "/[0-9]/";
+
+        // Check email format (@gmail.com)
         if(!preg_match("/^[a-zA-Z0-9._%+-]+@gmail\.com$/", $email)) {
             $_SESSION['error'] = 'Email must be a @gmail.com address';
             header('location: profile.php');
             exit();
         }
 
-        // Special character restriction
-        $specialChars = "/[<>:\/\$;,?!]/";
-        if (preg_match($specialChars, $email) || preg_match($specialChars, $firstname) || preg_match($specialChars, $lastname) || preg_match($specialChars, $address) || preg_match($specialChars, $address2)) {
-            $_SESSION['error'] = 'Special characters like <>:/$;,?! are not allowed';
+        // Check for spaces in email and password
+        if (strpos($email, ' ') !== false || strpos($password, ' ') !== false) {
+            $_SESSION['error'] = 'Email and password cannot contain spaces';
+            header('location: profile.php');
+            exit();
+        }
+
+        // Password must contain at least one uppercase, one lowercase, and one number; no special characters
+        if (!preg_match($hasUppercase, $password) || !preg_match($hasLowercase, $password) || !preg_match($hasNumber, $password) || preg_match($specialChars, $password)) {
+            $_SESSION['error'] = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and no special characters.';
+            header('location: profile.php');
+            exit();
+        }
+
+        // Check for special characters in name and address
+        if (preg_match($specialChars, $firstname) || preg_match($specialChars, $lastname) || preg_match($specialChars, $address) || preg_match($specialChars, $address2)) {
+            $_SESSION['error'] = 'Special characters not allowed';
             header('location: profile.php');
             exit();
         }
@@ -39,6 +65,7 @@
                 $filename = $user['photo'];
             }
 
+            // Hash the new password if it has been changed
             if($password == $user['password']){
                 $password = $user['password'];
             }

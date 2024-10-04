@@ -124,6 +124,7 @@
     </div>
 </div>
 <script>
+    // Restrict input for the phone number field to numbers only
     var input = document.getElementById('contact_info');
     input.addEventListener('input', function() {
         this.value = this.value.replace(/[^0-9]/g, '');
@@ -143,8 +144,29 @@
     }
 
     function validateForm() {
-        var email = document.getElementById('email').value;
+        var email = document.getElementById('email').value.trim();
+        var password = document.getElementById('password').value.trim();
+        var firstname = document.getElementById('firstname').value.trim();
+        var lastname = document.getElementById('lastname').value.trim();
+        var address = document.getElementById('address').value.trim();
+        var contact_info = document.getElementById('contact_info').value.trim();
+        
         var specialChars = /[<>:\/\$;,?!]/;
+        var hasNumber = /\d/;
+        var hasUppercase = /[A-Z]/;
+        var hasLowercase = /[a-z]/;
+
+        // Check if any field is empty or consists of only spaces
+        if (firstname === "" || lastname === "" || email === "" || password === "" || address === "" || contact_info === "") {
+            swal({
+                title: 'Please fill out all required fields properly.',
+                icon: 'warning',
+                button: 'OK'
+            });
+            return false;
+        }
+
+        // Validate email domain
         if (!email.endsWith("@gmail.com")) {
             swal({
                 title: 'Email must be a @gmail.com address.',
@@ -153,14 +175,27 @@
             });
             return false;
         }
-        if (specialChars.test(email) || specialChars.test(document.getElementById('firstname').value) || specialChars.test(document.getElementById('lastname').value)) {
+
+        // Validate password strength
+        if (!hasNumber.test(password) || !hasUppercase.test(password) || !hasLowercase.test(password) || specialChars.test(password)) {
             swal({
-                title: 'Special characters like <>:/$;,?! are not allowed.',
+                title: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and no special characters.',
                 icon: 'warning',
                 button: 'OK'
             });
             return false;
         }
+
+        // Restrict special characters in first/last name, and address
+        if (specialChars.test(firstname) || specialChars.test(lastname) || specialChars.test(address)) {
+            swal({
+                title: 'Special characters not allowed.',
+                icon: 'warning',
+                button: 'OK'
+            });
+            return false;
+        }
+
         return validatePhoneNumber();
     }
 
