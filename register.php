@@ -26,18 +26,20 @@ if(isset($_POST['signup'])){
     $password = $_POST['password'];
     $repassword = $_POST['repassword'];
 
-    // Check for captcha validation
     if(!isset($_SESSION['captcha'])){
         require('recaptcha/src/autoload.php');
         $recaptcha = new \ReCaptcha\ReCaptcha('6LfmdVQqAAAAAELMHS60poazcKSqrkR8DU2Me7OY', new \ReCaptcha\RequestMethod\SocketPost());
         $resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+
         if (!$resp->isSuccess()){
-            $_SESSION['error'] = 'Please answer recaptcha correctly';
-            header('location: signup.php');
-            exit();    
-        } else {
-            $_SESSION['captcha'] = time() + (10*60);
-        }
+              $_SESSION['error'] = 'Please answer recaptcha correctly';
+              header('location: signup.php');
+              exit();	
+          }	
+          else{
+              $_SESSION['captcha'] = time() + (10*60);
+          }
+
     }
 
     // Check if any field is empty or consists of only spaces
