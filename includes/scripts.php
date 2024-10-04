@@ -47,48 +47,6 @@
   }
 ?>
 <script>
-  (function() {
-    // Store a reference to the original state of the DOM
-    const originalHTML = document.documentElement.outerHTML;
-
-    // Function to monitor changes and restore the original content
-    function monitorDOMChanges() {
-      // Check if the current DOM is different from the original
-      if (document.documentElement.outerHTML !== originalHTML) {
-        // Restore the original content
-        document.open();
-        document.write(originalHTML);
-        document.close();
-        console.warn('Changes detected and reverted to the original state.');
-      }
-    }
-
-    // Use MutationObserver to watch for any changes in the DOM
-    const observer = new MutationObserver(monitorDOMChanges);
-
-    // Start observing the entire document for changes
-    observer.observe(document.documentElement, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-    });
-
-    // Optionally, you can also periodically check for changes as an extra layer of protection
-    setInterval(monitorDOMChanges, 1000);
-
-    // Check for changes in browser size (indicative of developer tools opening)
-    window.addEventListener('resize', function() {
-      const threshold = 160;
-      if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
-        console.warn('Developer tools detected. Reverting any changes.');
-        monitorDOMChanges();
-      }
-    });
-
-  })();
-</script>
-
-<script>
   document.addEventListener('contextmenu', function(event) {
     event.preventDefault();
 });
