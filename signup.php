@@ -219,8 +219,6 @@
         line-height: 46px;
     }
 
-    cssCopy<style>
-    /* Existing styles */
     body {
         background: rgb(0, 51, 102);
         background-size: cover;
@@ -238,7 +236,7 @@
         box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
     }
 
-    /* ... (keep other existing styles) ... */
+  
 
     /* Mobile view styles */
     @media (max-width: 768px) {
