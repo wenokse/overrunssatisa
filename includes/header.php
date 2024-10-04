@@ -33,7 +33,7 @@
     <!-- Paypal Express -->
     <!-- <script src="https://www.paypalobjects.com/api/checkout.js"></script> -->
     <!-- Google Recaptcha -->
-    <!-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
   	<!-- Custom CSS -->
     <style type="text/css">
