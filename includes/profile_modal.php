@@ -176,10 +176,10 @@
             return false;
         }
 
-        // Validate password strength
-        if (!hasNumber.test(password) || !hasUppercase.test(password) || !hasLowercase.test(password) || specialChars.test(password)) {
+        // Validate password: at least 8 characters, one uppercase, one lowercase, one number
+        if (password.length < 8 || !hasUppercase.test(password) || !hasLowercase.test(password) || !hasNumber.test(password)) {
             swal({
-                title: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and no special characters.',
+                title: 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number.',
                 icon: 'warning',
                 button: 'OK'
             });
@@ -189,7 +189,7 @@
         // Restrict special characters in first/last name, and address
         if (specialChars.test(firstname) || specialChars.test(lastname) || specialChars.test(address)) {
             swal({
-                title: 'Special characters not allowed.',
+                title: 'Special characters like <>:/$;,?! are not allowed in names or addresses.',
                 icon: 'warning',
                 button: 'OK'
             });
