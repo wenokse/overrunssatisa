@@ -110,10 +110,13 @@
             <input type="email" class="form-control" name="email" placeholder="Email" required>
             <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
         </div>
-        <div class="form-group has-feedback password-field">
-            <input type="password" class="form-control" name="password" placeholder="Password" required>
+        
+        <div class="form-group has-feedback">
+            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+            <div id="password-strength" style="margin-top: 5px; height: 5px; width: 100%; background-color: red;"></div>
             <input type="checkbox" id="togglePassword" class="form-control-feedback1">
         </div>
+
         <div class="form-group has-feedback">
             <input type="password" class="form-control" name="repassword" placeholder="Retype password" required>
             <span class="glyphicon glyphicon-log-in form-control-feedback"></span>
@@ -370,53 +373,10 @@
     .modal-body {
         margin-top: 20px;
     }
-
-    .password-field {
-            position: relative;
-        }
-        .password-strength {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            transition: background-color 0.3s;
-        }
-        .weak {
-            background-color: red;
-        }
-        .strong {
-            background-color: green;
-        }
+    
 </style>
 
 <script>
-
-const passwordInput = document.getElementById('password');
-        const passwordStrength = document.querySelector('.password-strength');
-
-        function validatePassword(password) {
-            const hasUpperCase = /[A-Z]/.test(password);
-            const hasLowerCase = /[a-z]/.test(password);
-            const hasNumber = /\d/.test(password);
-            const isLongEnough = password.length >= 8;
-
-            return hasUpperCase && hasLowerCase && hasNumber && isLongEnough;
-        }
-
-        passwordInput.addEventListener('input', function() {
-            const password = this.value;
-            const isValid = validatePassword(password);
-
-            if (isValid) {
-                passwordStrength.classList.remove('weak');
-                passwordStrength.classList.add('strong');
-            } else {
-                passwordStrength.classList.remove('strong');
-                passwordStrength.classList.add('weak');
-            }
-        });
-
    function containsSpecialCharacters(str) {
         var regex = /[<>:\/\$\;\,\?\!]/;
         return regex.test(str);
@@ -502,13 +462,45 @@ const passwordInput = document.getElementById('password');
         return true;
     }
 
-    const togglePassword = document.querySelector('#togglePassword');
-    const passwordField = document.querySelector('input[name="password"]');
+    // Password strength indicator
+const passwordField = document.querySelector('input[name="password"]');
+const passwordStrengthBar = document.getElementById('password-strength');
 
-    togglePassword.addEventListener('click', function(e) {
-        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordField.setAttribute('type', type);
-    });
+passwordField.addEventListener('input', function() {
+    const password = passwordField.value;
+    let strength = 0;
+
+    // Check for different conditions
+    if (/[a-z]/.test(password)) strength++; // Lowercase letter
+    if (/[A-Z]/.test(password)) strength++; // Uppercase letter
+    if (/[0-9]/.test(password)) strength++; // Number
+    if (password.length >= 8) strength++;   // Length
+
+    // Update the strength bar color based on the strength
+    switch(strength) {
+        case 0:
+        case 1:
+            passwordStrengthBar.style.backgroundColor = 'red'; // Weak
+            break;
+        case 2:
+            passwordStrengthBar.style.backgroundColor = 'orange'; // Medium
+            break;
+        case 3:
+            passwordStrengthBar.style.backgroundColor = 'yellow'; // Stronger
+            break;
+        case 4:
+            passwordStrengthBar.style.backgroundColor = 'green'; // Strong
+            break;
+    }
+});
+
+// Toggle password visibility
+const togglePassword = document.querySelector('#togglePassword');
+togglePassword.addEventListener('click', function() {
+    const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordField.setAttribute('type', type);
+});
+
 
     const barangays = {
         'Bantayan': ['Atop-atop', 'Baigad', 'Bantigue', 'Baod', 'Binaobao', 'Guiwanon', 'Hilotongan', 'Kabac', 'Kabangbang', 'Kampingganon', 'Kangkaibe', 'Lipayran', 'Luyongbaybay', 'Mojon', 'Obo-ob', 'Patao', 'Putian', 'Sillon', 'Suba', 'Sulangan', 'Sungko', 'Tamiao', 'Ticad'],
