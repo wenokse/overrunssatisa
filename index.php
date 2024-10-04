@@ -306,9 +306,10 @@ img {
     </div>
     </div>
     <?php include 'includes/footer.php'; ?>
+    <?php include 'includes/scripts.php'; ?>
 </div>
 
-<?php include 'includes/scripts.php'; ?>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -522,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 </style>
-<script type="text/javascript" src="cordova.js"></script>
+
 <script>
 document.addEventListener("deviceready", onDeviceReady, false);
 
