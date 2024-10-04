@@ -110,7 +110,7 @@
             <input type="email" class="form-control" name="email" placeholder="Email" required>
             <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
         </div>
-        <div class="form-group has-feedback">
+        <div class="form-group has-feedback password-field">
             <input type="password" class="form-control" name="password" placeholder="Password" required>
             <input type="checkbox" id="togglePassword" class="form-control-feedback1">
         </div>
@@ -370,9 +370,53 @@
     .modal-body {
         margin-top: 20px;
     }
+
+    .password-field {
+            position: relative;
+        }
+        .password-strength {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            transition: background-color 0.3s;
+        }
+        .weak {
+            background-color: red;
+        }
+        .strong {
+            background-color: green;
+        }
 </style>
 
 <script>
+
+const passwordInput = document.getElementById('password');
+        const passwordStrength = document.querySelector('.password-strength');
+
+        function validatePassword(password) {
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasNumber = /\d/.test(password);
+            const isLongEnough = password.length >= 8;
+
+            return hasUpperCase && hasLowerCase && hasNumber && isLongEnough;
+        }
+
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            const isValid = validatePassword(password);
+
+            if (isValid) {
+                passwordStrength.classList.remove('weak');
+                passwordStrength.classList.add('strong');
+            } else {
+                passwordStrength.classList.remove('strong');
+                passwordStrength.classList.add('weak');
+            }
+        });
+
    function containsSpecialCharacters(str) {
         var regex = /[<>:\/\$\;\,\?\!]/;
         return regex.test(str);
