@@ -340,17 +340,18 @@
 
     .modal-content {
         background-color: #fefefe;
-        margin: 15% auto;
+        margin: 5% auto;
         padding: 20px;
         border: 1px solid #888;
         width: 80%;
         max-width: 700px;
         max-height: 80vh;
         overflow-y: auto;
+        border-radius: 25px;
     }
 
     .close {
-        color: #aaa;
+        color: black;
         float: right;
         font-size: 28px;
         font-weight: bold;
@@ -361,6 +362,15 @@
         color: black;
         text-decoration: none;
         cursor: pointer;
+    }
+    .modal-content h2 {
+        margin-top: 0;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .modal-body {
+        margin-top: 20px;
     }
 </style>
 
