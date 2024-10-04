@@ -289,41 +289,70 @@
 </style>
 
 <script>
-    function containsSpecialCharacters(str) {
-    var regex = /[<>:\/\$\;\,\?\!]/;
-    return regex.test(str);
-}
-
-function validateForm() {
-    var firstname = document.querySelector('input[name="firstname"]').value;
-    var lastname = document.querySelector('input[name="lastname"]').value;
-    var email = document.querySelector('input[name="email"]').value;
-    var password = document.querySelector('input[name="password"]').value;
-
-    // Validate phone number length
-    if (!validatePhoneNumber()) {
-        return false;
+   function containsSpecialCharacters(str) {
+        var regex = /[<>:\/\$\;\,\?\!]/;
+        return regex.test(str);
     }
 
-    // Check for special characters in firstname, lastname, email, password
-    if (containsSpecialCharacters(firstname) || containsSpecialCharacters(lastname) || containsSpecialCharacters(email) || containsSpecialCharacters(password)) {
-        swal({
-            title: 'Special characters like <>:/$;,?! are not allowed.',
-            icon: 'warning',
-            button: 'OK'
-        });
-        return false;
+    function isFieldEmptyOrWhitespace(fieldValue) {
+        return !fieldValue.trim(); 
     }
 
-    return true;
-}
-
-// Bind the form submit event to the validation
-document.querySelector('form').addEventListener('submit', function(event) {
-    if (!validateForm()) {
-        event.preventDefault();
+    function validatePassword(password) {
+        var regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+        return regex.test(password); 
     }
-});
+
+    function validateForm() {
+        var firstname = document.querySelector('input[name="firstname"]').value;
+        var lastname = document.querySelector('input[name="lastname"]').value;
+        var email = document.querySelector('input[name="email"]').value;
+        var password = document.querySelector('input[name="password"]').value;
+
+        
+        if (isFieldEmptyOrWhitespace(firstname) || isFieldEmptyOrWhitespace(lastname) || isFieldEmptyOrWhitespace(email) || isFieldEmptyOrWhitespace(password)) {
+            swal({
+                title: 'All fields must be filled out correctly.',
+                icon: 'warning',
+                button: 'OK'
+            });
+            return false;
+        }
+
+       
+        if (!validatePhoneNumber()) {
+            return false;
+        }
+
+        
+        if (!validatePassword(password)) {
+            swal({
+                title: 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number.',
+                icon: 'warning',
+                button: 'OK'
+            });
+            return false;
+        }
+
+        
+        if (containsSpecialCharacters(firstname) || containsSpecialCharacters(lastname) || containsSpecialCharacters(email)) {
+            swal({
+                title: 'Special characters are not allowed.',
+                icon: 'warning',
+                button: 'OK'
+            });
+            return false;
+        }
+
+        return true;
+    }
+
+   
+    document.querySelector('form').addEventListener('submit', function(event) {
+        if (!validateForm()) {
+            event.preventDefault();
+        }
+    });
 
 
 
