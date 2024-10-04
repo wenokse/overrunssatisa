@@ -120,7 +120,7 @@
         </div>
         <div class="form-group has-feedback">
             <input type="checkbox" id="terms" name="terms" class="form-control-feedback1" required>
-            <label for="terms">I agree to the <a href="terms.php">Terms and Conditions</a></label>
+            <label for="terms">I agree to the <a href="#" id="termsLink">Terms and Conditions</a></label>
         </div>
         <div class="form-group" style="width:100%; text-align: center;">
             <div class="g-recaptcha" data-sitekey="6LfmdVQqAAAAAGDAr09cjmfyP3veq9SJe5lN0doF"></div>
@@ -137,6 +137,50 @@
 </div>
 
 </div>
+
+<div id="termsModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Terms and Conditions</h2>
+        <div class="modal-body">
+            <h3>1. Introduction</h3>
+            <p>This website is operated by Rowen G. Secuya. Throughout the site, the terms "we", "us" and "our" refer to Overruns Sa Tisa. We offer this website, including all information, tools, and services available from this site, to you, the user, conditioned upon your acceptance of all terms, conditions, policies, and notices stated here.</p>
+            <h3>2. User Accounts</h3>
+            <p>You may be required to create an account to access certain features of the site. You agree to provide accurate, current, and complete information during registration and update your information as necessary. You are responsible for safeguarding your password and for any activities or actions under your account.</p>
+
+            <h3>3. Products and Services</h3>
+            <p>We strive to provide accurate descriptions of our products, but we do not guarantee that any description is complete, current, or free of errors. Product availability and prices are subject to change without notice.</p>
+
+            <h3>4. Orders and Payments</h3>
+            <p>All prices are in [Currency]. We reserve the right to refuse or cancel any order due to pricing errors, stock issues, or potential fraud. Payment must be completed before the shipment of goods.</p>
+
+            <h3>5. Returns and Refunds</h3>
+            <p>If you are not satisfied with your purchase, you may return the item within [X] days of receiving it, but you still pay the shipping fee for the rider, provided it is in its original condition. [Additional return policy details].</p>
+
+            <h3>6. Pricing </h3>
+            <p>Prices listed on our site are subject to change without notice.</p>
+
+            <h3>7. User Conduct</h3>
+            <p>Users agree to use the site only for lawful purposes and in a manner that does not infringe on the rights of others or restrict the use of the site. Prohibited activities include, but are not limited to, harassment, defamation, and uploading viruses or harmful code.</p>
+
+            <h3>8. Intellectual Property</h3>
+            <p>All content on this site, including text, images, logos, and designs, are owned by or licensed to Overruns Sa Tisa Online Shop and are protected by intellectual property laws. Unauthorized use of this content is prohibited.</p>
+
+            <h3>9. Limitation of Liability</h3>
+            <p>We do not warrant that the use of our service will be uninterrupted, timely, or error-free. In no case shall Overruns Sa Tisa Online Shop, our directors, officers, employees, affiliates, agents, or contractors be liable for any injury, loss, claim, or any direct or indirect damages resulting from your use of our website.</p>
+
+            <h3>10. Governing Law</h3>
+            <p>These Terms and any separate agreements shall be governed by and construed in accordance with the laws of Philippines.</p>
+
+            <h3>11. Amendments</h3>
+            <p>We reserve the right to modify these terms at any time. Changes will be effective immediately upon posting on the website.</p>
+
+            <h3>12. Contact Information</h3>
+            <p>If you have any questions about these Terms and Conditions, please contact us at rowensecuya25@gmail.com.</p>
+        </div>
+    </div>
+</div>
+
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script>
     document.getElementById('terms').addEventListener('change', function() {
@@ -279,6 +323,43 @@
         letter-spacing: 0.5px;
         text-transform: uppercase;
         margin-top: 10px;
+        cursor: pointer;
+    }
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 700px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
         cursor: pointer;
     }
 </style>
@@ -433,7 +514,25 @@
 
     
 });
+ // Modal script
+ var modal = document.getElementById("termsModal");
+    var link = document.getElementById("termsLink");
+    var span = document.getElementsByClassName("close")[0];
 
+    link.onclick = function(e) {
+        e.preventDefault();
+        modal.style.display = "block";
+    }
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
 
 </script>
 
