@@ -42,6 +42,14 @@
             exit();
         }
 
+        // Check password length
+        if (strlen($password) < 8) {
+            $_SESSION['error'] = 'Password must be at least 8 characters long';
+            header('location: profile.php');
+            exit();
+        }
+
+
         // Password must contain at least one uppercase, one lowercase, and one number; no special characters
         if (!preg_match($hasUppercase, $password) || !preg_match($hasLowercase, $password) || !preg_match($hasNumber, $password) || preg_match($specialChars, $password)) {
             $_SESSION['error'] = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and no special characters.';
