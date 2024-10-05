@@ -489,7 +489,7 @@ passwordField.addEventListener('input', function() {
             passwordStrengthBar.style.backgroundColor = 'yellow'; // Stronger
             break;
         case 4:
-            passwordStrengthBox.style.backgroundColor = '#39FF14'; // Strong (neon green)
+            passwordStrengthBar.style.backgroundColor = '#39FF14'; // Strong (neon green)
             break;
     }
 });
