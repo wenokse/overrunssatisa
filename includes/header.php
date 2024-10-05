@@ -274,3 +274,17 @@
   });
   
 </script>
+<?php
+  header("Content-Security-Policy: 
+    default-src 'self'; 
+    script-src 'self' https://code.jquery.com https://cdn.jsdelivr.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ 'unsafe-inline'; 
+    object-src 'none'; 
+    connect-src 'self'; 
+    style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; 
+    font-src 'self' https://fonts.gstatic.com; 
+    img-src 'self' data:; 
+    frame-src https://www.google.com/recaptcha/;
+    frame-ancestors 'self'; 
+    base-uri 'self'; 
+    form-action 'self';");
+?>
