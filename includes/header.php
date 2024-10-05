@@ -4,6 +4,7 @@
   	<meta charset="utf-8">
   	<meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://code.jquery.com https://cdn.jsdelivr.net 'unsafe-inline';">
   	<title>Overruns Sa Tisa Online Shop</title>
   
   	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
@@ -37,6 +38,7 @@
 
   	<!-- Custom CSS -->
     <style type="text/css">
+
 
     /* ::-webkit-scrollbar{
       display: none;
@@ -241,6 +243,7 @@
     </style>
 
 </head>
+
 <script>
   document.addEventListener('contextmenu', function(event) {
     event.preventDefault();
@@ -272,3 +275,19 @@
   });
   
 </script>
+<?php
+  header("Content-Security-Policy: 
+    default-src 'self'; 
+    script-src 'self' https://code.jquery.com https://cdn.jsdelivr.net 'unsafe-inline'; 
+    object-src 'none'; 
+    connect-src 'self'; 
+    style-src 'self' 'unsafe-inline'; 
+    frame-ancestors 'self'; 
+    base-uri 'self'; 
+    form-action 'self'; 
+    font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; 
+    img-src 'self' data:; 
+    media-src 'none'; 
+    child-src 'none'; 
+    frame-src 'none';");
+?>

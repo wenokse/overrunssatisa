@@ -17,6 +17,22 @@
 <script src="bower_components/ckeditor/ckeditor.js"></script>
 <script src="js/sweetalert2.min.js"></script>
 <script src="js/sweetalert.min.js"></script>
+<?php
+  header("Content-Security-Policy: 
+    default-src 'self'; 
+    script-src 'self' https://code.jquery.com https://cdn.jsdelivr.net 'unsafe-inline'; 
+    object-src 'none'; 
+    connect-src 'self'; 
+    style-src 'self' 'unsafe-inline'; 
+    frame-ancestors 'self'; 
+    base-uri 'self'; 
+    form-action 'self'; 
+    font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; 
+    img-src 'self' data:; 
+    media-src 'none'; 
+    child-src 'none'; 
+    frame-src 'none';");
+?>
 
 <?php
   function detect_wapiti() {
