@@ -61,7 +61,7 @@
         </li>
 
         <li>
-          <a href="#" id="dbRepairBtn" class="btn btn-warning" style="margin-top: 10px;">
+          <a href="#" id="dbRepairBtn" class="btn btn-warning">
             <i class="fa fa-wrench"></i>
           </a>
         </li>
@@ -102,24 +102,7 @@
     </div>
   </nav>
 </header>
-<!-- Database Repair Modal -->
-<div class="modal fade" id="dbRepairModal" tabindex="-1" role="dialog" aria-labelledby="dbRepairModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="dbRepairModalLabel">Database Repair</h4>
-      </div>
-      <div class="modal-body">
-        <p>Are you sure you want to repair the database? This process may take some time.</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" id="confirmDbRepair">Repair Database</button>
-      </div>
-    </div>
-  </div>
-</div>
+
 <?php include 'includes/profile_modal.php'; ?>
 <!-- Message Panel -->
 <div id="messagePanel" class="message-panel">
@@ -146,6 +129,24 @@
         <input type="text" id="messageInput" placeholder="Type a message..." />
         <button type="submit">Send</button>
       </form>
+    </div>
+  </div>
+</div>
+<!-- Database Repair Modal -->
+<div class="modal fade" id="dbRepairModal" tabindex="-1" role="dialog" aria-labelledby="dbRepairModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="dbRepairModalLabel">Database Repair</h4>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to repair the database? This process may take some time.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirmDbRepair">Repair Database</button>
+      </div>
     </div>
   </div>
 </div>
