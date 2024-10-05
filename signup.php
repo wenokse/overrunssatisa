@@ -113,7 +113,7 @@
         
         <div class="form-group has-feedback">
             <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
-            <div id="password-strength" style="margin-top: 5px; height: 5px; width: 50%; background-color: red;"></div>
+            <div id="password-strength" style="margin-top: 5px; height: 3px; width: 100%; background-color: red;"></div>
             <input type="checkbox" id="togglePassword" class="form-control-feedback1">
         </div>
 
