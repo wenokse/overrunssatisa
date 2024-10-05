@@ -62,7 +62,7 @@
 
         <li>
           <a href="#" id="dbRepairBtn" class="btn btn-warning" style="margin-top: 10px;">
-            <i class="fa fa-wrench"></i> Repair Database
+            <i class="fa fa-wrench"></i>
           </a>
         </li>
 
@@ -160,23 +160,31 @@ $(document).ready(function() {
     $.ajax({
       url: 'repair_database.php',
       method: 'POST',
-      data: { repair: true },
+      dataType: 'json',
       beforeSend: function() {
         $('#dbRepairModal .modal-body').html('<p>Repairing database... Please wait.</p>');
         $('#confirmDbRepair').prop('disabled', true);
       },
       success: function(response) {
-        $('#dbRepairModal .modal-body').html('<p>Database repair completed.</p><div>' + response + '</div>');
+        if (response.success) {
+          let resultHtml = '<p>Database repair completed.</p><ul>';
+          for (let table in response.results) {
+            resultHtml += `<li>${table}: ${response.results[table]}</li>`;
+          }
+          resultHtml += '</ul>';
+          $('#dbRepairModal .modal-body').html(resultHtml);
+        } else {
+          $('#dbRepairModal .modal-body').html('<p>Error: ' + response.message + '</p>');
+        }
       },
-      error: function() {
-        $('#dbRepairModal .modal-body').html('<p>An error occurred during the repair process.</p>');
+      error: function(xhr, status, error) {
+        $('#dbRepairModal .modal-body').html('<p>An error occurred during the repair process.</p><p>Error: ' + error + '</p>');
       },
       complete: function() {
         $('#confirmDbRepair').prop('disabled', false);
       }
     });
   });
-});
 </script>
 <!-- Styles -->
 <style>
