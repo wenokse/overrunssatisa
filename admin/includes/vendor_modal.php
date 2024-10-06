@@ -189,13 +189,13 @@
                       <input type="text" class="form-control" id="edit_store" name="store" required>
                     </div>
                 </div>
-                <div class="form-group">
+                <!-- <div class="form-group">
                     <label for="edit_email" class="col-sm-3 control-label">Email</label>
 
                     <div class="col-sm-9">
                       <input type="email" class="form-control" id="edit_email" name="email" required>
                     </div>
-                </div>
+                </div> -->
                 <div class="form-group">
                     <label for="edit_password" class="col-sm-3 control-label">Password</label>
 
