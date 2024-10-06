@@ -80,9 +80,10 @@
             <span class="glyphicon glyphicon-user form-control-feedback"></span>
         </div>
         <div class="form-group has-feedback">
-            <input type="text" class="form-control" name="contact_info" id="contact_info" placeholder="Phone Number" maxlength="11" required>
+            <input type="text" class="form-control" name="contact_info" id="contact_info" placeholder="Phone Number" value="09" maxlength="11" required>
             <span class="glyphicon glyphicon-phone form-control-feedback"></span>
         </div>
+
         <div class="form-group has-feedback">
             <label for="municipality">Municipality</label>
             <select id="municipality" class="form-control" name="municipality" required>
@@ -443,37 +444,20 @@
     });
 
 
+    document.getElementById('contact_info').addEventListener('input', function() {
+    // Ensure that input starts with '09'
+    if (!this.value.startsWith('09')) {
+        this.value = '09';
+    }
+
+    // Allow only numbers and limit to 11 characters
+    this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
+});
 
     var input = document.getElementById('contact_info');
     input.addEventListener('input', function() {
         this.value = this.value.replace(/[^0-9]/g, '');
     });
-
-     // Set initial value to '09'
-     contactInput.value = '09';
-
-contactInput.addEventListener('input', function(e) {
-    var cursorPosition = this.selectionStart;
-    var oldValue = this.value;
-
-    // Ensure the input always starts with '09'
-    if (!this.value.startsWith('09')) {
-        this.value = '09' + this.value.substring(2);
-    }
-
-    // Limit to 11 characters total (including '09')
-    if (this.value.length > 11) {
-        this.value = this.value.slice(0, 11);
-    }
-
-    // Only allow numbers
-    this.value = this.value.replace(/[^0-9]/g, '');
-
-    // If the value hasn't changed (e.g., user tried to delete '09'), reset cursor position
-    if (this.value === oldValue) {
-        this.setSelectionRange(cursorPosition, cursorPosition);
-    }
-});
 
     function validatePhoneNumber() {
         var phoneNumber = document.getElementById('contact_info').value;
