@@ -181,7 +181,7 @@ $(function() {
   $(document).on('click', '.decline', function(e) {
     e.preventDefault();
     var id = $(this).data('id');
-    updateVendorStatus(id, 0);  // Decline = status 0
+    updateVendorStatus(id, 4);  // Decline = status 0
   });
 
   function updateVendorStatus(id, status) {
