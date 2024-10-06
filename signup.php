@@ -449,6 +449,32 @@
         this.value = this.value.replace(/[^0-9]/g, '');
     });
 
+     // Set initial value to '09'
+     contactInput.value = '09';
+
+contactInput.addEventListener('input', function(e) {
+    var cursorPosition = this.selectionStart;
+    var oldValue = this.value;
+
+    // Ensure the input always starts with '09'
+    if (!this.value.startsWith('09')) {
+        this.value = '09' + this.value.substring(2);
+    }
+
+    // Limit to 11 characters total (including '09')
+    if (this.value.length > 11) {
+        this.value = this.value.slice(0, 11);
+    }
+
+    // Only allow numbers
+    this.value = this.value.replace(/[^0-9]/g, '');
+
+    // If the value hasn't changed (e.g., user tried to delete '09'), reset cursor position
+    if (this.value === oldValue) {
+        this.setSelectionRange(cursorPosition, cursorPosition);
+    }
+});
+
     function validatePhoneNumber() {
         var phoneNumber = document.getElementById('contact_info').value;
         if (phoneNumber.length !== 11) {

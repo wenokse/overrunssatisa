@@ -60,12 +60,6 @@
           </ul>
         </li>
 
-        <li>
-          <a href="#" id="dbRepairBtn" class="btn btn-warning">
-            <i class="fa fa-wrench"></i>
-          </a>
-        </li>
-
         <!-- Messages Menu -->
         <li class="dropdown messages-menu">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="messageToggle">
@@ -132,61 +126,7 @@
     </div>
   </div>
 </div>
-<!-- Database Repair Modal -->
-<div class="modal fade" id="dbRepairModal" tabindex="-1" role="dialog" aria-labelledby="dbRepairModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="dbRepairModalLabel">Database Repair</h4>
-      </div>
-      <div class="modal-body">
-        <p>Are you sure you want to repair the database? This process may take some time.</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" id="confirmDbRepair">Repair Database</button>
-      </div>
-    </div>
-  </div>
-</div>
-<script>
-$(document).ready(function() {
-  $('#dbRepairBtn').click(function(e) {
-    e.preventDefault();
-    $('#dbRepairModal').modal('show');
-  });
 
-  $('#confirmDbRepair').click(function() {
-    $.ajax({
-      url: 'repair_database.php',
-      method: 'POST',
-      dataType: 'json',
-      beforeSend: function() {
-        $('#dbRepairModal .modal-body').html('<p>Repairing database... Please wait.</p>');
-        $('#confirmDbRepair').prop('disabled', true);
-      },
-      success: function(response) {
-        if (response.success) {
-          let resultHtml = '<p>Database repair completed.</p><ul>';
-          for (let table in response.results) {
-            resultHtml += `<li>${table}: ${response.results[table]}</li>`;
-          }
-          resultHtml += '</ul>';
-          $('#dbRepairModal .modal-body').html(resultHtml);
-        } else {
-          $('#dbRepairModal .modal-body').html('<p>Error: ' + response.message + '</p>');
-        }
-      },
-      error: function(xhr, status, error) {
-        $('#dbRepairModal .modal-body').html('<p>An error occurred during the repair process.</p><p>Error: ' + error + '</p>');
-      },
-      complete: function() {
-        $('#confirmDbRepair').prop('disabled', false);
-      }
-    });
-  });
-</script>
 <!-- Styles -->
 <style>
   .search-bar {
