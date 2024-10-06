@@ -8,7 +8,7 @@
 
 		try{
 			$stmt = $conn->prepare("UPDATE users SET status=:status WHERE id=:id");
-			$stmt->execute(['status'=>4, 'id'=>$id]);
+			$stmt->execute(['status'=>0, 'id'=>$id]);
 			$_SESSION['success'] = 'Customer deactivated successfully';
 		}
 		catch(PDOException $e){

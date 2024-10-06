@@ -33,11 +33,9 @@ try {
                 } else {
                     $_SESSION['error'] = 'Incorrect Email and Password';
                 }
-            } elseif($row['status'] == 0) {
-                $_SESSION['error'] = 'Please verify your email address before logging in.';
             } elseif ($row['status'] == 3) {
                 $_SESSION['error'] = 'Please wait for admin approval.';
-            } elseif ($row['status'] == 4) {
+            } elseif ($row['status'] == 0) {
                 $_SESSION['error'] = 'Account Deactivated.';
             }
         } else {

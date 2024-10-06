@@ -76,7 +76,7 @@
                           $image = (!empty($row['photo'])) ? '../images/' . $row['photo'] : '../images/profile.jpg';
                           if ($row['status'] == 1) {
                             $status = '<span class="label label-success">Active</span>';
-                        } elseif ($row['status'] == 4) {
+                        } elseif ($row['status'] == 0) {
                             $status = '<span class="label label-danger">Deactive</span>';
                         } elseif ($row['status'] == 3) {
                             $status = '<span class="label label-warning">Pending</span>';
@@ -181,7 +181,7 @@ $(function() {
   $(document).on('click', '.decline', function(e) {
     e.preventDefault();
     var id = $(this).data('id');
-    updateVendorStatus(id, 4);  // Decline = status 0
+    updateVendorStatus(id, 0);  // Decline = status 0
   });
 
   function updateVendorStatus(id, status) {
