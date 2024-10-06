@@ -9,13 +9,13 @@
           	</div>
           	<div class="modal-body">
             	<form class="form-horizontal" method="POST" action="profile_update.php?return=<?php echo basename($_SERVER['PHP_SELF']); ?>" enctype="multipart/form-data">
-          		  <div class="form-group">
+          		  <!-- <div class="form-group">
                   	<label for="email" class="col-sm-3 control-label">Email</label>
 
                   	<div class="col-sm-9">
                     	<input type="text" class="form-control" id="email" name="email" value="<?php echo $admin['email']; ?>">
                   	</div>
-                </div>
+                </div> -->
                 <div class="form-group">
                     <label for="password" class="col-sm-3 control-label">Password</label>
 
