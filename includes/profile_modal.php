@@ -197,7 +197,7 @@
         }
 
         // Restrict special characters in first/last name, and address
-        if (specialChars.test(firstname) || specialChars.test(lastname) || specialChars.test(address)) {
+        if (specialChars.test(firstname) || specialChars.test(lastname) || specialChars.test(address) || specialChars.test(address2)) {
             swal({
                 title: 'Special characters not allowed.',
                 icon: 'warning',
