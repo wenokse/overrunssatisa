@@ -309,10 +309,10 @@
         setInterval(function() {
             (function() {
                 try {
-                    // Attempts to open DevTools should trigger errors
+                   
                     (function testDevTools() {}.constructor('debugger')());
                 } catch (e) {
-                    window.location.reload(); // Reload the page if DevTools is detected
+                    window.location.reload(); 
                 }
             })();
         }, 500);

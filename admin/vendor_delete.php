@@ -22,6 +22,6 @@
 		$_SESSION['error'] = 'Select customer to delete first';
 	}
 
-	header('location: customer.php');
+	header('location: vendor.php');
 	
 ?>

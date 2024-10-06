@@ -13,7 +13,7 @@
 		try{
 			$stmt = $conn->prepare("UPDATE users SET photo=:photo WHERE id=:id");
 			$stmt->execute(['photo'=>$filename, 'id'=>$id]);
-			$_SESSION['success'] = 'Customer photo updated successfully';
+			$_SESSION['success'] = 'Vendor photo updated successfully';
 		}
 		catch(PDOException $e){
 			$_SESSION['error'] = $e->getMessage();
@@ -23,8 +23,8 @@
 
 	}
 	else{
-		$_SESSION['error'] = 'Select customer to update photo first';
+		$_SESSION['error'] = 'Select vendor to update photo first';
 	}
 
-	header('location: customer.php');
+	header('location: vendor.php');
 ?>
