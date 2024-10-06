@@ -37,7 +37,7 @@ try {
                 $_SESSION['error'] = 'Please verify your email address before logging in.';
             } elseif ($row['status'] == 3) {
                 $_SESSION['error'] = 'Please wait for admin approval.';
-            } else {
+            } elseif ($row['status'] == 4) {
                 $_SESSION['error'] = 'Account Deactivated.';
             }
         } else {
