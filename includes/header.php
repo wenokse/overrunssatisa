@@ -244,42 +244,84 @@
 
 </head>
 <script>
-  (function() {
+ (function() {
     'use strict';
 
-    // Disable context menu
-    document.addEventListener('contextmenu', function(event) {
-        event.preventDefault();
+    // Function to apply anti-tampering mechanisms
+    const applyAntiTamper = function() {
+        // Disable context menu
+        document.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+        }, true); // Adding `true` makes it a capturing listener, harder to override
+
+        // Disable key shortcuts (F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+S, Ctrl+Shift+C)
+        document.addEventListener('keydown', function(event) {
+            if (event.keyCode == 123) { // F12
+                event.preventDefault();
+            }
+            if (event.ctrlKey && event.shiftKey && (event.keyCode == 73 || event.keyCode == 74)) { // Ctrl+Shift+I or Ctrl+Shift+J
+                event.preventDefault();
+            }
+            if (event.ctrlKey && (event.keyCode == 85 || event.keyCode == 83)) { // Ctrl+U or Ctrl+S
+                event.preventDefault();
+            }
+            if (event.ctrlKey && event.shiftKey && event.keyCode == 67) { // Ctrl+Shift+C
+                event.preventDefault();
+            }
+        }, true);
+
+        // Prevent drag actions
+        document.addEventListener('dragstart', function(event) {
+            event.preventDefault();
+        }, true);
+
+        // Prevent Ctrl+A (Select All)
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.keyCode == 65) { // Ctrl+A
+                event.preventDefault();
+            }
+        }, true);
+    };
+
+    // Apply anti-tampering protections
+    applyAntiTamper();
+
+    // Monitor if the script is tampered with or disabled
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            // Check if our event listeners were removed or changed
+            if (mutation.type === 'childList' || mutation.type === 'attributes') {
+                applyAntiTamper(); // Reapply the protections if detected
+            }
+        });
     });
-  });
-  document.addEventListener('contextmenu', function(event) {
-    event.preventDefault();
-  });
 
-  document.addEventListener('keydown', function(event) {
-    if (event.keyCode == 123) { // F12
-      event.preventDefault();
-    }
-    if (event.ctrlKey && event.shiftKey && (event.keyCode == 73 || event.keyCode == 74)) { 
-      event.preventDefault();
-    }
-    if (event.ctrlKey && (event.keyCode == 85 || event.keyCode == 83)) { 
-      event.preventDefault();
-    }
-    if (event.ctrlKey && event.shiftKey && event.keyCode == 67) { 
-      event.preventDefault();
-    }
-  });
+    // Observe changes in the document body (such as removed or replaced elements)
+    observer.observe(document, { attributes: true, childList: true, subtree: true });
 
-  document.addEventListener('dragstart', function(event) {
-    event.preventDefault();
-  });
+    // Make the script harder to disable by constantly checking if it's running
+    setInterval(() => {
+        applyAntiTamper(); // Ensure protections are reapplied every second
+    }, 1000);
 
-  document.addEventListener('keydown', function(event) {
-    if (event.ctrlKey && event.keyCode == 65) { 
-      event.preventDefault();
-    }
-  });
+    // Obfuscate key functions
+    const antiDebug = function() {
+        setInterval(function() {
+            (function() {
+                try {
+                    // Attempts to open DevTools should trigger errors
+                    (function testDevTools() {}.constructor('debugger')());
+                } catch (e) {
+                    window.location.reload(); // Reload the page if DevTools is detected
+                }
+            })();
+        }, 500);
+    };
+
+    // Trigger anti-debugging
+    antiDebug();
+
+})();
   
 </script>
 <?php
