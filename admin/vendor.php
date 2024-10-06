@@ -76,7 +76,7 @@
                           $image = (!empty($row['photo'])) ? '../images/' . $row['photo'] : '../images/profile.jpg';
                           if ($row['status'] == 1) {
                             $status = '<span class="label label-success">Active</span>';
-                        } elseif ($row['status'] == 0) {
+                        } elseif ($row['status'] == 4) {
                             $status = '<span class="label label-danger">Deactive</span>';
                         } elseif ($row['status'] == 3) {
                             $status = '<span class="label label-warning">Pending</span>';
