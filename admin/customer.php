@@ -72,28 +72,8 @@
                       $stmt->execute(['type'=>0]);
                       foreach($stmt as $row){
                         $image = (!empty($row['photo'])) ? '../images/'.$row['photo'] : '../images/profile.jpg';
-                        if ($row['status'] == 1) {
-                            $status = '<span class="label label-success">Active</span>';
-                        } elseif ($row['status'] == 0) {
-                            $status = '<span class="label label-danger">Deactive</span>';
-                        } elseif ($row['status'] == 3) {
-                            $status = '<span class="label label-warning">Pending</span>';
-                        }
+                        $status = ($row['status']) ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Deactive</span>';
                         $active = (!$row['status']) ? '<span class="pull-right"><a href="#activate" class="status"  data-toggle="modal" data-id="'.$row['id'].'"><i class="fa fa-check-square-o"></i></a></span>' : '<span class="pull-right"><a href="#deactivate" class="status" data-toggle="modal" data-id="'.$row['id'].'"><i class="fa fa-check-square-o"></i></a></span>';
-                        
-                        $actionButtons = '';
-                        if ($row['status'] == 3) {
-                            $actionButtons = "
-                                <button class='btn btn-success btn-sm accept btn-flat' style='border-radius: 8px;' data-id='" . $row['id'] . "'><i class='fa fa-check'></i> Accept</button>
-                                <button class='btn btn-danger btn-sm decline btn-flat' style='border-radius: 8px;' data-id='" . $row['id'] . "'><i class='fa fa-close'></i> Decline</button>
-                            ";
-                        } else {
-                            $actionButtons = "
-                                <button class='btn btn-success btn-sm edit btn-flat' style='background: linear-gradient(to right, #39FF14, #B4EC51); color: #fff; border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-edit'></i> Edit</button>
-                                <button class='btn btn-danger btn-sm delete btn-flat' style='background: linear-gradient(to right, #FF416C, #FF4B2B); color: #fff; border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-trash'></i> Delete</button>
-                            ";
-                        }
-                        
                         echo "
                           <tr>
                             <td class='hidden'></td>
@@ -110,7 +90,8 @@
                             </td>
                             <td>".date('M d, Y', strtotime($row['created_on']))."</td>
                             <td>
-                              ".$actionButtons."
+                              <button class='btn btn-success btn-sm edit btn-flat' style='background: linear-gradient(to right, #39FF14, #B4EC51); color: #fff; border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-edit'></i> Edit</button>
+                              <button class='btn btn-danger btn-sm delete btn-flat' style='background: linear-gradient(to right, #FF416C, #FF4B2B); color: #fff; border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-trash'></i> Delete</button>
                             </td>
                           </tr>
                         ";
@@ -166,33 +147,8 @@ $(function(){
     var id = $(this).data('id');
     getRow(id);
   });
-  $(document).on('click', '.accept', function(e) {
-    e.preventDefault();
-    var id = $(this).data('id');
-    updateCustomerStatus(id, 1);  // Accept = status 1
-  });
-
-  $(document).on('click', '.decline', function(e) {
-    e.preventDefault();
-    var id = $(this).data('id');
-    updateCustomerStatus(id, 0);  // Decline = status 0
-  });
 
 });
-
-function updateCustomerStatus(id, status) {
-  $.ajax({
-    type: 'POST',
-    url: 'update_customer_status.php',
-    data: {id: id, status: status},
-    success: function(response) {
-      location.reload();  // Reload the page to reflect the changes
-    },
-    error: function(xhr, status, error) {
-      console.error(error);
-    }
-  });
-}
 
 function getRow(id){
   $.ajax({
