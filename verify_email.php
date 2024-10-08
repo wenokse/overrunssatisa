@@ -77,7 +77,7 @@ if(isset($_POST['verify'])){
                 'address' => $_SESSION['temp_user_data']['address'],
                 'address2' => $_SESSION['temp_user_data']['address2'],
                 'contact_info' => $_SESSION['temp_user_data']['contact_info'],
-                'status' => 1,
+                'status' => 3,
                 'created_on' => $now
             ]);
 
