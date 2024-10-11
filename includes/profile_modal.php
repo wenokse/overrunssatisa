@@ -144,7 +144,7 @@
     }
 
     function validateForm() {
-        var email = document.getElementById('email').value.trim();
+        // var email = document.getElementById('email').value.trim();
         var password = document.getElementById('password').value.trim();
         var firstname = document.getElementById('firstname').value.trim();
         var lastname = document.getElementById('lastname').value.trim();
@@ -157,7 +157,7 @@
         var hasLowercase = /[a-z]/;
 
         // Check if any field is empty or consists of only spaces
-        if (firstname === "" || lastname === "" || email === "" || password === "" || address === "" || contact_info === "") {
+        if (firstname === "" || lastname === "" || password === "" || address === "" || contact_info === "") {
             swal({
                 title: 'Please fill out all required fields properly.',
                 icon: 'warning',
