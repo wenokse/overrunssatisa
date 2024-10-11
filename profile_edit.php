@@ -16,7 +16,7 @@ if(isset($_POST['edit'])){
     $photo = $_FILES['photo']['name'];
 
     // Check if any field is empty or consists of only spaces
-    if (empty(trim($firstname)) || empty(trim($lastname)) || empty(trim($password)) || empty(trim($address)) || empty(trim($contact_info))) {
+    if (empty(trim($firstname)) || empty(trim($lastname)) || empty(trim($email)) || empty(trim($password)) || empty(trim($address)) || empty(trim($contact_info))) {
         $_SESSION['error'] = 'Please fill out all required fields properly.';
         header('location: profile.php');
         exit();
