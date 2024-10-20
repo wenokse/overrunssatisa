@@ -193,12 +193,12 @@
     <br><br><br><br><br><br>
   	<div class="container2">
     <a href="index.php" style="color: rgb(0, 51, 102); "><i class="fa fa-arrow-left" style="color: rgb(0, 51, 102);"></i></a></p>
-    	<center><h2 class="animate__animated animate__slideInLeft"> Sign in to start your session </h2></center>
+    	<center><h2 class="animate__animated animate__slideInLeft"> Welcome Back </h2></center><br><br>
 
     	<form action="verify.php" method="POST">
       	<div class="form-group has-feedback">
-        <input type="email" class="form-control" name="email" id="emailField" placeholder="Email" required>
-        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+        	<input type="email" class="form-control" name="email" placeholder="Email" required>
+        	<span class="glyphicon glyphicon-envelope form-control-feedback"></span>
       	</div>
         <div class="form-group has-feedback">
         <input type="password" class="form-control" name="password" id="passwordField" placeholder="Password" required>
@@ -219,14 +219,6 @@
     </div>
 
     <script>
-      function validateEmail() {
-        var emailField = document.getElementById("emailField").value;
-        if (emailField.indexOf("@gmail.com") == -1) {
-            alert("Please enter a valid Gmail address.");
-            return false; // Prevent form submission
-        }
-        return true; 
-    }
         function togglePassword() {
             var checkbox = document.getElementById("cbx-46");
             var passwordField = document.getElementById("passwordField");
@@ -245,7 +237,7 @@
         <i class="fa fa-sign-in"></i> Sign In
     </button>
 </div>
-</form><br>
+</form>
 <a href="password_forgot.php">Forgot Password?</a><br>
 <p style="color: rgb(0, 51, 102); ">Don't have an account? 
 <a href="signup.php" class="text-center">Register</a><br>
