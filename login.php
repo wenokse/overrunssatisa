@@ -257,8 +257,8 @@
 <style>
   body{
    
-    background: rgb(0, 51, 102);
-/* background-image: url('image/sliders1.jpg'); */
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
 background-size: cover;
 background-repeat: no-repeat;
 }

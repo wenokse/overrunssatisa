@@ -21,7 +21,7 @@
             width: 100%;
             height: 100%;
             overflow: visible;
-            background: rgb(0, 51, 102);
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -195,7 +195,8 @@
 <?php include 'includes/scripts.php' ?>
 <style>
       body {
-        background: rgb(0, 51, 102);
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #6e8efb, #a777e3);
         background-size: cover;
         background-repeat: no-repeat;
     }
