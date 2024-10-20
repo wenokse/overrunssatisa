@@ -209,7 +209,7 @@
         padding: 10px;
         border: 1px solid #ccc;
         border-radius: 20px;
-        background-color: #f9f9f9;
+        background: linear-gradient(135deg, #6e8efb, #a777e3);
         box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
     }
     .larg {
@@ -225,7 +225,7 @@
     }
 
     body {
-        background: rgb(0, 51, 102);
+        background: linear-gradient(135deg, #6e8efb, #a777e3);
         background-size: cover;
         background-repeat: no-repeat;
     }
