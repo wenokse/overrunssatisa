@@ -3,13 +3,13 @@
   <section class="sidebar" style="background-color: white;">
     <!-- Sidebar user panel -->
     <div class="user-panel">
-      <!-- <div class="pull-left image">
+      <div class="pull-left image">
         <img src="<?php echo (!empty($admin['photo'])) ? '../images/'.$admin['photo'] : '../images/profile.jpg'; ?>" class="img-circle" alt="User Image">
-      </div> -->
-      <!-- <div class="pull-left info">
-        <p><?php echo $admin['firstname'].' '.$admin['lastname']; ?></p>
-        <a><i class="fa fa-circle text-success"></i> Online</a>
-      </div> -->
+      </div>
+      <div class="pull-left info">
+        <p style="color: black;"><?php echo $admin['firstname'].' '.$admin['lastname']; ?></p>
+        <a style="color: black;"><i class="fa fa-circle text-success"></i> Online</a>
+      </div>
     </div>
     <!-- sidebar menu: : style can be found in sidebar.less -->
     <ul class="sidebar-menu" data-widget="tree">
@@ -25,6 +25,7 @@
             <li class="menu-item"><a href="category.php"><i class="fa fa-th-list"></i> <span>Category</span></a></li>
             <li class="menu-item"><a href="products.php"><i class="fa fa-barcode"></i> <span>Product</span></a></li>
             <li class="menu-item"><a href="return_product.php"><i class="fa fa-truck"></i> <span>&nbsp;Return</span></a></li>
+            <li class="menu-item"><a href="comm.php"><i class="fa fa-comment"></i> <span>&nbsp;Comments</span></a></li>
           ';
         }
         else{
@@ -39,6 +40,8 @@
             <li class="menu-item"><a href="category.php"><i class="fa fa-th-list"></i> <span>&nbsp;Category</span></a></li>
             <li class="menu-item"><a href="products.php"><i class="fa fa-barcode"></i> <span>&nbsp;Product</span></a></li>
             <li class="menu-item"><a href="return_product.php"><i class="fa fa-truck"></i> <span>&nbsp;Return</span></a></li>
+            <li class="menu-item"><a href="comm.php"><i class="fa fa-comment"></i> <span>&nbsp;Comments</span></a></li>
+            
           ';
         }
       ?>
@@ -46,7 +49,7 @@
   </section>
   <!-- /.sidebar -->
 </aside>
-
+<!-- <li class="menu-item"><a href="settings.php"><i class="fa fa-cog"></i> <span>&nbsp;Settings</span></a></li> -->
 <style>
   
 .main-sidebar {

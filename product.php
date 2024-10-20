@@ -122,12 +122,11 @@ $pdo->close();
 
 <?php include 'includes/header.php'; ?>
 <body class="hold-transition skin-blue layout-top-nav">
-
     <div id="fb-root"></div>
     <!-- <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v13.0&appId=1346358252525630&autoLogAppEvents=1" nonce="hsdcri7l"></script> -->
     <div class="wrapper">
          <!-- Preloader -->
-         <div id="preloader">
+    <div id="preloader">
         <div class="loader"></div>
     </div>
     <?php 
@@ -449,46 +448,42 @@ $pdo->close();
                     swal({
                         icon: 'success',
                         title: 'Success!',
-                        text: response.message,
-                        onClose: function () {
-                            $('#comment_message').removeClass('alert-danger').addClass('alert-success').text(response.message).show();
-                            $('#comment_form')[0].reset();
-                            loadComments();
-                        }
+                        text: response.message
+                    }).then(function() {
+                        $('#comment_form')[0].reset();  // Reset the form after submission
+                        loadComments();  // Refresh the comments
                     });
                 } else {
-                    if (response.redirect === true) {
-                        swal({
-                            icon: 'error',
-                            title: 'Invalid Comment',
-                            text: response.message,
-                        }).then(() => {
-                            // Reload the current page
-                            window.location.reload();
-                        });
-                    } else if (response.redirect) {
-                        swal({
-                            icon: 'error',
-                            title: 'Login Required',
-                            text: response.message,
-                        }).then(() => {
-                            // Redirect to login page
-                            window.location.href = response.redirect;
-                        });
-                    } else {
-                        swal({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: response.message
-                        });
-                    }
+                    handleErrorResponse(response);  // Handle different error scenarios
                 }
             }
         });
     });
 
-   
-$(document).ready(function() {
+    // Function to load the comments without page refresh
+    function loadComments() {
+        $.ajax({
+            url: 'fetch_comments.php',
+            method: 'GET',
+            data: { product_id: <?php echo $product['prodid']; ?> },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('#comment_list').html(response.comments);  // Display updated comments
+                } else {
+                    $('#comment_list').html('<p>No comments yet, be the first to comment.</p>');
+                }
+            },
+            error: function() {
+                $('#comment_list').html('<p>An error occurred while loading comments.</p>');
+            }
+        });
+    }
+
+    // Call loadComments when the page is loaded
+    loadComments();
+
+    // Handle like, dislike, delete, reply actions
     $(document).on('click', '.like-btn', function() {
         var commentId = $(this).data('comment-id');
         handleCommentAction(commentId, 'like');
@@ -497,6 +492,87 @@ $(document).ready(function() {
     $(document).on('click', '.dislike-btn', function() {
         var commentId = $(this).data('comment-id');
         handleCommentAction(commentId, 'dislike');
+    });
+
+    $(document).on('click', '.delete-btn', function() {
+        var commentId = $(this).data('comment-id');
+        if (confirm('Are you sure you want to delete this comment?')) {
+            $.ajax({
+                url: 'delete_comment.php',
+                method: 'POST',
+                data: { comment_id: commentId },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        swal({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message
+                        });
+                        loadComments();  // Refresh comments after deletion
+                    } else {
+                        swal({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: response.message
+                        });
+                    }
+                }
+            });
+        }
+    });
+
+    $(document).on('click', '.view-replies-link', function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var commentId = $this.data('comment-id');
+        var replyCount = $this.data('reply-count');
+        var repliesContainer = $('#replies-' + commentId);
+
+        if (repliesContainer.is(':visible')) {
+            repliesContainer.hide();
+            $this.text('View ' + replyCount + ' ' + (replyCount === 1 ? 'reply' : 'replies'));
+        } else {
+            repliesContainer.show();
+            $this.text('Hide replies');
+        }
+    });
+
+    $(document).on('click', '.reply-btn', function() {
+        var commentId = $(this).data('comment-id');
+        $(this).closest('.comment-container').find('.reply-form').toggle();
+    });
+
+    $(document).on('click', '.submit-reply', function() {
+        var parentId = $(this).data('parent-id');
+        var replyText = $(this).siblings('.reply-text').val();
+        
+        $.ajax({
+            url: 'submit_reply.php',
+            method: 'POST',
+            data: {
+                parent_id: parentId,
+                reply: replyText,
+                product_id: <?php echo $product['prodid']; ?>
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    swal({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: response.message
+                    });
+                    loadComments();  // Refresh comments after reply submission
+                } else {
+                    swal({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: response.message
+                    });
+                }
+            }
+        });
     });
 
     function handleCommentAction(commentId, action) {
@@ -510,65 +586,43 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    loadComments();
+                    loadComments();  
                 } else {
-                    alert('An error occurred.');
+                    swal({
+                icon: 'error',
+                title: 'Login Required',
+                text: response.message,
+                });
                 }
             }
         });
     }
-    $(document).on('click', '.delete-btn', function() {
-        var commentId = $(this).data('comment-id');
-        if (confirm('Are you sure you want to delete this comment?')) {
-            $.ajax({
-                url: 'delete_comment.php',
-                method: 'POST',
-                data: {
-                    comment_id: commentId
-                },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
-                        swal({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: response.message
-                        });
-                        loadComments();
-                    } else {
-                        swal({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: response.message
-                        });
-                    }
-                }
+
+    function handleErrorResponse(response) {
+        if (response.redirect === true) {
+            swal({
+                icon: 'error',
+                title: 'Invalid Comment',
+                text: response.message,
+            }).then(() => {
+                window.location.reload();  // Reload page on error
+            });
+        } else if (response.redirect) {
+            swal({
+                icon: 'error',
+                title: 'Login Required',
+                text: response.message,
+            }).then(() => {
+                window.location.href = response.redirect;  // Redirect to login
+            });
+        } else {
+            swal({
+                icon: 'error',
+                title: 'Error!',
+                text: response.message
             });
         }
-    });
-    function loadComments() {
-        $.ajax({
-            url: 'fetch_comments.php',
-            method: 'GET',
-            data: { product_id: <?php echo $product['prodid']; ?> },
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    $('#comment_list').html(response.comments);
-                } else {
-                    $('#comment_list').html('<p>No comments yet, Be the first comment.</p>');
-                }
-            }
-        });
     }
-
-    loadComments();
-});
-
-
-
-    
-    loadComments();
 });
 
 // Preloader script
@@ -576,47 +630,48 @@ window.addEventListener('load', function() {
     var preloader = document.getElementById('preloader');
     preloader.style.display = 'none';
 });
+
     </script>
     <style>
 /* Preloader styles */
 #preloader {
-        position: fixed;
-        left: 0;
-        top: 0;
-        z-index: 999;
-        width: 100%;
-        height: 100%;
-        overflow: visible;
-        background: #3498db; 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 999;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .loader {
-        border: 16px solid #f3f3f3; 
-        border-top: 16px solid #ffffff; 
-        border-radius: 50%;
-        width: 120px;
-        height: 120px;
-        animation: spin 5s linear infinite;
-    }
+        .loader {
+            border: 16px solid #f3f3f3; /* Light grey */
+            border-top: 16px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 1s linear infinite;
+        }
 
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-    .hidden {
-        display: none;
-        opacity: 0;
-        transition: opacity 0.5s ease-in-out;
-    }
+        .hidden {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
 
-    .visible {
-        display: block;
-        opacity: 1;
-    }
+        .visible {
+            display: block;
+            opacity: 1;
+        }
 
         .color-btn {
     border: 2px solid #ddd;

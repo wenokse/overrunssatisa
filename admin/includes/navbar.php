@@ -434,23 +434,6 @@
 }
 
 </style>
-<?php
-  if (isset($_SESSION['error']) || isset($_SESSION['success'])) {
-    $message = isset($_SESSION['error']) ? $_SESSION['error'] : $_SESSION['success'];
-    $icon = isset($_SESSION['error']) ? 'error' : 'success';
-    echo "
-      <script>
-        swal({
-          title: '". $message ."',
-          icon: '". $icon ."',
-          button: 'OK'
-        });
-      </script>
-    ";
-    unset($_SESSION['error']);
-    unset($_SESSION['success']);
-  }
-?>
 <script src="../js/sweetalert.min.js"></script>
 <script src="../js/sweetalert2.min.js"></script>
 <script>
