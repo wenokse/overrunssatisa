@@ -95,7 +95,7 @@
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 20px;
-    background-color: #f9f9f9;
+    backdrop-filter: blur(10px);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
 }
 
