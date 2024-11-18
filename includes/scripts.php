@@ -111,63 +111,7 @@
       $('#callout').hide();
     });
 
-    // Check for location access
-    function checkLocationAccess() {
-      if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          function (position) {
-            // Location granted
-            console.log(`Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`);
-          },
-          function (error) {
-            // Handle location errors
-            if (error.code === error.PERMISSION_DENIED) {
-              swal({
-                title: "Location Required",
-                text: "Please enable location services in your browser to use this website.",
-                icon: "warning",
-                button: "Grant Location Access",
-              }).then(() => {
-                checkLocationAccess(); // Retry location access
-              });
-            } else if (error.code === error.POSITION_UNAVAILABLE) {
-              swal({
-                title: "Location Unavailable",
-                text: "Your device location services appear to be turned off. Please enable them in your device settings.",
-                icon: "warning",
-                button: "OK",
-              });
-            } else if (error.code === error.TIMEOUT) {
-              swal({
-                title: "Timeout",
-                text: "Unable to retrieve your location. Please try again.",
-                icon: "error",
-                button: "OK",
-              });
-            } else {
-              swal({
-                title: "Error",
-                text: "An unknown error occurred while accessing your location.",
-                icon: "error",
-                button: "OK",
-              });
-            }
-          }
-        );
-      } else {
-        swal({
-          title: "Not Supported",
-          text: "Geolocation is not supported by your browser.",
-          icon: "error",
-          button: "OK",
-        });
-      }
-    }
-
-    // Call location check on page load
-    checkLocationAccess();
-  });
-
+    
   function getCart() {
     $.ajax({
       type: 'POST',
@@ -189,6 +133,78 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     getCart();
+  });
+</script>
+<script>
+  // Function to require precise GPS location
+  function requireDeviceLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          // Accurate GPS coordinates
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+          const accuracy = position.coords.accuracy; // Accuracy in meters
+
+          console.log("Latitude:", latitude);
+          console.log("Longitude:", longitude);
+          console.log("Accuracy:", accuracy, "meters");
+
+          // Perform client-side actions with the GPS data here if needed
+        },
+        function (error) {
+          // Handle GPS errors
+          if (error.code === error.PERMISSION_DENIED) {
+            swal({
+              title: "GPS Access Required",
+              text: "Please enable GPS on your device to use this website.",
+              icon: "error",
+              button: "Retry"
+            }).then(() => {
+              location.reload(); // Retry loading the page
+            });
+          } else if (error.code === error.POSITION_UNAVAILABLE) {
+            swal({
+              title: "Position Unavailable",
+              text: "We couldn't retrieve your GPS location. Try again.",
+              icon: "warning",
+              button: "OK"
+            });
+          } else if (error.code === error.TIMEOUT) {
+            swal({
+              title: "Request Timed Out",
+              text: "Fetching your location took too long. Please try again.",
+              icon: "error",
+              button: "OK"
+            });
+          } else {
+            swal({
+              title: "Error",
+              text: "An unknown error occurred.",
+              icon: "error",
+              button: "OK"
+            });
+          }
+        },
+        {
+          enableHighAccuracy: true, // Ensure high-accuracy GPS
+          timeout: 10000, // Timeout after 10 seconds
+          maximumAge: 0 // No cached location
+        }
+      );
+    } else {
+      swal({
+        title: "Geolocation Not Supported",
+        text: "Your device does not support GPS location. Please try on a supported device.",
+        icon: "warning",
+        button: "OK"
+      });
+    }
+  }
+
+  // Call the function on page load
+  document.addEventListener('DOMContentLoaded', function () {
+    requireDeviceLocation();
   });
 </script>
 
