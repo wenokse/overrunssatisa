@@ -232,25 +232,22 @@ try {
             throw new Exception('Invalid input');
         }
 
-        // reCAPTCHA v3 verification
-        require('recaptcha/src/autoload.php');
-        $recaptcha = new \ReCaptcha\ReCaptcha('6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf');
-        $resp = $recaptcha->setExpectedAction('login')
-                          ->setScoreThreshold(0.5)
-                          ->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
-
-        if (!$resp->isSuccess()) {
-            $errorCodes = $resp->getErrorCodes();
-            $score = $resp->getScore();
+        if (isset($_POST['recaptcha_response'])) {
+            $recaptchaResponse = $_POST['recaptcha_response'];
+            $secretKey = '6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf';
             
-            // Log failed verification or additional checks based on score
-            $_SESSION['error'] = 'Bot detection failed. Please try again.';
-            error_log("reCAPTCHA Verification Failed - Codes: " . implode(', ', $errorCodes) . ", Score: " . $score);
-            header('location: login');
-            exit();
+            $response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$recaptchaResponse}");
+            $responseKeys = json_decode($response, true);
+            
+            if (!$responseKeys['success'] || $responseKeys['score'] < 0.5) {
+                $_SESSION['error'] = 'reCAPTCHA verification failed. Please try again.';
+                header('Location: login');
+                exit();
+            }
         }
+        
 
-        // Existing login verification logic remains the same
+        // Check if account is locked
         $stmt = $conn->prepare("SELECT *, COUNT(*) AS numrows FROM users WHERE email = :email");
         $stmt->bindParam(':email', $email, PDO::PARAM_STR);
         $stmt->execute();
