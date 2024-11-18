@@ -20,6 +20,22 @@ if (isset($_POST['signup'])) {
     $password = $_POST['password'];
     $repassword = $_POST['repassword'];
 
+    if(!isset($_SESSION['captcha'])){
+			require('recaptcha/src/autoload.php');
+			$recaptcha = new \ReCaptcha\ReCaptcha('6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf', new \ReCaptcha\RequestMethod\SocketPost());
+			$resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+
+			if (!$resp->isSuccess()){
+		  		$_SESSION['error'] = 'Please answer recaptcha correctly';
+		  		header('location: signup.php');
+		  		exit();	
+		  	}	
+		  	else{
+		  		$_SESSION['captcha'] = time() + (10*60);
+		  	}
+
+		}
+
     // Input validation
     if (containsSpecialCharacters($firstname) || containsSpecialCharacters($lastname) ||
         containsSpecialCharacters($email) || containsSpecialCharacters($password)) {

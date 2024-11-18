@@ -126,9 +126,9 @@
             <input type="checkbox" id="terms" name="terms" class="form-control-feedback1" required>
             <label for="terms">I agree to the <a href="#" id="termsLink">Terms and Conditions</a></label>
         </div>
-        <!-- <div class="form-group" style="width:100%; text-align: center;">
-            <div class="g-recaptcha" data-sitekey="6LfmdVQqAAAAAGDAr09cjmfyP3veq9SJe5lN0doF"></div>
-        </div> -->
+        <div class="form-group" style="width:100%; text-align: center;">
+            <div class="g-recaptcha" data-sitekey="6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk"></div>
+        </div>
         <div class="form-group has-feedback">
             <button type="submit" class="btn btn-primary btn-block" name="signup" id="signupButton" disabled><i class="fa fa-pencil"></i> Sign Up</button>
         </div>
