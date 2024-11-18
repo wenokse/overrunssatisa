@@ -30,7 +30,7 @@
             width: 100%;
             height: 100%;
             overflow: visible;
-            background: #ffffff;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -133,15 +133,18 @@ img {
         .product-container .product .box-body {
             padding: 15px;
             text-align: center;
+            width: 200px;
         }
 
         .product-container .product .box-body img {
              height: 200px; 
+             width: 200px;
     object-fit: cover; 
         }
 
         .product-container .product .box-body h5 {
             font-size: 16px;
+            width: 200px;
             font-family: justify;  
             margin-bottom: 15px;
             font-weight: bold;
@@ -274,12 +277,12 @@ img {
                                 foreach ($products as $product) {
                                     $image = (!empty($product['photo'])) ? 'images/'.$product['photo'] : 'images/noimage.jpg';
                                     echo "
-                                        <a href='product.php?product=".$product['slug']."'>
+                                        <a href='product?product=".$product['slug']."'>
                                             <div class='product'>
-                                                <div class='box box-solid'>
+                                                <div class='box bo-solid'>
                                                     <div class='box-body prod-body'>
                                                         <img src='".$image."' width='100%' height='230px' class='thumbnail'>
-                                                        <h5><a href='product.php?product=".$product['slug']."'>".$product['name']."</a></h5>
+                                                        <h5><a href='product?product=".$product['slug']."'>".$product['name']."</a></h5>
                                                     </div>
                                                     <div class='box-footer'>
                                                         <b>&#8369; ".number_format($product['price'], 2)." each</b>
@@ -311,20 +314,28 @@ img {
 <?php include 'includes/scripts.php'; ?>
 
 <script>
-window.addEventListener('load', function() {
-    var preloader = document.getElementById('preloader');
-    preloader.style.display = 'none';  
-});
+        window.addEventListener('load', function() {
+            var preloader = document.getElementById('preloader');
+            setTimeout(function() {
+                preloader.style.display = 'none'; 
+            }, 100);  // 3000 milliseconds = 3 seconds
+        });
 
+// Other DOMContentLoaded code
 document.addEventListener('DOMContentLoaded', function() {
     const backButton = document.getElementById('backButton');
+
+    // Functionality for category images and back button
     document.querySelectorAll('.category-image').forEach(element => {
         element.addEventListener('click', () => {
             const categoryId = element.getAttribute('data-category');
 
+            // Hide all category images
             document.querySelectorAll('.category-image').forEach(img => {
                 img.style.display = 'none';
             });
+
+            // Show only the selected category's products
             document.querySelectorAll('.product-container').forEach(container => {
                 if (container.getAttribute('data-category') === categoryId) {
                     container.classList.remove('hidden');
@@ -332,18 +343,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     container.classList.add('hidden');
                 }
             });
+
+            // Show the back button
             backButton.style.display = 'block';
         });
     });
 
     backButton.addEventListener('click', () => {
-        
+        // Show all category images
         document.querySelectorAll('.category-image').forEach(img => {
             img.style.display = 'block';
         });
+
+        // Hide all product containers
         document.querySelectorAll('.product-container').forEach(container => {
             container.classList.add('hidden');
         });
+
+        // Hide the back button
         backButton.style.display = 'none';
     });
 });

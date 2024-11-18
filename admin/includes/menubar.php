@@ -2,7 +2,7 @@
   <!-- sidebar: style can be found in sidebar.less -->
   <section class="sidebar" style="background-color: white;">
     <!-- Sidebar user panel -->
-    <div class="user-panel">
+    <!-- <div class="user-panel">
       <div class="pull-left image">
         <img src="<?php echo (!empty($admin['photo'])) ? '../images/'.$admin['photo'] : '../images/profile.jpg'; ?>" class="img-circle" alt="User Image">
       </div>
@@ -10,37 +10,37 @@
         <p style="color: black;"><?php echo $admin['firstname'].' '.$admin['lastname']; ?></p>
         <a style="color: black;"><i class="fa fa-circle text-success"></i> Online</a>
       </div>
-    </div>
+    </div> -->
     <!-- sidebar menu: : style can be found in sidebar.less -->
     <ul class="sidebar-menu" data-widget="tree">
       <?php
         if($admin['type'] > 1){
           echo '
             <li class="header" style="background-color: white;">REPORTS</li>
-            <li class="menu-item"><a href="home.php"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
-            <li class="menu-item"><a href="sales.php"><i class="fa fa-money"></i> <span>&nbsp;Sales</span></a></li>
-            <li class="menu-item"><a href="inventory.php"><i class="fa fa-clipboard"></i> <span>&nbsp;Inventory</span></a></li>
+            <li class="menu-item"><a href="home"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
+            <li class="menu-item"><a href="sales"><i class="fa fa-money"></i> <span>&nbsp;Sales</span></a></li>
+            <li class="menu-item"><a href="inventory"><i class="fa fa-clipboard"></i> <span>&nbsp;Inventory</span></a></li>
             <li class="header" style="background-color: white;">MAINTENANCE</li>
-             <li class="menu-item"><a href="customer.php"><i class="fa fa-users"></i> <span>&nbsp;Customer</span></a></li>
-            <li class="menu-item"><a href="category.php"><i class="fa fa-th-list"></i> <span>Category</span></a></li>
-            <li class="menu-item"><a href="products.php"><i class="fa fa-barcode"></i> <span>Product</span></a></li>
-            <li class="menu-item"><a href="return_product.php"><i class="fa fa-truck"></i> <span>&nbsp;Return</span></a></li>
-            <li class="menu-item"><a href="comm.php"><i class="fa fa-comment"></i> <span>&nbsp;Comments</span></a></li>
+             <li class="menu-item"><a href="customer"><i class="fa fa-users"></i> <span>&nbsp;Customer</span></a></li>
+            <li class="menu-item"><a href="category"><i class="fa fa-th-list"></i> <span>Category</span></a></li>
+            <li class="menu-item"><a href="products"><i class="fa fa-barcode"></i> <span>Product</span></a></li>
+            <li class="menu-item"><a href="return_product"><i class="fa fa-truck"></i> <span>&nbsp;Return</span></a></li>
+            <li class="menu-item"><a href="comm"><i class="fa fa-comment"></i> <span>&nbsp;Comments</span></a></li>
           ';
         }
         else{
           echo '
             <li class="header" style="background-color: white;">REPORTS</li>
-            <li class="menu-item"><a href="home.php"><i class="fa fa-dashboard"></i> <span>&nbsp;Dashboard</span></a></li>
-            <li class="menu-item"><a href="sales.php"><i class="fa fa-money"></i> <span>&nbsp;Sales</span></a></li>
-            <li class="menu-item"><a href="inventory.php"><i class="fa fa-clipboard"></i> <span>&nbsp;Inventory</span></a></li>
+            <li class="menu-item"><a href="home"><i class="fa fa-dashboard"></i> <span>&nbsp;Dashboard</span></a></li>
+            <li class="menu-item"><a href="sales"><i class="fa fa-money"></i> <span>&nbsp;Sales</span></a></li>
+            <li class="menu-item"><a href="inventory"><i class="fa fa-clipboard"></i> <span>&nbsp;Inventory</span></a></li>
             <li class="header" style="background-color: white;">MAINTENANCE</li>
-            <li class="menu-item"><a href="customer.php"><i class="fa fa-users"></i> <span>&nbsp;Customer</span></a></li>
-            <li class="menu-item"><a href="vendor.php"><i class="fa fa-user"></i> <span>&nbsp;Vendor</span></a></li>
-            <li class="menu-item"><a href="category.php"><i class="fa fa-th-list"></i> <span>&nbsp;Category</span></a></li>
-            <li class="menu-item"><a href="products.php"><i class="fa fa-barcode"></i> <span>&nbsp;Product</span></a></li>
-            <li class="menu-item"><a href="return_product.php"><i class="fa fa-truck"></i> <span>&nbsp;Return</span></a></li>
-            <li class="menu-item"><a href="comm.php"><i class="fa fa-comment"></i> <span>&nbsp;Comments</span></a></li>
+            <li class="menu-item"><a href="customer"><i class="fa fa-users"></i> <span>&nbsp;Customer</span></a></li>
+            <li class="menu-item"><a href="vendor"><i class="fa fa-user"></i> <span>&nbsp;Vendor</span></a></li>
+            <li class="menu-item"><a href="category"><i class="fa fa-th-list"></i> <span>&nbsp;Category</span></a></li>
+            <li class="menu-item"><a href="products"><i class="fa fa-barcode"></i> <span>&nbsp;Product</span></a></li>
+            <li class="menu-item"><a href="return_product"><i class="fa fa-truck"></i> <span>&nbsp;Return</span></a></li>
+            <li class="menu-item"><a href="report_view"><i class="fa fa-flag"></i> <span>&nbsp;Report</span></a></li>
             
           ';
         }

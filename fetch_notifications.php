@@ -16,7 +16,7 @@ if(isset($_SESSION['user'])){
         foreach($stmt as $row){
             $output['list'] .= "
                 <li>
-                    <a href='transaction_view.php?id=".$row['id']."'>
+                    <a href='transaction_view?id=".$row['id']."'>
                         <i class='fa fa-truck text-aqua'></i> Your order #".$row['pay_id']." is on delivery
                     </a>
                 </li>

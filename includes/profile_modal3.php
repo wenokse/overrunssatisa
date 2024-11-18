@@ -1,41 +1,83 @@
 <!-- Transaction History -->
 <div class="modal fade" id="transaction">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="modal-header" style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
         <h4 class="modal-title"><b>Transaction Full Details</b></h4>
       </div>
       <div class="modal-body table-responsive">
-        <p>
-          Name: <span id="name"></span><span class="pull-right">Transaction #: <span id="transid"></span></span><br>
-          Address: <span id="address"></span> <span id="address2"></span><span class="pull-right">Date: <span id="date"></span></span><br>
-          Contact #: <span id="contact_info"></span>
-          
-          
-        </p>
-        <table class="table table-bordered">
-          <thead>
-            <th>Product</th>
-            <th>Price</th>
-            <th>Size</th>
-            <th>Color</th>
-            <th class="text-center">Quantity</th>
-            <th>Shipping</th>
-            <th>Subtotal</th>
-          </thead>
-          <tbody id="detail">
-            <tr>
-              <td colspan="6" class="text-right"><b>Total</b></td>
-              <td><span id="total"></span></td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="customer-details" style="background: #fff; padding: 15px; border-radius: 5px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+          <div class="row">
+            <div class="col-md-6">
+            <div class="detail-group" style="margin-bottom: 10px;">
+                <label style="font-weight: bold; color: #555;">Date:</label>
+                <span id="date" style="margin-left: 5px;"></span>
+              </div>
+              <div class="detail-group" style="margin-bottom: 10px;">
+                <label style="font-weight: bold; color: #555;">Customer Name:</label>
+                <span id="name" style="margin-left: 5px;"></span>
+              </div>
+              <div class="detail-group" style="margin-bottom: 10px;">
+                <label style="font-weight: bold; color: #555;">Delivery Address:</label>
+                <span style="margin-left: 5px;">
+                  <span id="address"></span>,
+                  <span id="address2"></span>,
+                  <span id="address3"></span>
+                </span>
+              </div>
+              <div class="detail-group">
+                <label style="font-weight: bold; color: #555;">Contact Number:</label>
+                <span id="contact_info" style="margin-left: 5px;"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="detail-group" style="margin-bottom: 10px;">
+                <label style="font-weight: bold; color: #555;">Transaction #:</label>
+                <span id="transid" style="margin-left: 5px;"></span>
+              </div>
+              <div class="detail-group" style="margin-bottom: 10px;">
+                <label style="font-weight: bold; color: #555;">Rider Name:</label>
+                <span id="rider_name" style="margin-left: 5px;"></span>
+              </div>
+              <div class="detail-group" style="margin-bottom: 10px;">
+                <label style="font-weight: bold; color: #555;">Rider Contact:</label>
+                <span id="phone_number" style="margin-left: 5px;"></span>
+              </div>
+              <div class="detail-group">
+                <label style="font-weight: bold; color: #555;">Rider Address:</label>
+                <span id="rider_address" style="margin-left: 5px;"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="order-details" style="background: #fff; padding: 15px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+          <table class="table table-bordered" style="margin-bottom: 0;">
+            <thead style="background: #f8f9fa;">
+              <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Size</th>
+                <th>Color</th>
+                <th class="text-center">Quantity</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody id="detail">
+              <tr>
+              <td style="font-weight: bold; background: #f8f9fa;">Shipping: 100</td>
+              <td colspan="4" class="text-right" style="font-weight: bold; background: #f8f9fa;">Total</td>
+                <td style="background: #f8f9fa;"><span id="total" style="font-weight: bold;"></span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal">
+      <div class="modal-footer" style="background: #f8f9fa; border-top: 2px solid #dee2e6;">
+        <button type="button" class="btn btn-default btn-flat" data-dismiss="modal" style="border-radius: 3px;">
           <i class="fa fa-close"></i> Close
         </button>
       </div>
@@ -43,6 +85,66 @@
   </div>
 </div>
 
+<style>
+.modal-dialog.modal-lg {
+  width: 90%;
+  max-width: 1000px;
+}
+
+.modal-content {
+  border-radius: 8px;
+  border: none;
+}
+
+.modal-header {
+  padding: 15px 20px;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.table-bordered {
+  border: 1px solid #dee2e6;
+}
+
+.table-bordered > thead > tr > th,
+.table-bordered > tbody > tr > td {
+  padding: 12px;
+  vertical-align: middle;
+  border: 1px solid #dee2e6;
+}
+
+.detail-group {
+  display: flex;
+  align-items: baseline;
+}
+
+.customer-details,
+.order-details {
+  transition: box-shadow 0.3s ease;
+}
+
+.customer-details:hover,
+.order-details:hover {
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+@media (max-width: 768px) {
+  .modal-dialog.modal-lg {
+    width: 95%;
+    margin: 10px auto;
+  }
+  
+  .detail-group {
+    margin-bottom: 15px;
+  }
+  
+  .col-md-6:first-child {
+    margin-bottom: 20px;
+  }
+}
+</style>
 <!-- Edit Profile -->
 <div class="modal fade" id="edit">
     <div class="modal-dialog">
@@ -53,7 +155,7 @@
               <h4 class="modal-title"><b>Update Account</b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="profile_edit.php" enctype="multipart/form-data" onsubmit="return validatePhoneNumber()">
+              <form class="form-horizontal" method="POST" action="profile_edit" enctype="multipart/form-data" onsubmit="return validatePhoneNumber()">
                 <div class="form-group">
                     <label for="firstname" class="col-sm-3 control-label">Firstname</label>
 

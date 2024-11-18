@@ -18,7 +18,7 @@
         Comments
       </h1>
       <ol class="breadcrumb">
-        <li><a href="home.php"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="home"><i class="fa fa-dashboard"></i> Home</a></li>
         <li class="active">Comments</li>
       </ol>
     </section>
@@ -114,10 +114,10 @@
                                       "; 
                                       if ($user_type != 195) {  
                                         echo "
-                                          <button type='button' class='btn btn-info btn-flat reply' style='background: linear-gradient(to right, #00C9FF, #92FE9D); color: #fff; border-radius: 8px;' data-id='{$row['id']}' data-toggle='modal' data-target='#replyModal'>
+                                          <button type='button' class='btn btn-info btn-flat reply' style='color: #fff; border-radius: 8px;' data-id='{$row['id']}' data-toggle='modal' data-target='#replyModal'>
                                             <i class='fa fa-reply'></i> Reply
                                           </button>
-                                          <button class='btn btn-danger delete-comment btn-flat' style='background: linear-gradient(to right, #FF416C, #FF4B2B); color: #fff; border-radius: 8px;' data-id='{$row['id']}'>
+                                          <button class='btn btn-danger delete-comment btn-flat' style='color: #fff; border-radius: 8px;' data-id='{$row['id']}'>
                                             <i class='fa fa-trash'></i> Delete
                                           </button>
                                         ";
@@ -194,7 +194,7 @@ $(function(){
     var formData = $(this).serialize();
     $.ajax({
       type: 'POST',
-      url: 'reply_comment.php',
+      url: 'reply_comment',
       data: formData,
       dataType: 'json',
       success: function(response){
@@ -241,7 +241,7 @@ $(function(){
       if (willDelete) {
         $.ajax({
           type: 'POST',
-          url: 'delete_comment.php',
+          url: 'delete_comment',
           data: {id: id},
           dataType: 'json',
           success: function(response){

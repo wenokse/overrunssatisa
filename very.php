@@ -12,12 +12,12 @@ if(isset($_POST['contact_info'])){
         if($row){ // If a row is found
             $_SESSION['success'] = 'Success';
             $_SESSION['reset_email'] = $row['email']; // Store the email in session for password change page
-            header('location: password_change.php');
+            header('location: password_change');
             exit(); 
         }
         else{
             $_SESSION['error'] = 'Contact info not found';
-            header('location: login.php');
+            header('location: login');
             exit(); 
         }
     }
@@ -27,6 +27,6 @@ if(isset($_POST['contact_info'])){
 }
 
 $pdo->close();
-header('location: login.php');
+header('location: login');
 exit(); 
 ?>

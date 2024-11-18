@@ -37,6 +37,6 @@
 		$_SESSION['error'] = 'Fill up edit customer form first';
 	}
 
-	header('location: customer.php');
+	header('location: customer');
 
 ?>

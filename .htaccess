@@ -1,0 +1,33 @@
+# Enable the rewrite engine
+RewriteEngine On
+
+# Map clean URLs to actual file names
+RewriteRule ^login/?$ login.php [L]
+RewriteRule ^register/?$ register.php [L]
+RewriteRule ^dashboard/?$ dashboard.php [L]
+
+# Prevent direct access to .php files
+RewriteCond %{THE_REQUEST} \.php [NC]
+RewriteRule ^ - [R=404,L]
+# Ensure the requested file doesn't exist as a directory
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Check if the requested filename exists with .php extension
+RewriteCond %{REQUEST_FILENAME}.php -f
+
+# Rewrite the URL to append .php internally
+RewriteRule ^(.*)$ $1.php [L]
+
+# Prevent directory listing
+Options -Indexes
+
+# Prevent access to .htaccess file
+<Files .htaccess>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Prevent direct access to .php files (optional, but recommended)
+# This will redirect example.php to example
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^.]+)\.php [NC]
+RewriteRule ^ %1 [R=301,L]

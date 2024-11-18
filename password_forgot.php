@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = filter_var($_POST["email"], FILTER_SANITIZE_EMAIL);
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $_SESSION['error'] = "Invalid email address.";
-        header('location: password_forgot.php');
+        header('location: password_forgot');
         exit();
     }
 
@@ -67,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION['success'] = 'OTP sent to your email. Please check your inbox.';
                     $_SESSION['reset_email'] = $email;
                     $_SESSION['reset_time'] = $expiry;
-                    header('location: reset_verify.php');
+                    header('location: reset_verify');
                     exit();
                 } catch (Exception $e) {
                     $_SESSION['error'] = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
@@ -84,7 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $pdo->close();
-    header('location: password_forgot.php');
+    header('location: password_forgot');
     exit();
 }
 ?>
@@ -93,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <br><br><br><br>
 <div class="container2">
-<a href="login.php" style="color: rgb(0, 51, 102); "><i class="fa fa-arrow-left" style="color: rgb(0, 51, 102);"></i></a></p>
+<a href="login" style="color: rgb(0, 51, 102); "><i class="fa fa-arrow-left" style="color: rgb(0, 51, 102);"></i></a></p>
     <center> <h2>Forgot Password</h2></center><br>
    
     <?php
@@ -113,10 +113,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     unset($_SESSION['success']);
   }
 ?>
-    <form action="password_forgot.php" method="POST">
+    <form action="password_forgot" method="POST">
         <input type="email" id="email" name="email" placeholder="Enter Your Email" required><br>
-        <button type="submit" class="btn btn-primary btn-block " <i class="fa fa-check-square-o"></i>>Send OTP</button>
+        <button type="submit" class="btn btn-primary btn-block ">Send OTP</button>
     </form>
+    <a href = "another" class = "button">Use Another Way</a>
 </div>
 
 <style>

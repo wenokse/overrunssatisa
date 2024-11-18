@@ -24,6 +24,6 @@
 		$_SESSION['error'] = 'Fill up edit category form first';
 	}
 
-	header('location: category.php');
+	header('location: category');
 
 ?>

@@ -57,7 +57,7 @@
                 <div class="about-us-box animated fadeInUp">
                     <h2 class="about-us-title">About Us</h2>
                     <div class="about-us-content">
-                        <p>Welcome to <b>Overruns Sa Tisa</b>! We are your go-to e-commerce website for online shopping, exclusively serving Bantayan Island. Explore a wide selection of high-quality overrun items at unbeatable prices, from trendy fashion to essential goods. We offer fast, reliable, and island-specific delivery, making shopping easy and convenient for the people of Bantayan. Shop local, save more, and enjoy the convenience of doorstep delivery with Overruns Sa Tisa!</p>
+                        <p>Welcome to <b>Overruns Sa Tisa</b>! We are your go-to e-commerce website for online shopping, exclusively serving Bantayan Island (Main Land). Explore a wide selection of high-quality overrun items at unbeatable prices, from trendy fashion to essential goods. We offer fast, reliable, and island-specific delivery, making shopping easy and convenient for the people of Bantayan. Shop local, save more, and enjoy the convenience of doorstep delivery with Overruns Sa Tisa!</p>
                     </div>
                 </div>
                 

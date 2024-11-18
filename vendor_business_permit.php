@@ -37,7 +37,7 @@ if(isset($_POST['signup'])){
     // First, verify the permit number online
     if (!verifyBusinessPermit($permit_number, $name_store)) {
         $_SESSION['error'] = 'Invalid business permit number. Please check and try again.';
-        header('location: vendor_signup.php');
+        header('location: vendor_signup');
         exit();
     }
 
@@ -47,13 +47,13 @@ if(isset($_POST['signup'])){
 
     if (!in_array($business_permit_extension, $allowed_extensions)) {
         $_SESSION['error'] = 'Invalid business permit file format. Allowed formats: jpg, jpeg, png, pdf';
-        header('location: vendor_signup.php');
+        header('location: vendor_signup');
         exit();
     }
 
     if ($business_permit['size'] > 5000000) { // 5MB limit
         $_SESSION['error'] = 'Business permit file size must be less than 5MB';
-        header('location: vendor_signup.php');
+        header('location: vendor_signup');
         exit();
     }
 
@@ -63,7 +63,7 @@ if(isset($_POST['signup'])){
 
     if (!move_uploaded_file($business_permit['tmp_name'], $business_permit_destination)) {
         $_SESSION['error'] = 'Failed to upload business permit';
-        header('location: vendor_signup.php');
+        header('location: vendor_signup');
         exit();
     }
 

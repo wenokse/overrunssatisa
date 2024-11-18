@@ -20,5 +20,5 @@ if (isset($_POST['id']) && isset($_POST['status'])) {
     $_SESSION['error'] = 'Invalid request';
 }
 
-header('location: vendor.php');
+header('location: vendor');
 ?>

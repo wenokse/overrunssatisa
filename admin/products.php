@@ -20,8 +20,7 @@
 
   <?php include 'includes/navbar.php'; ?>
   <?php include 'includes/menubar.php'; ?>
-  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="../js/sweetalert.min.js"></script>
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -30,7 +29,7 @@
         Product List
       </h1>
       <ol class="breadcrumb">
-        <li><a href="home.php"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="home"><i class="fa fa-dashboard"></i> Home</a></li>
         <!-- <li>Products</li> -->
         <li class="active">Product</li>
       </ol>
@@ -39,21 +38,30 @@
     <!-- Main content -->
     <section class="content">
     <?php
-  if (isset($_SESSION['error']) || isset($_SESSION['success'])) {
-    $message = isset($_SESSION['error']) ? $_SESSION['error'] : $_SESSION['success'];
-    $icon = isset($_SESSION['error']) ? 'error' : 'success';
-    echo "
-      <script>
-        swal({
-          title: '". $message ."',
-          icon: '". $icon ."',
-          button: 'OK'
-        });
-      </script>
-    ";
-    unset($_SESSION['error']);
-    unset($_SESSION['success']);
-  }
+  function showAlert() {
+    if (isset($_SESSION['error']) || isset($_SESSION['success'])) {
+        $message = isset($_SESSION['error']) ? $_SESSION['error'] : $_SESSION['success'];
+        $type = isset($_SESSION['error']) ? 'error' : 'success';
+        
+        echo "
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: '',
+                    text: '" . addslashes($message) . "',
+                    icon: '" . $type . "',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+        </script>
+        ";
+        
+        // Clear the session variables
+        unset($_SESSION['error']);
+        unset($_SESSION['success']);
+    }
+}
 ?>
 <style>
    .content-wrapper {
@@ -108,65 +116,65 @@
                 </thead>
                 <tbody>
                 <?php
-      $conn = $pdo->open();
+                      $conn = $pdo->open();
 
-      try {
-        $now = date('Y-m-d');
-        if ($user_type == 195) {
-            $stmt = $conn->prepare("SELECT * FROM products $where ORDER BY id DESC");
-        } else {
-            if ($where) {
-                $where = "WHERE user_id = :user_id AND " . ltrim($where, "WHERE ");
-            } else {
-                $where = "WHERE user_id = :user_id";
-            }
-            $stmt = $conn->prepare("SELECT * FROM products $where ORDER BY id DESC");
-            $params[':user_id'] = $user_id;
-        }
-        
-        $stmt->execute($params);
-        
-        foreach($stmt as $row){
-                        $image = (!empty($row['photo'])) ? '../images/'.$row['photo'] : '../images/noimage.jpg';
-                        $counter = ($row['date_view'] == $now) ? $row['counter'] : 0;
-                        echo "
-                          <tr>
-                            <td class='hidden'></td>
-                            <td>".$row['name']."</td>
-                            <td>
-                              <img class='pic' src='".$image."'>
-                              <img class='picbig' src='".$image."'>
-                               ";
-                              if ($user_type != 195) {
-                                echo "
-                              <span class='pull-right'><a href='#edit_photo' class='photo' data-toggle='modal' data-id='".$row['id']."'><i class='fa fa-edit'></i></a></span>
-                             ";
-                              }
-                        echo "
-                              </td>
-                            <td>&#8369; ".number_format($row['price'], 2)."</td>
-                            <td>".$counter."</td>
-                           <td>
-                              <a href='#description' data-toggle='modal' class='btn btn-info btn-sm btn-flat desc' style='background: linear-gradient(to right, #00C9FF, #92FE9D); color: #fff; border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-search'></i> View</a>
-                              ";
-                              if ($user_type != 195) {
-                                echo "
-                                  <button class='btn btn-success btn-sm edit btn-flat' style='background: linear-gradient(to right, #39FF14, #B4EC51); color: #fff; border-radius: 8px;'  data-id='".$row['id']."'><i class='fa fa-edit'></i> Edit</button>
-                                  <button class='btn btn-danger btn-sm delete btn-flat' style='background: linear-gradient(to right, #FF416C, #FF4B2B); color: #fff; border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-trash'></i> Delete</button>
+                      try {
+                        $now = date('Y-m-d');
+                        if ($user_type == 195) {
+                            $stmt = $conn->prepare("SELECT * FROM products $where ORDER BY id DESC");
+                        } else {
+                            if ($where) {
+                                $where = "WHERE user_id = :user_id AND " . ltrim($where, "WHERE ");
+                            } else {
+                                $where = "WHERE user_id = :user_id";
+                            }
+                            $stmt = $conn->prepare("SELECT * FROM products $where ORDER BY id DESC");
+                            $params[':user_id'] = $user_id;
+                        }
+                        
+                        $stmt->execute($params);
+                        
+                        foreach($stmt as $row){
+                          $image = (!empty($row['photo'])) ? '../images/'.$row['photo'] : '../images/noimage.jpg';
+                          $counter = ($row['date_view'] == $now) ? $row['counter'] : 0;
+                          echo "
+                            <tr>
+                              <td class='hidden'></td>
+                              <td>".$row['name']."</td>
+                              <td>
+                                <img class='pic' src='".$image."'>
+                                <img class='picbig' src='".$image."'>
                                 ";
-                              }
-                        echo "
-                            </td>
-                          </tr>
-                        ";
+                                if ($user_type != 195) {
+                                  echo "
+                                <span class='pull-right'><a href='#edit_photo' class='photo' data-toggle='modal' data-id='".$row['id']."'><i class='fa fa-edit'></i></a></span>
+                              ";
+                                }
+                          echo "
+                                </td>
+                              <td>&#8369; ".number_format($row['price'], 2)."</td>
+                              <td>".$counter."</td>
+                            <td>
+                                <a href='#description' data-toggle='modal' class='btn btn-info btn-sm btn-flat desc' style='background: linear-gradient(to right, #00C9FF, #92FE9D); color: #fff; border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-search'></i> View</a>
+                                ";
+                                if ($user_type != 195) {
+                                  echo "
+                                    <button class='btn btn-success btn-sm edit btn-flat' style='color: #fff; border-radius: 8px;'  data-id='".$row['id']."'><i class='fa fa-edit'></i> Edit</button>
+                                    <button class='btn btn-danger btn-sm delete btn-flat' style='border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-trash'></i> Delete</button>
+                                  ";
+                                }
+                          echo "
+                              </td>
+                            </tr>
+                          ";
+                        }
                       }
-                    }
-                    catch(PDOException $e){
-                      echo $e->getMessage();
-                    }
-              
-                    $pdo->close();
-                  ?>
+                      catch(PDOException $e){
+                        echo $e->getMessage();
+                      }
+                
+                      $pdo->close();
+                    ?>
                 </tbody>
               </table>
             </div>
@@ -189,25 +197,51 @@
 
 
 $(document).ready(function() {
-  let colorCount = 1;
-  
-  $('#add-color').click(function() {
-    colorCount++;
-    const newColorField = `
-      <div class="form-group color-field">
-        <label for="color${colorCount}" class="col-sm-1 control-label">Color</label>
-        <div class="col-sm-5">
-          <input type="text" class="form-control" name="colors[]" required>
+    let colorCount = 1;
+    let sizeCount = 1;
+    // Add new color field
+    $('#add-color').click(function() {
+      colorCount++;
+      const newColorField = `
+        <div class="form-group color-field">
+          <label for="color${colorCount}" class="col-sm-1 control-label">Color</label>
+          <div class="col-sm-5">
+            <input type="text" class="form-control" name="colors[]" required>
+          </div>
+          <label for="color_photo${colorCount}" class="col-sm-1 control-label">Photo</label>
+          <div class="col-sm-4">
+            <input type="file" name="color_photos[]" required>
+          </div>
+          <button type="button" class="btn btn-danger btn-sm remove-color" title="Remove"><i class="fa fa-minus"></i></button>
         </div>
-        <label for="color_photo${colorCount}" class="col-sm-1 control-label">Photo</label>
-        <div class="col-sm-5">
-          <input type="file" name="color_photos[]" required>
+      `;
+      $('#color-fields').append(newColorField);
+    });
+
+    // Remove color field
+    $(document).on('click', '.remove-color', function() {
+      $(this).closest('.color-field').remove();
+    });
+
+    // Add new size field
+    $('#add-size').click(function(){
+      const newSizeField = `
+        <div class="form-group size-field">
+          <label for="size${$('.size-field').length + 1}" class="col-sm-1 control-label">Size</label>
+          <div class="col-sm-5">
+            <input type="text" class="form-control" name="sizes[]" placeholder="Enter size (e.g. S, M, L, 42, 44)" required>
+          </div>
+          <button type="button" class="btn btn-danger btn-sm remove-size" title="Remove"><i class="fa fa-minus"></i></button>
         </div>
-      </div>
-    `;
-    $('#color-fields').append(newColorField);
+      `;
+      $('#size-fields').append(newSizeField);
+    });
+
+    // Remove size field
+    $(document).on('click', '.remove-size', function() {
+      $(this).closest('.size-field').remove();
+    });
   });
-});
 
 $(function(){
   $(document).on('click', '.edit', function(e){
@@ -239,10 +273,10 @@ $(function(){
   $('#select_category').change(function(){
     var val = $(this).val();
     if(val == 0){
-      window.location = 'products.php';
+      window.location = 'products';
     }
     else{
-      window.location = 'products.php?category='+val;
+      window.location = 'products?category='+val;
     }
   });
 
@@ -254,6 +288,7 @@ $(function(){
   $("#addnew").on("hidden.bs.modal", function () {
       $('.append_items').remove();
   });
+  
 
   $("#edit").on("hidden.bs.modal", function () {
       $('.append_items').remove();
@@ -264,7 +299,7 @@ $(function(){
 function getRow(id){
   $.ajax({
     type: 'POST',
-    url: 'products_row.php',
+    url: 'products_row',
     data: {id:id},
     dataType: 'json',
     success: function(response){
@@ -280,7 +315,16 @@ function getRow(id){
       
       // Clear existing color fields
       $('#edit_color-fields').empty();
+      $('#edit_size-fields').empty();
       
+      // Add existing sizes
+      if(response.sizes && response.sizes.length > 0){
+        response.sizes.forEach(function(size){
+          addSizeField(size.size);
+        });
+      } else {
+        addSizeField();
+      }
       // Add existing colors
       if(response.colors && response.colors.length > 0){
         response.colors.forEach(function(color, index){
@@ -294,6 +338,40 @@ function getRow(id){
     }
   });
 }
+
+function addSizeField(size = ''){
+    let sizeCount = $('#edit_size-fields .size-field').length + 1;
+    let newSizeField = `
+      <div class="form-group size-field">
+        <label for="size${sizeCount}" class="col-sm-1 control-label">Size</label>
+        <div class="col-sm-5">
+          <input type="text" class="form-control" name="edit_sizes[]" value="${size}" placeholder="Enter size (e.g. S, M, L, 42, 44)">
+        </div>
+      </div>
+    `;
+    $('#edit_size-fields').append(newSizeField);
+}
+
+$('#add-edit-size').click(function() {
+      const newSizeField = `
+        <div class="form-group size-field">
+          <label for="size${$('#edit_size-fields .size-field').length + 1}" class="col-sm-1 control-label">Size</label>
+          <div class="col-sm-5">
+            <input type="text" class="form-control" name="edit_sizes[]" placeholder="Enter size (e.g. S, M, L, 42, 44)">
+          </div>
+          <div class="col-sm-1">
+            <button type="button" class="btn btn-danger btn-sm remove-size" title="Remove"><i class="fa fa-minus"></i></button>
+          </div>
+        </div>
+      `;
+      $('#edit_size-fields').append(newSizeField);
+    });
+
+    // Remove size field
+    $(document).on('click', '.remove-size', function() {
+      $(this).closest('.size-field').remove();
+    });
+
 
 function addColorField(color = '', photo = ''){
     let colorCount = $('#edit_color-fields .color-field').length + 1;
@@ -309,6 +387,7 @@ function addColorField(color = '', photo = ''){
           ${photo ? `<p>Current: ${photo}</p>` : ''}
           <input type="hidden" name="current_color_photos[]" value="${photo}">
         </div>
+        
       </div>
     `;
     $('#edit_color-fields').append(newColorField);
@@ -323,7 +402,7 @@ function addColorField(color = '', photo = ''){
 function getCategory(){
   $.ajax({
     type: 'POST',
-    url: 'category_fetch.php',
+    url: 'category_fetch',
     dataType: 'json',
     success:function(response){
       $('#category').append(response);

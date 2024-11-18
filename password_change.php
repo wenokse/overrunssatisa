@@ -37,8 +37,8 @@
           		
     	</form>
      <br>
-      <a href="login.php">I remembered my password</a><br>
-      <a href="index.php"><i class="fa fa-home"></i> Home</a>
+      <a href="login">I remembered my password</a><br>
+      <a href="index"><i class="fa fa-home"></i> Home</a>
     </div>
     </div>
   	</div>

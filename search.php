@@ -23,51 +23,40 @@
                     <?php
                         $conn = $pdo->open();
 
-                        // Sanitize user input
-                        if(isset($_POST['keyword'])){
-                            // Remove all characters except alphanumeric, spaces, and allowed symbols
-                            $keyword = preg_replace("/[^a-zA-Z0-9 \-\'\".,]/", "", $_POST['keyword']);
+                        $stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM products WHERE name LIKE :keyword");
+                        $stmt->execute(['keyword' => '%'.$_POST['keyword'].'%']);
+                        $row = $stmt->fetch();
+                        if($row['numrows'] < 1){
+                            echo '<h1 class="page-header">No results found for <i>'.$_POST['keyword'].'</i></h1>';
                         }
+                        else{
+                            echo '<h1 class="page-header">Search results for <i>'.$_POST['keyword'].'</i></h1>';
+                            try{
+                                echo "<div class='product-container'>";
+                                $stmt = $conn->prepare("SELECT * FROM products WHERE name LIKE :keyword");
+                                $stmt->execute(['keyword' => '%'.$_POST['keyword'].'%']);
 
-                        if(empty($keyword)){
-                            echo '<h1 class="page-header">No results found.</h1>';
-                        }
-                        else {
-                            $stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM products WHERE name LIKE :keyword");
-                            $stmt->execute(['keyword' => '%'.$keyword.'%']);
-                            $row = $stmt->fetch();
-                            if($row['numrows'] < 1){
-                                echo '<h1 class="page-header">No results found for <i>'.$keyword.'</i></h1>';
-                            }
-                            else{
-                                echo '<h1 class="page-header">Search results for <i>'.$keyword.'</i></h1>';
-                                try{
-                                    echo "<div class='product-container'>";
-                                    $stmt = $conn->prepare("SELECT * FROM products WHERE name LIKE :keyword");
-                                    $stmt->execute(['keyword' => '%'.$keyword.'%']);
-
-                                    foreach ($stmt as $row) {
-                                        $highlighted = preg_filter('/' . preg_quote($keyword, '/') . '/i', '<b>$0</b>', $row['name']);
-                                        $image = (!empty($row['photo'])) ? 'images/'.$row['photo'] : 'images/noimage.jpg';
-                                        echo "
-                                            <div class='col-sm-4 product'>
-                                                <div class='box box-solid'>
-                                                    <div class='box-body prod-body'>
-                                                        <img src='".$image."' width='100%' height='230px' class='thumbnail'>
-                                                        <h5><a href='product.php?product=".$row['slug']."'>".$highlighted."</a></h5>
-                                                    </div>
-                                                    <div class='box-footer'>
-                                                        <b>&#8369; ".number_format($row['price'], 2)."</b>
-                                                    </div>
+                                foreach ($stmt as $row) {
+                                    $highlighted = preg_filter('/' . preg_quote($_POST['keyword'], '/') . '/i', '<b>$0</b>', $row['name']);
+                                    $image = (!empty($row['photo'])) ? 'images/'.$row['photo'] : 'images/noimage.jpg';
+                                    echo "
+                                        <div class='col-sm-4 product'>
+                                            <div class='box box-solid'>
+                                                <div class='box-body prod-body'>
+                                                    <img src='".$image."' width='100%' height='230px' class='thumbnail'>
+                                                    <h5><a href='product?product=".$row['slug']."'>".$highlighted."</a></h5>
+                                                </div>
+                                                <div class='box-footer'>
+                                                    <b>&#8369; ".number_format($row['price'], 2)."</b>
                                                 </div>
                                             </div>
-                                        ";
-                                    }
-                                    echo "</div>";
+                                        </div>
+                                    ";
                                 }
-                                catch(PDOException $e){
-                                    echo "There is some problem in connection: " . $e->getMessage();
-                                }
+                                echo "</div>";
+                            }
+                            catch(PDOException $e){
+                                echo "There is some problem in connection: " . $e->getMessage();
                             }
                         }
 
@@ -84,7 +73,6 @@
 </div>
 
 <?php include 'includes/scripts.php'; ?>
-
 <style>
     .product-container {
         display: flex;

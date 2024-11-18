@@ -22,6 +22,6 @@
 		$_SESSION['error'] = 'Select product to delete first';
 	}
 
-	header('location: products.php');
+	header('location: products');
 	
 ?>

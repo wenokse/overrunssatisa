@@ -66,12 +66,12 @@
 								$image = (!empty($row['photo'])) ? 'images/'.$row['photo'] : 'images/noimage.jpg';
 								if ($inc % 5 == 0) echo "<div class='row'>";
 								echo "
-								<a href='product.php?product=".$row['slug']."'>
+								<a href='product?product=".$row['slug']."'>
 									<div class='col-sm-2 product'>
 										<div class='box box-solid'>
 											<div class='box-body prod-body'>
 												<img src='".$image."' width='100%' height='230px' class='thumbnail'>
-												<h5><a href='product.php?product=".$row['slug']."'>".$row['name']."</a></h5>
+												<h5><a href='product?product=".$row['slug']."'>".$row['name']."</a></h5>
 											</div>
 											<div class='box-footer'>
 												<b>&#8369; ".number_format($row['price'], 2)." each</b>

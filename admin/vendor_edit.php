@@ -24,7 +24,7 @@
 		try{
 			$stmt = $conn->prepare("UPDATE users SET email=:email, password=:password, store=:store, firstname=:firstname, lastname=:lastname WHERE id=:id");
 			$stmt->execute(['email'=>$email, 'password'=>$password, 'store'=>$store, 'firstname'=>$firstname, 'lastname'=>$lastname, 'id'=>$id]);
-			$_SESSION['success'] = 'Customer updated successfully';
+			$_SESSION['success'] = 'Vendor updated successfully';
 
 		}
 		catch(PDOException $e){
@@ -35,9 +35,9 @@
 		$pdo->close();
 	}
 	else{
-		$_SESSION['error'] = 'Fill up edit customer form first';
+		$_SESSION['error'] = 'Fill up edit vendor form first';
 	}
 
-	header('location: vendor.php');
+	header('location: vendor');
 
 ?>

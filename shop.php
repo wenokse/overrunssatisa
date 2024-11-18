@@ -56,8 +56,8 @@ $pdo->close();
         <div class="col-md-8 shop-details">
             <h1><?php echo htmlspecialchars($shop['store']); ?></h1>
             <h3>Contact Us</h3>
-            <p>Email: <?php echo htmlspecialchars($shop['email']); ?></p>
             <p>Phone: <?php echo htmlspecialchars($shop['contact_info']); ?></p>
+            <p>Email: <?php echo htmlspecialchars($shop['address']); ?>, <?php echo htmlspecialchars($shop['address2']); ?></p>
             <?php 
                     if (isset($_SESSION['user'])): 
                 ?>
@@ -67,21 +67,24 @@ $pdo->close();
                 <?php 
                     endif; 
                 ?>
+                <?php if(isset($_SESSION['user']) && $_SESSION['user'] != $shop_id): ?>
+                <button id="report-shop-btn" class="open-chat1-btn">
+                    <i class="fa fa-flag"></i> Report Shop
+                </button>
+            <?php endif; ?>
         </div>
     </div>
 
 <div id="chat-container" class="chat-container" style="display: none;">
     <div class="chat-header">
     <img src="<?php echo (!empty($shop['photo'])) ? 'images/'.$shop['photo'] : 'images/profile.jpg'; ?>" alt="<?php echo $shop['store']; ?>">
-        <h4><?php echo $shop['store']; ?></h4>
+        <span><?php echo $shop['store']; ?></span>
         <button id="close-chat-btn" class="close-chat-btn">&times;</button>
     </div>
     <div id="chat-messages" class="chat-messages"></div>
     <div class="chat-input">
         <input type="text" id="message-input" placeholder="Type a message...">
-        <button id="send-button">
-    <i class="fas fa-paper-plane"></i> Send
-</button>
+        <button id="send-button">Send</button>
 
     </div>
 </div>
@@ -97,7 +100,7 @@ $pdo->close();
         <?php foreach ($top_sales as $product): ?>
             <div class="col-md-3">
                 <div class="card product-card">
-                    <a href="product.php?product=<?php echo htmlspecialchars($product['slug']); ?>" class="product-link">
+                    <a href="product?product=<?php echo htmlspecialchars($product['slug']); ?>" class="product-link">
                         <img src="<?php echo (!empty($product['photo'])) ? 'images/'.htmlspecialchars($product['photo']) : 'images/noimage.jpg'; ?>" 
                              alt="<?php echo htmlspecialchars($product['name']); ?>" 
                              class="card-img-top">
@@ -117,7 +120,7 @@ $pdo->close();
         <?php foreach ($all_products as $product): ?>
             <div class="col-md-3">
                 <div class="card product-card">
-                    <a href="product.php?product=<?php echo htmlspecialchars($product['slug']); ?>" class="product-link">
+                    <a href="product?product=<?php echo htmlspecialchars($product['slug']); ?>" class="product-link">
                         <img src="<?php echo (!empty($product['photo'])) ? 'images/'.htmlspecialchars($product['photo']) : 'images/noimage.jpg'; ?>" 
                              alt="<?php echo htmlspecialchars($product['name']); ?>" 
                              class="card-img-top">
@@ -130,7 +133,56 @@ $pdo->close();
             </div>
         <?php endforeach; ?>
     </div>
-
+<!-- Report Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="reportModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="reportModalLabel">Report Shop</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="reportForm">
+                    <div class="form-group">
+                        <label>Reason for Report</label>
+                        <div class="radio-options">
+                            <div class="radio-option">
+                                <input type="radio" id="fake_products" name="reportReason" value="fake_products" required>
+                                <label for="fake_products">Fake Products</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="inappropriate_content" name="reportReason" value="inappropriate_content">
+                                <label for="inappropriate_content">Inappropriate Content</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="scam" name="reportReason" value="scam">
+                                <label for="scam">Scam</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="harassment" name="reportReason" value="harassment">
+                                <label for="harassment">Harassment</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="other" name="reportReason" value="other">
+                                <label for="other">Other</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="reportDescription">Description</label>
+                        <textarea class="form-control" id="reportDescription" rows="4" required placeholder="Please provide details about your report..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" id="submitReport">Submit Report</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php include 'includes/footer.php'; ?>
 </div>
@@ -157,7 +209,7 @@ closeChatBtn.addEventListener('click', () => {
 });
 
 function loadMessages(isInitialLoad = false) {
-    fetch('chat.php', {
+    fetch('chat', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -198,7 +250,7 @@ messageInput.addEventListener('keypress', function(e) {
 function sendMessage() {
     const message = messageInput.value.trim();
     if (message) {
-        fetch('chat.php', {
+        fetch('chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -264,7 +316,7 @@ document.getElementById('edit-message').addEventListener('click', function() {
 
     const newText = prompt('Edit your message:', currentText);
     if (newText !== null && newText !== currentText) {
-        fetch('chat.php', {
+        fetch('chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -287,7 +339,7 @@ document.getElementById('edit-message').addEventListener('click', function() {
 document.getElementById('delete-message').addEventListener('click', function() {
     const messageId = selectedMessageElement.dataset.messageId;
 
-    fetch('chat.php', {
+    fetch('chat', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -304,9 +356,178 @@ document.getElementById('delete-message').addEventListener('click', function() {
     });
     contextMenu.style.display = 'none';
 });
+
+
+// Report functionality
+const reportBtn = document.getElementById('report-shop-btn');
+const reportModal = $('#reportModal');
+const submitReportBtn = document.getElementById('submitReport');
+
+if (reportBtn) {
+    reportBtn.addEventListener('click', () => {
+        reportModal.modal('show');
+    });
+}
+
+if (submitReportBtn) {
+    submitReportBtn.addEventListener('click', () => {
+        const reasonRadio = document.querySelector('input[name="reportReason"]:checked');
+        const description = document.getElementById('reportDescription').value;
+
+        if (!reasonRadio || !description) {
+            swal({
+                title: "Error!",
+                text: "Please fill in all fields",
+                icon: "error",
+                button: "OK",
+            });
+            return;
+        }
+
+        // First confirm with user
+        swal({
+            title: "Submit Report?",
+            text: "Are you sure you want to submit this report?",
+            icon: "warning",
+            buttons: ["Cancel", "Yes, Submit"],
+            dangerMode: true,
+        })
+        .then((willSubmit) => {
+            if (willSubmit) {
+                // Show loading state
+                swal({
+                    title: "Processing...",
+                    text: "Please wait while we submit your report.",
+                    icon: "info",
+                    buttons: false,
+                    closeOnClickOutside: false,
+                    closeOnEsc: false,
+                });
+
+                // Submit the report
+                fetch('report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `action=report&shop_id=${shopId}&reason=${encodeURIComponent(reasonRadio.value)}&description=${encodeURIComponent(description)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        swal({
+                            title: "Success!",
+                            text: "Your report has been submitted successfully",
+                            icon: "success",
+                            button: "OK",
+                        }).then(() => {
+                            reportModal.modal('hide');
+                            document.getElementById('reportForm').reset();
+                        });
+                    } else {
+                        swal({
+                            title: "Error!",
+                            text:  data.message,
+                            icon: "error",
+                            button: "OK",
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    swal({
+                        title: "Error!",
+                        text: "An unexpected error occurred while submitting your report",
+                        icon: "error",
+                        button: "OK",
+                    });
+                });
+            }
+        });
+    });
+}
+
+// Add click handler for the radio option containers
+document.querySelectorAll('.radio-option').forEach(option => {
+    option.addEventListener('click', function(e) {
+        // If clicking the container but not the radio button itself
+        if (e.target.tagName !== 'INPUT') {
+            const radio = this.querySelector('input[type="radio"]');
+            radio.checked = true;
+        }
+    });
+});
 </script>
 
 <style>
+.radio-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.radio-option:hover {
+    background-color: #f8f9fa;
+}
+
+.radio-option input[type="radio"] {
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.radio-option label {
+    margin-bottom: 0;
+    cursor: pointer;
+    flex: 1;
+}
+
+.radio-option input[type="radio"]:checked + label {
+    font-weight: bold;
+    color: #f0ad4e;
+}
+
+.radio-option:has(input[type="radio"]:checked) {
+    border-color: #f0ad4e;
+    background-color: #fff7eb;
+}
+
+.open-chat1-btn {
+    
+    background-color: #CB4154;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1000;
+}
+.modal-content {
+    border-radius: 20px; 
+}
+
+.modal-header {
+    background-color: #f0ad4e;
+    color: white;
+    border-radius: 20px; 
+}
+
+.modal-header .close {
+    color: white;
+}
+
+#reportDescription {
+    resize: vertical;
+}
     .chat-header img {
             width: 40px;
             height: 40px;
@@ -366,7 +587,7 @@ document.getElementById('delete-message').addEventListener('click', function() {
 }
 
 .chat-header {
-    background-color: #4CAF50;
+    background-color: #0072b2;
     color: white;
     padding: 10px;
     display: flex;
@@ -429,7 +650,8 @@ document.getElementById('delete-message').addEventListener('click', function() {
 }
 
 .sent p {
-    background-color: #dcf8c6;
+    background-color: #0072b2;
+    color: white;
 }
 
 .chat-input {
@@ -447,7 +669,7 @@ document.getElementById('delete-message').addEventListener('click', function() {
 
 .chat-input button {
     padding: 8px 16px;
-    background-color: #4CAF50;
+    background-color: #0078ff;
     color: white;
     border: none;
     border-radius: 4px;

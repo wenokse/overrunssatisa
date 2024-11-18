@@ -9,7 +9,7 @@ if(isset($_SESSION['user'])){
 
     $total = 0;
     foreach($stmt as $row){
-        $subtotal = $row['price'] * $row['quantity'] + $row['shipping']; 
+        $subtotal = $row['price'] * $row['quantity']; 
         $total += $subtotal;
     }
 

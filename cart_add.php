@@ -8,7 +8,7 @@ $output = array('error' => false);
 $id = $_POST['id'];
 $quantity = $_POST['quantity'];
 $size = $_POST['size']; 
-$color = $_POST['color'];
+$color = $_POST['selected_color'];
 $shipping = $_POST['shipping']; 
 $vendor_id = $_POST['vendor_id']; // Get vendor_id from POST data
 
@@ -88,7 +88,7 @@ if(isset($_SESSION['user'])){
     // Redirect user to login page if not logged in
     $output['error'] = true;
     $output['message'] = 'Login first';
-    $output['redirect'] = 'login.php'; 
+    $output['redirect'] = 'login'; 
 }
 
 $pdo->close();

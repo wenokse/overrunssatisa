@@ -22,5 +22,5 @@
 		$_SESSION['error'] = 'Select Rider to activate first';
 	}
 
-	header('location: rider.php');
+	header('location: rider');
 ?>

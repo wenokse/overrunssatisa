@@ -7,151 +7,168 @@ use PHPMailer\PHPMailer\Exception;
 require 'vendor/autoload.php';
 
 function containsSpecialCharacters($str) {
-    // Regular expression to match the special characters <>:/$;,?!
     return preg_match('/[<>:\/\$\;\,\?\!]/', $str);
 }
 
-function isValidPassword($password) {
-    // Check if password has at least one uppercase letter, one lowercase letter, one number, and no special characters
-    return preg_match('/[A-Z]/', $password) && preg_match('/[a-z]/', $password) && preg_match('/[0-9]/', $password) && !containsSpecialCharacters($password);
-}
-
-if(isset($_POST['signup'])){
-    $firstname = trim($_POST['firstname']);
-    $lastname = trim($_POST['lastname']);
-    $address = trim($_POST['address']);
-    $address2 = trim($_POST['address2']);
-    $contact_info = trim($_POST['contact_info']);
-    $email = trim($_POST['email']);
+if (isset($_POST['signup'])) {
+    $firstname = $_POST['firstname'];
+    $lastname = $_POST['lastname'];
+    $address = $_POST['address'];
+    $address2 = $_POST['address2'];
+    $contact_info = $_POST['contact_info'];
+    $email = $_POST['email'];
     $password = $_POST['password'];
     $repassword = $_POST['repassword'];
 
-    $recaptcha_secret = "6LfmdVQqAAAAAELMHS60poazcKSqrkR8DU2Me7OY";
-    $recaptcha_response = $_POST['g-recaptcha-response'];
-
-    $verify_response = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret='.$recaptcha_secret.'&response='.$recaptcha_response);
-    $response_data = json_decode($verify_response);
-
-    if (!$response_data->success) {
-        $_SESSION['error'] = 'Please complete the reCAPTCHA.';
-        header('location: signup.php');
+    // Input validation
+    if (containsSpecialCharacters($firstname) || containsSpecialCharacters($lastname) ||
+        containsSpecialCharacters($email) || containsSpecialCharacters($password)) {
+        $_SESSION['error'] = 'Special characters like <>:/$;,?! are not allowed.';
+        header('location: signup');
         exit();
     }
 
-    // Check if any field is empty or consists of only spaces
-    if (empty($firstname) || empty($lastname) || empty($email) || empty($password) || empty($address) || empty($contact_info)) {
-        $_SESSION['error'] = 'Please fill out all required fields properly.';
-        header('location: signup.php');
-        exit();
-    }
-
-    // Check for special characters in firstname, lastname, email, or password
-    if (containsSpecialCharacters($firstname) || containsSpecialCharacters($lastname) || containsSpecialCharacters($email)) {
-        $_SESSION['error'] = 'Special characters are not allowed.';
-        header('location: signup.php');
-        exit();
-    }
-
-    // Password validation
-    if (!isValidPassword($password)) {
-        $_SESSION['error'] = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and no special characters.';
-        header('location: signup.php');
-        exit();
-    }
-
-    // Check if passwords match
     if ($password != $repassword) {
-        $_SESSION['error'] = 'Passwords did not match';
-        header('location: signup.php');
+        $_SESSION['error'] = 'Passwords did not match.';
+        header('location: signup');
         exit();
     }
 
-    // Check if the email is a @gmail.com address
     if (strpos($email, '@gmail.com') === false) {
-        $_SESSION['error'] = 'Email must be a @gmail.com address';
-        header('location: signup.php');
+        $_SESSION['error'] = 'Email must be a @gmail.com address.';
+        header('location: signup');
         exit();
     }
 
-    // Database operations
+    // Validate phone number
+    if (!preg_match("/^09\d{9}$/", $contact_info)) {
+        $_SESSION['error'] = "Invalid phone number format. Please enter a valid 11-digit number starting with 09.";
+        header('location: signup');
+        exit();
+    }
+
     $conn = $pdo->open();
 
-    // Check if the email already exists
+    // Check if email exists
     $stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM users WHERE email=:email");
     $stmt->execute(['email' => $email]);
     $row = $stmt->fetch();
 
-    if($row['numrows'] > 0) {
-        $_SESSION['error'] = 'Email already taken';
-        header('location: signup.php');
+    if ($row['numrows'] > 0) {
+        $_SESSION['error'] = 'Email already taken.';
+        header('location: signup');
         exit();
     }
 
-    // Generate verification code
-    $verification_code = sprintf("%06d", mt_rand(1, 999999));
+    // Generate verification codes
+    $email_code = sprintf("%06d", mt_rand(1, 999999));
+    $sms_code = sprintf("%06d", mt_rand(1, 999999));
+    $code_expiry = time() + 600; // 10 minutes expiry
 
-    // Email sending using PHPMailer
     try {
+        // Send Email
         $mail = new PHPMailer(true);
-
-        //Server settings
-        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
         $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'overrunssatisa@gmail.com';
-        $mail->Password   = 'ahuf cbzv bpph caje';
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'overrunssatisa@gmail.com';
+        $mail->Password = 'ahuf cbzv bpph caje';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $mail->Port       = 465;
+        $mail->Port = 465;
 
-        $mail->SMTPOptions = array(
-            'ssl' => array(
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-                'allow_self_signed' => true
-            )
-        );
-        $mail->Timeout = 300; // in seconds
-        $mail->SMTPKeepAlive = true;
-
-        // Recipients
         $mail->setFrom('overrunssatisa@gmail.com', 'Overruns Sa Tisa Online Shop');
-        $mail->addAddress($email, $firstname . ' ' . $lastname);
+        $mail->addAddress($email, "$firstname $lastname");
 
-        // Content
         $mail->isHTML(true);
         $mail->Subject = 'Email Verification Code';
-        $mail->Body    = "Thank you for registering to our shop; <br> Your verification code is: <b>$verification_code</b>";
+        $mail->Body = "Your verification code is: <b>$email_code</b>";
 
         $mail->send();
-        $_SESSION['success'] = 'Verification code sent to your email. Please check your inbox.';
 
-        // Store user data temporarily in session
-        $_SESSION['temp_user_data'] = [
-            'firstname' => $firstname,
-            'lastname' => $lastname,
-            'address' => $address,
-            'address2' => $address2,
-            'contact_info' => $contact_info,
-            'email' => $email,
-            'password' => $password,
-            'verification_code' => $verification_code,
-            'code_time' => time()
-        ];
+        // Send SMS
+        $international_format = '+63' . substr($contact_info, 1);
+        
+                    // Infobip API Configuration
+            $base_url = 'https://69y84d.api.infobip.com'; // Verify your base URL
+            $api_key = 'f8e95ad451e731b7d04c6c087427a1a5-bbc9cd9a-f53a-4c3c-be91-9ce46618dd72';
 
-        header('location: verify_email.php');
-        exit();
-    } catch (Exception $e) {
-        error_log("Failed to send email. Error: " . $e->getMessage());
-        $_SESSION['error'] = "Message could not be sent. Error: " . $e->getMessage();
-        header('location: signup.php');
+            $payload = [
+                'messages' => [
+                    [
+                        'from' => 'OverrunsSaTisa',
+                        'destinations' => [
+                            ['to' => $international_format]
+                        ],
+                        'text' => "Your SMS verification code is: $sms_code. Valid for 10 minutes.",
+                        'flash' => false,
+                        'validityPeriod' => 600
+                    ]
+                ]
+            ];
+
+            $curl = curl_init();
+            curl_setopt_array($curl, [
+                CURLOPT_URL => $base_url . '/sms/2/text/advanced',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                    'Authorization: App ' . $api_key
+                ],
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => json_encode($payload),
+                CURLOPT_TIMEOUT => 60, // Increased timeout
+                CURLOPT_CONNECTTIMEOUT => 30 // Connection timeout
+            ]);
+
+            $response = curl_exec($curl);
+            $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+            if ($response === false) {
+                $curl_error = curl_error($curl);
+                error_log("Curl Error: " . $curl_error);
+                throw new Exception("SMS sending failed: " . $curl_error);
+            }
+
+            $response_data = json_decode($response, true);
+
+            // Additional logging for debugging
+            error_log("HTTP Code: $http_code");
+            error_log("Infobip Response: " . json_encode($response_data, JSON_PRETTY_PRINT));
+
+            if ($http_code != 200 || !isset($response_data['messages'][0]['status']['groupId'])) {
+                $status_message = $response_data['messages'][0]['status']['description'] ?? 'Unknown error';
+                throw new Exception("SMS API error: $status_message");
+            }
+
+            curl_close($curl);
+
+
+            $_SESSION['temp_user_data'] = [
+                'firstname' => $firstname,
+                'lastname' => $lastname,
+                'address' => $address,
+                'address2' => $address2,
+                'contact_info' => $contact_info,
+                'email' => $email,
+                'password' => $password,
+                'email_code' => $email_code,
+                'sms_code' => $sms_code,
+                'code_time' => $code_expiry,
+            ];
+    
+            $_SESSION['success'] = 'Verification codes sent to your email and phone. Please check both.';
+            header('location: verify_email');
+            exit();
+        } catch (Exception $e) {
+            $_SESSION['error'] = 'Verification process failed: ' . $e->getMessage();
+            header('location: signup');
+            exit();
+        }
+    
+        $pdo->close();
+    } else {
+        $_SESSION['error'] = 'Fill up signup form first.';
+        header('location: signup');
         exit();
     }
-
-    $pdo->close();
-} else {
-    $_SESSION['error'] = 'Fill up signup form first';
-    header('location: signup.php');
-    exit();
-}
 ?>

@@ -14,7 +14,7 @@
 
 		if($password != $repassword){
 			$_SESSION['error'] = 'Passwords did not match';
-			header('location: vendor.php');
+			header('location: vendor');
 		}
 		else{
 			$conn = $pdo->open();
@@ -51,6 +51,6 @@
 		$_SESSION['error'] = 'Fill up customer form first';
 	}
 	
-	header('location: vendor.php');
+	header('location: vendor');
 
 ?>

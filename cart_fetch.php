@@ -23,7 +23,7 @@ if(isset($_SESSION['user'])){
             
             $output['list'] .= "
                 <li>
-                    <a href='cart_view.php?product=".$row['product_id']."'>
+                    <a href='cart_view?product=".$row['product_id']."'>
                         <div class='pull-left'>
                             <img src='".$image."' class='thumbnail' alt='User Image'>
                         </div>

@@ -56,13 +56,14 @@ try {
                 ]);
             }
 
-            // Insert into return_products table
-            $stmt = $conn->prepare("INSERT INTO return_products (pay_id, user_id, shipping, return_date, sales_id) 
-                                    VALUES (:pay_id, :user_id, :shipping, :return_date, :sales_id)");
+            // Insert into return_products table (now including admin_id)
+            $stmt = $conn->prepare("INSERT INTO return_products (pay_id, user_id, admin_id, shipping, return_date, sales_id) 
+                                    VALUES (:pay_id, :user_id, :admin_id, :shipping, :return_date, :sales_id)");
             $stmt->execute([
                 'pay_id' => $sales_row['pay_id'],
                 'user_id' => $sales_row['user_id'],
-                'shipping' => end($details_rows)['shipping'], // Use the last details row for shipping info
+                'admin_id' => $sales_row['admin_id'],  // Added admin_id from sales table
+                'shipping' => end($details_rows)['shipping'],
                 'return_date' => date('Y-m-d'),
                 'sales_id' => $sales_id
             ]);
@@ -74,7 +75,6 @@ try {
             // Commit transaction
             $conn->commit();
 
-           
             $response['success'] = true;
            
         } else {
@@ -102,5 +102,6 @@ try {
 }
 
 // Redirect user after processing
-header('Location: transactions.php');
+header('Location: transactions');
 exit();
+?>

@@ -1,14 +1,23 @@
 <!-- Transaction History -->
 <div class="modal fade" id="transaction">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title"><b>Transaction Full Details</b></h4>
+              <h4 class="modal-title"><b>Return Product Details</b></h4>
             </div>
             <div class="modal-body table-responsive">
-              
+              <div class="well">
+                  <div class="row">
+                      <div class="col-md-6">
+                        <div id="address_details"></div>
+                      </div>
+                      <div class="col-md-6">
+                        <div id="rider_details"></div>
+                      </div>
+                  </div>
+              </div>
               <table class="table table-bordered">
                 <thead>
                   <th>Product</th>
@@ -21,7 +30,7 @@
                 </thead>
                 <tbody id="detail">
                   <tr>
-                    <td colspan="3" class="text-right"><b>Total</b></td>
+                    <td colspan="6" class="text-right"><b>Total</b></td>
                     <td><span id="total"></span></td>
                   </tr>
                 </tbody>
@@ -30,7 +39,6 @@
             <div class="modal-footer">
               <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
             </div>
-            
         </div>
     </div>
 </div>
@@ -45,7 +53,7 @@
               <h4 class="modal-title"><b>Update Account</b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="profile_edit.php" enctype="multipart/form-data" onsubmit="return validatePhoneNumber()">
+              <form class="form-horizontal" method="POST" action="profile_edit" enctype="multipart/form-data" onsubmit="return validatePhoneNumber()">
                 <div class="form-group">
                     <label for="firstname" class="col-sm-3 control-label">Firstname</label>
 

@@ -14,31 +14,29 @@ if (isset($_POST['id'])) {
         $stmt2->execute(['id' => $id]);
         $total = 0;
         $details = '';
-        $productImages = []; // Array to store product images
-        $seenProducts = [];  // Array to track seen products
+        $productImages = []; 
+        $seenProducts = [];  
 
         foreach ($stmt2 as $row2) {
             $subtotal = ($row2['price'] * $row2['quantity']) + $row2['shipping'];
             $total += $subtotal;
             $details .= $row2['name'] . ' - ' . $row2['quantity'] . ' x ' . number_format($row2['price'], 2) . '<br>';
 
-            // Store product image if not already seen
             if (!in_array($row2['product_id'], $seenProducts)) {
                 $productImages[] = (!empty($row2['photo'])) ? 'images/' . $row2['photo'] : 'images/noimage.jpg';
                 $seenProducts[] = $row2['product_id'];
             }
         }
 
+        // Fetch home address details
+        $stmt_address = $conn->prepare("SELECT * FROM home_address WHERE sales_id=:sales_id");
+        $stmt_address->execute(['sales_id' => $id]);
+        $address_details = $stmt_address->fetch();
 
         $status = '';
-        if ($row['status'] == 2) {
+        if ($row['status'] == 3) {
             $status = "<p class='btn-sm btn-primary text-center'><i class='fa fa-bicycle'></i> On Delivery</p>";
         }
-
-       
-        $stmt3 = $conn->prepare("SELECT address FROM users WHERE id=:user_id");
-        $stmt3->execute(['user_id' => $row['user_id']]);
-        $user = $stmt3->fetch();
 
        
         function getDistance($address) {
@@ -94,9 +92,8 @@ if (isset($_POST['id'])) {
             return $distances[$address] ?? 5; // Default distance if address is not in array
         }
 
-        // Calculate distance and time
-        $distance = getDistance($user['address']);
-        $time = round($distance / 4); // Assuming average speed of 40 km/h
+        $distance = getDistance($address_details['address']);
+        $time = round($distance / 0.6);
 
         $response = [
             'date' => date('M d, Y', strtotime($row['sales_date'])),
@@ -106,7 +103,11 @@ if (isset($_POST['id'])) {
             'status' => $status,
             'distance' => $distance,
             'time' => $time,
-            'address' => $user['address'],
+            'address' => $address_details['address'],
+            'address2' => $address_details['address2'],
+            'address3' => $address_details['address3'],
+            'recipient_name' => $address_details['recipient_name'],
+            'phone' => $address_details['phone'],
             'images' => $productImages
         ];
 

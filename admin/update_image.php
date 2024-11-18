@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         if (!is_writable($target_dir)) {
             $_SESSION['error'] = "Upload directory is not writable.";
-            header('Location: admin_edit_image.php');
+            header('Location: settings.php');
             exit();
         }
 
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload.'
             ];
             $_SESSION['error'] = "Failed to upload image. Error: " . $error_messages[$error_code] ?? 'Unknown error';
-            header('Location: admin_edit_image.php');
+            header('Location: settings.php');
             exit();
         }
     }
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Update the image URL in the database
         $conn = $pdo->open();
         try {
-            $stmt = $conn->prepare("UPDATE settings SET value=:value WHERE name='home_image'");
+            $stmt = $conn->prepare("UPDATE settings SET value=:value WHERE name='home_img'");
             $stmt->execute(['value' => $image_url]);
             $_SESSION['success'] = "Image updated successfully.";
         } catch (PDOException $e) {
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['error'] = "Please provide an image or URL.";
     }
 
-    header('Location: admin_edit_image.php');
+    header('Location: settings.php');
     exit();
 }
 ?>

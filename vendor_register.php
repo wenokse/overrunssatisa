@@ -1,89 +1,160 @@
 <?php
-	include 'includes/session.php';
+include 'includes/session.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
 
-	if(isset($_POST['signup'])){
-		// Sanitize other fields
-		$store = htmlspecialchars($_POST['store']);
-		$firstname = htmlspecialchars($_POST['firstname']);
-		$lastname = htmlspecialchars($_POST['lastname']);
-		$address = htmlspecialchars($_POST['address']);
-		$address2 = htmlspecialchars($_POST['address2']);
-		$contact_info = htmlspecialchars($_POST['contact_info']);
-		$email = htmlspecialchars($_POST['email']);
-		
-		// Password fields do not require htmlspecialchars but should be securely hashed
-		$password = $_POST['password'];
-		$repassword = $_POST['repassword'];
-		
-		$photo = htmlspecialchars($_POST['photo']);
-		$business_permit = htmlspecialchars($_POST['business_permit']);
+require 'vendor/autoload.php';
 
-		// Special character validation for store and name fields
-		$invalid_chars = "/[<>:\/$;,?!]/";
+function containsSpecialCharacters($str) {
+    return preg_match('/[<>:\/\$\;\,\?\!]/', $str);
+}
 
-		if(!isset($_SESSION['captcha'])){
-			require('recaptcha/src/autoload.php');
-			$recaptcha = new \ReCaptcha\ReCaptcha('6LfmdVQqAAAAAELMHS60poazcKSqrkR8DU2Me7OY', new \ReCaptcha\RequestMethod\SocketPost());
-			$resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+if(isset($_POST['signup'])){
+    $store = $_POST['store'];
+    $firstname = $_POST['firstname'];
+    $lastname = $_POST['lastname'];
+    $address = $_POST['address'];
+    $address2 = $_POST['address2'];
+    $contact_info = $_POST['contact_info'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    $repassword = $_POST['repassword'];
+    $tin_number = $_POST['tin_number'];
 
-			if (!$resp->isSuccess()){
-		  		$_SESSION['error'] = 'Please answer recaptcha correctly';
-		  		header('location: signup.php');
-		  		exit();	
-		  	}	
-		  	else{
-		  		$_SESSION['captcha'] = time() + (10*60);
-		  	}
+    // Validate for special characters
+    if (containsSpecialCharacters($firstname) || containsSpecialCharacters($lastname) || 
+        containsSpecialCharacters($email) || containsSpecialCharacters($password) || 
+        containsSpecialCharacters($store)) {
+        $_SESSION['error'] = 'Special characters like <>:/$;,?! are not allowed.';
+        header('location: vendor_signup');
+        exit();
+    }
 
-		}
+    // Validate Gmail address
+    if (strpos($email, '@gmail.com') === false) {
+        $_SESSION['error'] = 'Email must be a @gmail.com address';
+        header('location: vendor_signup');
+        exit();
+    }
 
-		if (preg_match($invalid_chars, $store) || preg_match($invalid_chars, $firstname) || preg_match($invalid_chars, $lastname)) {
-			$_SESSION['error'] = 'Special characters like <>:/$;,?! are not allowed.';
-			header('location: vendor_signup.php');
-		}
-		// Ensure email is Gmail
-		else if (!preg_match("/^[a-zA-Z0-9._%+-]+@gmail\.com$/", $email)) {
-			$_SESSION['error'] = 'Email must be a Gmail account (@gmail.com)';
-			header('location: vendor_signup.php');
-		}
-		// Check if passwords match
-		else if ($password != $repassword) {
-			$_SESSION['error'] = 'Passwords did not match';
-			header('location: vendor_signup.php');
-		}
-		else {
-			$conn = $pdo->open();
-			$stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM users WHERE email=:email");
-			$stmt->execute(['email'=>$email]);
-			$row = $stmt->fetch();
+    // Password match validation
+    if($password != $repassword){
+        $_SESSION['error'] = 'Passwords did not match';
+        header('location: vendor_signup');
+        exit();
+    }
 
-			if($row['numrows'] > 0){
-				$_SESSION['error'] = 'Email already taken';
-				header('location: vendor_signup.php');
-			}
-			else{
-				$now = date('Y-m-d');
-				
-				// Hash the password before storing it
-				$password = password_hash($password, PASSWORD_DEFAULT);
+    try {
+        // Validate required files
+        $required_files = ['photo', 'valid_id', 'bir_doc', 'dti_doc', 'mayor_permit'];
+        foreach ($required_files as $file) {
+            if(!isset($_FILES[$file]) || $_FILES[$file]['error'] === UPLOAD_ERR_NO_FILE) {
+                throw new Exception(ucfirst(str_replace('_', ' ', $file)) . ' is required');
+            }
+        }
 
-				try{
-					$stmt = $conn->prepare("INSERT INTO users (email, password, firstname, lastname, store, address, address2, contact_info, photo, business_permit, type, status, created_on) VALUES (:email, :password, :firstname, :lastname, :store, :address, :address2, :contact_info, :photo, :business_permit, :type, :status, :created_on)");
-					$stmt->execute(['email'=>$email, 'password'=>$password, 'firstname'=>$firstname, 'lastname'=>$lastname, 'store'=>$store, 'address'=>$address, 'address2'=>$address2, 'contact_info'=>$contact_info, 'photo'=>$photo, 'business_permit'=>$business_permit, 'type'=>2, 'status'=>3, 'created_on'=>$now]);
-					$_SESSION['success'] = 'Account created successfully, waiting for admin approval.';
-					header('location: login.php');
-				}
-				catch (PDOException $e){
-					$_SESSION['error'] = $e->getMessage();
-					header('location: vendor_register.php');
-				}
+        $conn = $pdo->open();
 
-				$pdo->close();
-			}
-		}
-	}
-	else{
-		$_SESSION['error'] = 'Fill up signup form first';
-		header('location: vendor_signup.php');
-	}
+        // Check if email exists
+        $stmt = $conn->prepare("SELECT COUNT(*) AS numrows FROM users WHERE email=:email");
+        $stmt->execute(['email'=>$email]);
+        $row = $stmt->fetch();
+
+        if($row['numrows'] > 0){
+            throw new Exception('Email already taken');
+        }
+
+        // Generate verification code
+        $verification_code = sprintf("%06d", mt_rand(1, 999999));
+
+        // Send verification email
+        $mail = new PHPMailer(true);
+
+        //Server settings
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'overrunssatisa@gmail.com';
+        $mail->Password   = 'ahuf cbzv bpph caje';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port       = 465;
+
+        $mail->SMTPOptions = array(
+            'ssl' => array(
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true
+            )
+        );
+        
+        //Recipients
+        $mail->setFrom('overrunssatisa@gmail.com', 'Overruns Sa Tisa Online Shop');
+        $mail->addAddress($email, $firstname . ' ' . $lastname);
+
+        //Content
+        $mail->isHTML(true);
+        $mail->Subject = 'Vendor Registration - Email Verification Code';
+        $mail->Body    = "<h2>Thank you for registering as a vendor with our shop.<br>Your verification code is: <b>$verification_code</b></h2>";
+
+        $mail->send();
+
+        // Store all data in session including file data
+        $_SESSION['temp_vendor_data'] = [
+            'store' => $store,
+            'firstname' => $firstname,
+            'lastname' => $lastname,
+            'address' => $address,
+            'address2' => $address2,
+            'contact_info' => $contact_info,
+            'email' => $email,
+            'password' => $password,
+            'tin_number' => $tin_number,
+            'verification_code' => $verification_code,
+            'code_time' => time()
+        ];
+
+        // Store file data separately to avoid potential session size issues
+        $_SESSION['temp_vendor_files'] = [];
+        foreach ($required_files as $file) {
+            $_SESSION['temp_vendor_files'][$file] = [
+                'name' => $_FILES[$file]['name'],
+                'type' => $_FILES[$file]['type'],
+                'tmp_name' => $_FILES[$file]['tmp_name'],
+                'error' => $_FILES[$file]['error'],
+                'size' => $_FILES[$file]['size']
+            ];
+            
+            // Move uploaded file to temporary location
+            $temp_dir = sys_get_temp_dir() . '/vendor_uploads/';
+            if (!is_dir($temp_dir)) {
+                mkdir($temp_dir, 0777, true);
+            }
+            
+            $temp_file = $temp_dir . uniqid() . '_' . basename($_FILES[$file]['name']);
+            if (!move_uploaded_file($_FILES[$file]['tmp_name'], $temp_file)) {
+                throw new Exception("Error moving uploaded file: " . $_FILES[$file]['name']);
+            }
+            $_SESSION['temp_vendor_files'][$file]['temp_path'] = $temp_file;
+        }
+
+        $_SESSION['success'] = 'Verification code sent to your email. Please check your inbox.';
+        header('location: verify_vendor_email');
+        exit();
+
+    } catch (Exception $e) {
+        error_log("Error in vendor registration: " . $e->getMessage());
+        $_SESSION['error'] = $e->getMessage();
+        header('location: vendor_signup');
+        exit();
+    } finally {
+        if(isset($conn)) {
+            $pdo->close();
+        }
+    }
+} else {
+    $_SESSION['error'] = 'Fill up signup form first';
+    header('location: vendor_signup');
+    exit();
+}
 ?>

@@ -8,7 +8,7 @@
               <h4 class="modal-title"><b>Deleting...</b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="products_delete.php">
+              <form class="form-horizontal" method="POST" action="products_delete">
                 <input type="hidden" class="prodid" name="id">
                 <div class="text-center">
                     <p>DELETE PRODUCT</p>
@@ -23,7 +23,12 @@
         </div>
     </div>
 </div>
-
+<style>
+  .modal-lg {
+    max-width: 1100px; 
+    width: 100%;
+}
+</style>
 <!-- Edit -->
 <div class="modal fade" id="edit">
     <div class="modal-dialog modal-lg">
@@ -34,7 +39,7 @@
               <h4 class="modal-title"><b>Edit Product</b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="products_edit.php">
+              <form class="form-horizontal" method="POST" action="products_edit">
                 <input type="hidden" class="prodid" name="id">
                 <div class="form-group">
                   <label for="edit_name" class="col-sm-1 control-label">Name</label>
@@ -64,6 +69,30 @@
                     <input type="text" class="form-control" id="edit_stock" name="stock">
                   </div>
                 </div>
+                <div id="edit_color-fields">
+                <div class="form-group color-field">
+                  <label for="color1" class="col-sm-1 control-label">Color</label>
+                  <div class="col-sm-5">
+                    <input type="text" class="form-control" name="edit_colors[]">
+                  </div>
+                  <label for="color_photo1" class="col-sm-1 control-label">Photo</label>
+                  <div class="col-sm-4">
+                    <input type="file" name="edit_color_photos[]">
+                  </div>
+                </div>
+              </div>
+              <button type="button" id="add-edit-color" class="btn btn-info btn-flat"><i class="fa fa-plus"></i> Add Color</button>
+             <br><br> <div id="edit_size-fields">
+                <div class="form-group size-field">
+                  <label for="size1" class="col-sm-1 control-label">Size</label>
+                  <div class="col-sm-5">
+                    <input type="text" class="form-control" name="edit_sizes[]" placeholder="Enter size (e.g. S, M, L, 42, 44)">
+                  </div>
+                </div>
+              </div>
+              <button type="button" id="add-edit-size" class="btn btn-info btn-flat"><i class="fa fa-plus"></i> Add Size</button>
+
+               
                 <p><b>Description</b></p>
                 <div class="form-group">
                   <div class="col-sm-12">

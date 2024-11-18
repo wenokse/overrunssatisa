@@ -48,26 +48,26 @@ function sendVerificationEmail($email, $firstname, $lastname, $verification_code
     }
 }
 
-// Process form submission
-if(isset($_POST['verify'])){
-    $user_code = filter_var($_POST['verification_code'], FILTER_SANITIZE_NUMBER_INT);
-    $stored_code = $_SESSION['temp_user_data']['verification_code'];
+if (isset($_POST['verify'])) {
+    $user_code = $_POST['verification_code'];
+    $email_code = $_SESSION['temp_user_data']['email_code'];
+    $sms_code = $_SESSION['temp_user_data']['sms_code'];
     $code_time = $_SESSION['temp_user_data']['code_time'];
 
-    // Check if the code has expired (5 minutes = 300 seconds)
-    if(time() - $code_time > 300){
+    // Check if the code has expired
+    if (time() > $code_time) {
         $_SESSION['error'] = 'Verification code has expired. Please request a new one.';
-        header('location: verify_email.php');
+        header('location: verify_email');
         exit();
     }
 
-    if($user_code == $stored_code){
-        // Verification successful, create user account
+    if ($user_code == $email_code || $user_code == $sms_code) {
+        // Verification successful, create user
         $conn = $pdo->open();
         $now = date('Y-m-d');
         $password = password_hash($_SESSION['temp_user_data']['password'], PASSWORD_DEFAULT);
 
-        try{
+        try {
             $stmt = $conn->prepare("INSERT INTO users (email, password, firstname, lastname, address, address2, contact_info, status, created_on) VALUES (:email, :password, :firstname, :lastname, :address, :address2, :contact_info, :status, :created_on)");
             $stmt->execute([
                 'email' => $_SESSION['temp_user_data']['email'],
@@ -78,27 +78,27 @@ if(isset($_POST['verify'])){
                 'address2' => $_SESSION['temp_user_data']['address2'],
                 'contact_info' => $_SESSION['temp_user_data']['contact_info'],
                 'status' => 1,
-                'created_on' => $now
+                'created_on' => $now,
             ]);
 
             unset($_SESSION['temp_user_data']);
-            $_SESSION['success'] = 'Account created successfully';
-            header('location: login.php');
+            $_SESSION['success'] = 'Account created successfully!';
+            header('location: login');
             exit();
-        }
-        catch (PDOException $e){
-            $_SESSION['error'] = $e->getMessage();
-            header('location: signup.php');
+        } catch (PDOException $e) {
+            $_SESSION['error'] = 'Error: ' . $e->getMessage();
+            header('location: signup');
             exit();
         }
 
         $pdo->close();
     } else {
-        $_SESSION['error'] = 'Incorrect verification code';
-        header('location: verify_email.php');
+        $_SESSION['error'] = 'Incorrect verification code.';
+        header('location: verify_email');
         exit();
     }
 }
+
 if(isset($_POST['resend'])){
     $verification_code = sprintf("%06d", mt_rand(1, 999999));
     $email = $_SESSION['temp_user_data']['email'];
@@ -112,7 +112,7 @@ if(isset($_POST['resend'])){
     } else {
         $_SESSION['error'] = 'Failed to send new verification code. Please try again.';
     }
-    header('location: verify_email.php');
+    header('location: verify_email');
     exit();
 }
 
@@ -148,7 +148,7 @@ $is_expired = $remaining_time == 0;
 <body>
     <br><br><br><br>
 <div class="container2">
-    <a href="login.php" style="color: rgb(0, 51, 102); "><i class="fa fa-arrow-left" style="color: rgb(0, 51, 102);"></i></a></p>
+    <a href="login" style="color: rgb(0, 51, 102); "><i class="fa fa-arrow-left" style="color: rgb(0, 51, 102);"></i></a></p>
     <h2 class="login-box-msg" style="font-size: 20px; color:  rgb(0, 51, 102);">Enter Email Verification Code</h2>
         <b><p>Time remaining: <span id="countdown"><?php echo $is_expired ? "Expired" : $remaining_minutes . "m " . $remaining_seconds . "s"; ?></span></p></b>
         <?php
@@ -161,21 +161,16 @@ $is_expired = $remaining_time == 0;
         unset($_SESSION['error']);
     }
     ?>
-    <form action="verify_email.php" method="POST">
-    <label for="verification_code">Enter Verification Code:</label>
-    <input type="text" name="verification_code" id="verification_code" pattern="[0-9]{6}" title="Please enter a 6-digit verification code" required>
-    <button type="submit" name="verify" id="verifyButton">Verify</button>
-</form>
-    <form action="verify_email.php" method="POST">
+    <form action="verify_email" method="POST">
+        <label for="verification_code">Enter Verification Code:</label>
+        <input type="text" name="verification_code" required>
+        <button type="submit" name="verify" id="verifyButton">Verify</button>
+    </form>
+    <form action="verify_email" method="POST">
         <button type="submit" name="resend" id="resendButton" class="resend-button" <?php echo !$is_expired ? 'style="display:none;"' : ''; ?>>Resend Code</button>
     </form>
 </div>
 <script src="js/sweetalert.min.js"></script>
-<script>
-document.getElementById('verification_code').addEventListener('input', function (e) {
-    this.value = this.value.replace(/[^0-9]/g, ''); 
-});
-</script>
 <style>
 .resend-button {
             background-color: #4CAF50;

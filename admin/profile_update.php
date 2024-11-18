@@ -3,10 +3,8 @@
 
 	if(isset($_GET['return'])){
 		$return = $_GET['return'];
-		
-	}
-	else{
-		$return = 'home.php';
+	} else {
+		$return = 'home';
 	}
 
 	if(isset($_POST['save'])){
@@ -16,19 +14,31 @@
 		$firstname = $_POST['firstname'];
 		$lastname = $_POST['lastname'];
 		$photo = $_FILES['photo']['name'];
+		$allowed_extensions = ['jpg', 'jpeg', 'png']; // Allowed extensions
+
+		// Get the file extension
+		$file_ext = strtolower(pathinfo($photo, PATHINFO_EXTENSION));
+
 		if(password_verify($curr_password, $admin['password'])){
+			// Check if a photo was uploaded
 			if(!empty($photo)){
-				move_uploaded_file($_FILES['photo']['tmp_name'], '../images/'.$photo);
-				$filename = $photo;	
-			}
-			else{
+				// Validate file type
+				if(in_array($file_ext, $allowed_extensions)){
+					move_uploaded_file($_FILES['photo']['tmp_name'], '../images/'.$photo);
+					$filename = $photo;	
+				} else {
+					$_SESSION['error'] = 'Invalid file type. Only PNG, JPG, and JPEG files are allowed.';
+					header('location:'.$return);
+					exit();
+				}
+			} else {
 				$filename = $admin['photo'];
 			}
 
+			// Check if password was changed
 			if($password == $admin['password']){
 				$password = $admin['password'];
-			}
-			else{
+			} else {
 				$password = password_hash($password, PASSWORD_DEFAULT);
 			}
 
@@ -45,16 +55,12 @@
 			}
 
 			$pdo->close();
-			
-		}
-		else{
+		} else {
 			$_SESSION['error'] = 'Incorrect password';
 		}
-	}
-	else{
+	} else {
 		$_SESSION['error'] = 'Fill up required details first';
 	}
 
 	header('location:'.$return);
-
 ?>

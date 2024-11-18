@@ -1,7 +1,7 @@
 <?php include 'includes/session.php'; ?>
 <?php
   if(isset($_SESSION['user'])){
-    header('location: cart_view.php');
+    header('location: cart_view');
   }
 ?>
 <?php include 'includes/header.php'; ?>
@@ -70,7 +70,7 @@
     <p class="login-box-msg" style="font-size: 30px; color: rgb(0, 51, 102);">
         <b>Create an account</b></p>
 
-    <form action="register.php" method="POST" onsubmit="return validatePhoneNumber()">
+    <form action="register" method="POST" onsubmit="return validatePhoneNumber()">
         <div class="form-group has-feedback">
             <input type="text" class="form-control" name="firstname" placeholder="Firstname" required>
             <span class="glyphicon glyphicon-user form-control-feedback"></span>
@@ -126,9 +126,9 @@
             <input type="checkbox" id="terms" name="terms" class="form-control-feedback1" required>
             <label for="terms">I agree to the <a href="#" id="termsLink">Terms and Conditions</a></label>
         </div>
-        <div class="form-group" style="width:100%; text-align: center;">
+        <!-- <div class="form-group" style="width:100%; text-align: center;">
             <div class="g-recaptcha" data-sitekey="6LfmdVQqAAAAAGDAr09cjmfyP3veq9SJe5lN0doF"></div>
-        </div>
+        </div> -->
         <div class="form-group has-feedback">
             <button type="submit" class="btn btn-primary btn-block" name="signup" id="signupButton" disabled><i class="fa fa-pencil"></i> Sign Up</button>
         </div>
@@ -136,8 +136,8 @@
     </form>
     <br>
     
-    <p class="text-center" style="color: rgb(0, 51, 102); ">Already have an account? <a href="login.php">Login</a></p>
-    <p class="text-center" style="color: rgb(0, 51, 102); ">You have a Store? <a href="vendor_signup.php">Signup as Vendor</a></p>
+    <p class="text-center" style="color: rgb(0, 51, 102); ">Already have an account? <a href="login">Login</a></p>
+    <p class="text-center" style="color: rgb(0, 51, 102); ">You have a Store? <a href="vendor_signup">Signup as Vendor</a></p>
 </div>
 
 </div>
@@ -148,7 +148,7 @@
         <h2>Terms and Conditions</h2>
         <div class="modal-body">
             <h3>1. Introduction</h3>
-            <p>This website is operated by Rowen G. Secuya. Throughout the site, the terms "we", "us" and "our" refer to Overruns Sa Tisa. We offer this website, including all information, tools, and services available from this site, to you, the user, conditioned upon your acceptance of all terms, conditions, policies, and notices stated here.</p>
+            <p>This website is operated by Rowen G. Secuya & Teams. Throughout the site, the terms "we", "us" and "our" refer to Overruns Sa Tisa (Main Land). We offer this website, including all information, tools, and services available from this site, to you, the user, conditioned upon your acceptance of all terms, conditions, policies, and notices stated here.</p>
             <h3>2. User Accounts</h3>
             <p>You may be required to create an account to access certain features of the site. You agree to provide accurate, current, and complete information during registration and update your information as necessary. You are responsible for safeguarding your password and for any activities or actions under your account.</p>
 
@@ -159,7 +159,13 @@
             <p>All prices are in [Currency]. We reserve the right to refuse or cancel any order due to pricing errors, stock issues, or potential fraud. Payment must be completed before the shipment of goods.</p>
 
             <h3>5. Returns and Refunds</h3>
-            <p>If you are not satisfied with your purchase, you may return the item within [X] days of receiving it, but you still pay the shipping fee for the rider, provided it is in its original condition. [Additional return policy details].</p>
+                <p>If the item you receive does not match the description or specifications of the ordered item, you may return it within 3 to 4 days of receipt. However, please ensure the following:</p>
+                <ul>
+                    <li>The product is in its original condition and packaging.</li>
+                    <li>You provide a video recording as proof, clearly showing the item as it was received, including the unboxing, so we can verify any discrepancies.</li>
+                    <li>Opened items or items that show signs of use may not be eligible for return or refund.</li>
+                </ul>
+                <p>Please note that shipping fees will be covered by the customer and are non-refundable. If the return request meets these criteria, we will process the return and issue a refund or replacement as appropriate.</p>
 
             <h3>6. Pricing </h3>
             <p>Prices listed on our site are subject to change without notice.</p>
@@ -171,7 +177,7 @@
             <p>All content on this site, including text, images, logos, and designs, are owned by or licensed to Overruns Sa Tisa Online Shop and are protected by intellectual property laws. Unauthorized use of this content is prohibited.</p>
 
             <h3>9. Limitation of Liability</h3>
-            <p>We do not warrant that the use of our service will be uninterrupted, timely, or error-free. In no case shall Overruns Sa Tisa Online Shop, our directors, officers, employees, affiliates, agents, or contractors be liable for any injury, loss, claim, or any direct or indirect damages resulting from your use of our website.</p>
+            <p>We do not warrant that the use of our service will be uninterrupted, timely, or error-free. In no case shall Overruns Sa Tisa Online Shop shall be liable for any injury, loss, claim, or any direct or indirect damages resulting from your use of our website.</p>
 
             <h3>10. Governing Law</h3>
             <p>These Terms and any separate agreements shall be governed by and construed in accordance with the laws of Philippines.</p>
@@ -193,6 +199,219 @@
     });
 </script>
 <?php include 'includes/scripts.php' ?>
+
+<script>
+   function containsSpecialCharacters(str) {
+        var regex = /[<>:\/\$\;\,\?\!]/;
+        return regex.test(str);
+    }
+
+    function isFieldEmptyOrWhitespace(fieldValue) {
+        return !fieldValue.trim(); 
+    }
+
+    function validatePassword(password) {
+        var regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+        return regex.test(password); 
+    }
+
+    function validateForm() {
+        var firstname = document.querySelector('input[name="firstname"]').value;
+        var lastname = document.querySelector('input[name="lastname"]').value;
+        var email = document.querySelector('input[name="email"]').value;
+        var password = document.querySelector('input[name="password"]').value;
+
+        
+        if (isFieldEmptyOrWhitespace(firstname) || isFieldEmptyOrWhitespace(lastname) || isFieldEmptyOrWhitespace(email) || isFieldEmptyOrWhitespace(password)) {
+            swal({
+                title: 'All fields must be filled out correctly.',
+                icon: 'warning',
+                button: 'OK'
+            });
+            return false;
+        }
+
+       
+        if (!validatePhoneNumber()) {
+            return false;
+        }
+
+        
+        if (!validatePassword(password)) {
+            swal({
+                title: 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number.',
+                icon: 'warning',
+                button: 'OK'
+            });
+            return false;
+        }
+
+        
+        if (containsSpecialCharacters(firstname) || containsSpecialCharacters(lastname) || containsSpecialCharacters(email)) {
+            swal({
+                title: 'Special characters are not allowed.',
+                icon: 'warning',
+                button: 'OK'
+            });
+            return false;
+        }
+
+        return true;
+    }
+
+   
+    document.querySelector('form').addEventListener('submit', function(event) {
+        if (!validateForm()) {
+            event.preventDefault();
+        }
+    });
+
+
+    document.getElementById('contact_info').addEventListener('input', function() {
+    // Ensure that input starts with '09'
+    if (!this.value.startsWith('09')) {
+        this.value = '09';
+    }
+
+    // Allow only numbers and limit to 11 characters
+    this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
+});
+
+    var input = document.getElementById('contact_info');
+    input.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+
+    function validatePhoneNumber() {
+        var phoneNumber = document.getElementById('contact_info').value;
+        if (phoneNumber.length !== 11) {
+            swal({
+                title: 'Phone number must be exactly 11 digits long.',
+                icon: 'warning',
+                button: 'OK'
+            });
+            return false;
+        }
+        return true;
+    }
+
+    // Password strength indicator
+const passwordField = document.querySelector('input[name="password"]');
+const passwordStrengthBar = document.getElementById('password-strength');
+
+passwordField.addEventListener('input', function() {
+    const password = passwordField.value;
+    let strength = 0;
+
+    // Check for different conditions
+    if (/[a-z]/.test(password)) strength++; // Lowercase letter
+    if (/[A-Z]/.test(password)) strength++; // Uppercase letter
+    if (/[0-9]/.test(password)) strength++; // Number
+    if (password.length >= 8) strength++;   // Length
+
+    // Update the strength bar color based on the strength
+    switch(strength) {
+        case 0:
+        case 1:
+            passwordStrengthBar.style.backgroundColor = 'red'; // Weak
+            break;
+        case 2:
+            passwordStrengthBar.style.backgroundColor = 'orange'; // Medium
+            break;
+        case 3:
+            passwordStrengthBar.style.backgroundColor = 'yellow'; // Stronger
+            break;
+        case 4:
+            passwordStrengthBar.style.backgroundColor = '#39FF14'; // Strong (neon green)
+            break;
+    }
+});
+
+// Toggle password visibility
+const togglePassword = document.querySelector('#togglePassword');
+togglePassword.addEventListener('click', function() {
+    const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordField.setAttribute('type', type);
+});
+
+
+    const barangays = {
+        'Bantayan': ['Atop-atop', 'Baigad', 'Bantigue', 'Baod', 'Binaobao', 'Guiwanon', 'Kabac', 'Kabangbang', 'Kampingganon', 'Kangkaibe', 'Mojon', 'Obo-ob', 'Patao', 'Putian', 'Sillon', 'Suba', 'Sulangan', 'Sungko', 'Tamiao', 'Ticad'],
+        'Madridejos': ['Bunakan', 'Kangwayan', 'Kaongkod', 'Kodia', 'Maalat', 'Malbago', 'Mancilang', 'Pili', 'Poblacion', 'San Agustin', 'Talangnan', 'Tarong', 'Tugas', 'Tabagak'],
+        'Santa Fe': ['Balidbid', 'Hagdan', 'Langub', 'Maricaban', 'Okoy', 'Poblacion', 'Talisay']
+    };
+
+    const municipalitySelect = document.getElementById('municipality');
+    const barangaySelect = document.getElementById('barangay');
+    const addressInput = document.getElementById('address');
+
+    municipalitySelect.addEventListener('change', function() {
+        const selectedMunicipality = this.value;
+        barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+        
+        if (barangays[selectedMunicipality]) {
+            barangays[selectedMunicipality].forEach(function(barangay) {
+                const option = document.createElement('option');
+                option.value = barangay;
+                option.textContent = barangay;
+                barangaySelect.appendChild(option);
+            });
+        }
+    });
+
+    barangaySelect.addEventListener('change', function() {
+        const selectedMunicipality = municipalitySelect.value;
+        const selectedBarangay = this.value;
+        addressInput.value = selectedMunicipality + ', ' + selectedBarangay;
+    });
+    document.querySelector('form').addEventListener('submit', function(event) {
+    var email = document.querySelector('input[name="email"]').value;
+    
+    // Check if the email is empty
+    if (email === '') {
+        swal({
+            title: 'Email is required',
+            icon: 'warning',
+            button: 'OK'
+        });
+        event.preventDefault(); // Prevent form submission
+        return false;
+    }
+
+    // Check if email ends with @gmail.com
+    if (!email.endsWith('@gmail.com')) {
+        swal({
+            title: 'Email must be a @gmail.com address',
+            icon: 'warning',
+            button: 'OK'
+        });
+        event.preventDefault(); // Prevent form submission
+        return false;
+    }
+
+    
+});
+ // Modal script
+ var modal = document.getElementById("termsModal");
+    var link = document.getElementById("termsLink");
+    var span = document.getElementsByClassName("close")[0];
+
+    link.onclick = function(e) {
+        e.preventDefault();
+        modal.style.display = "block";
+    }
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+</script>
 <style>
       body {
         font-family: 'Poppins', sans-serif;
@@ -377,219 +596,6 @@
     }
     
 </style>
-
-<script>
-   function containsSpecialCharacters(str) {
-        var regex = /[<>:\/\$\;\,\?\!]/;
-        return regex.test(str);
-    }
-
-    function isFieldEmptyOrWhitespace(fieldValue) {
-        return !fieldValue.trim(); 
-    }
-
-    function validatePassword(password) {
-        var regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
-        return regex.test(password); 
-    }
-
-    function validateForm() {
-        var firstname = document.querySelector('input[name="firstname"]').value;
-        var lastname = document.querySelector('input[name="lastname"]').value;
-        var email = document.querySelector('input[name="email"]').value;
-        var password = document.querySelector('input[name="password"]').value;
-
-        
-        if (isFieldEmptyOrWhitespace(firstname) || isFieldEmptyOrWhitespace(lastname) || isFieldEmptyOrWhitespace(email) || isFieldEmptyOrWhitespace(password)) {
-            swal({
-                title: 'All fields must be filled out correctly.',
-                icon: 'warning',
-                button: 'OK'
-            });
-            return false;
-        }
-
-       
-        if (!validatePhoneNumber()) {
-            return false;
-        }
-
-        
-        if (!validatePassword(password)) {
-            swal({
-                title: 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number.',
-                icon: 'warning',
-                button: 'OK'
-            });
-            return false;
-        }
-
-        
-        if (containsSpecialCharacters(firstname) || containsSpecialCharacters(lastname) || containsSpecialCharacters(email)) {
-            swal({
-                title: 'Special characters are not allowed.',
-                icon: 'warning',
-                button: 'OK'
-            });
-            return false;
-        }
-
-        return true;
-    }
-
-   
-    document.querySelector('form').addEventListener('submit', function(event) {
-        if (!validateForm()) {
-            event.preventDefault();
-        }
-    });
-
-
-    document.getElementById('contact_info').addEventListener('input', function() {
-    // Ensure that input starts with '09'
-    if (!this.value.startsWith('09')) {
-        this.value = '09';
-    }
-
-    // Allow only numbers and limit to 11 characters
-    this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
-});
-
-    var input = document.getElementById('contact_info');
-    input.addEventListener('input', function() {
-        this.value = this.value.replace(/[^0-9]/g, '');
-    });
-
-    function validatePhoneNumber() {
-        var phoneNumber = document.getElementById('contact_info').value;
-        if (phoneNumber.length !== 11) {
-            swal({
-                title: 'Phone number must be exactly 11 digits long.',
-                icon: 'warning',
-                button: 'OK'
-            });
-            return false;
-        }
-        return true;
-    }
-
-    // Password strength indicator
-const passwordField = document.querySelector('input[name="password"]');
-const passwordStrengthBar = document.getElementById('password-strength');
-
-passwordField.addEventListener('input', function() {
-    const password = passwordField.value;
-    let strength = 0;
-
-    // Check for different conditions
-    if (/[a-z]/.test(password)) strength++; // Lowercase letter
-    if (/[A-Z]/.test(password)) strength++; // Uppercase letter
-    if (/[0-9]/.test(password)) strength++; // Number
-    if (password.length >= 8) strength++;   // Length
-
-    // Update the strength bar color based on the strength
-    switch(strength) {
-        case 0:
-        case 1:
-            passwordStrengthBar.style.backgroundColor = 'red'; // Weak
-            break;
-        case 2:
-            passwordStrengthBar.style.backgroundColor = 'orange'; // Medium
-            break;
-        case 3:
-            passwordStrengthBar.style.backgroundColor = 'yellow'; // Stronger
-            break;
-        case 4:
-            passwordStrengthBar.style.backgroundColor = '#39FF14'; // Strong (neon green)
-            break;
-    }
-});
-
-// Toggle password visibility
-const togglePassword = document.querySelector('#togglePassword');
-togglePassword.addEventListener('click', function() {
-    const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-    passwordField.setAttribute('type', type);
-});
-
-
-    const barangays = {
-        'Bantayan': ['Atop-atop', 'Baigad', 'Bantigue', 'Baod', 'Binaobao', 'Guiwanon', 'Hilotongan', 'Kabac', 'Kabangbang', 'Kampingganon', 'Kangkaibe', 'Lipayran', 'Luyongbaybay', 'Mojon', 'Obo-ob', 'Patao', 'Putian', 'Sillon', 'Suba', 'Sulangan', 'Sungko', 'Tamiao', 'Ticad'],
-        'Madridejos': ['Bunakan', 'Kangwayan', 'Kaongkod', 'Kodia', 'Maalat', 'Malbago', 'Mancilang', 'Pili', 'Poblacion', 'San Agustin', 'Talangnan', 'Tarong', 'Tugas', 'Tabagak'],
-        'Santa Fe': ['Balidbid', 'Hagdan', 'Hilantagaan', 'Kinatarkan', 'Langub', 'Maricaban', 'Okoy', 'Poblacion', 'Pooc', 'Talisay']
-    };
-
-    const municipalitySelect = document.getElementById('municipality');
-    const barangaySelect = document.getElementById('barangay');
-    const addressInput = document.getElementById('address');
-
-    municipalitySelect.addEventListener('change', function() {
-        const selectedMunicipality = this.value;
-        barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
-        
-        if (barangays[selectedMunicipality]) {
-            barangays[selectedMunicipality].forEach(function(barangay) {
-                const option = document.createElement('option');
-                option.value = barangay;
-                option.textContent = barangay;
-                barangaySelect.appendChild(option);
-            });
-        }
-    });
-
-    barangaySelect.addEventListener('change', function() {
-        const selectedMunicipality = municipalitySelect.value;
-        const selectedBarangay = this.value;
-        addressInput.value = selectedMunicipality + ', ' + selectedBarangay;
-    });
-    document.querySelector('form').addEventListener('submit', function(event) {
-    var email = document.querySelector('input[name="email"]').value;
-    
-    // Check if the email is empty
-    if (email === '') {
-        swal({
-            title: 'Email is required',
-            icon: 'warning',
-            button: 'OK'
-        });
-        event.preventDefault(); // Prevent form submission
-        return false;
-    }
-
-    // Check if email ends with @gmail.com
-    if (!email.endsWith('@gmail.com')) {
-        swal({
-            title: 'Email must be a @gmail.com address',
-            icon: 'warning',
-            button: 'OK'
-        });
-        event.preventDefault(); // Prevent form submission
-        return false;
-    }
-
-    
-});
- // Modal script
- var modal = document.getElementById("termsModal");
-    var link = document.getElementById("termsLink");
-    var span = document.getElementsByClassName("close")[0];
-
-    link.onclick = function(e) {
-        e.preventDefault();
-        modal.style.display = "block";
-    }
-
-    span.onclick = function() {
-        modal.style.display = "none";
-    }
-
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
-
-</script>
 
 </body>
 

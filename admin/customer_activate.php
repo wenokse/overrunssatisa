@@ -22,5 +22,5 @@
 		$_SESSION['error'] = 'Select customer to activate first';
 	}
 
-	header('location: customer.php');
+	header('location: customer');
 ?>

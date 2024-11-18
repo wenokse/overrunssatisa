@@ -33,5 +33,5 @@
 		$_SESSION['error'] = 'Select product to update photo first';
 	}
 
-	header('location: products.php');
+	header('location: products');
 ?>

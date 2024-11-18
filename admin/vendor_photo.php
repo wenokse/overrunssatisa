@@ -26,5 +26,5 @@
 		$_SESSION['error'] = 'Select vendor to update photo first';
 	}
 
-	header('location: vendor.php');
+	header('location: vendor');
 ?>

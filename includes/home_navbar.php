@@ -2,7 +2,7 @@
   <nav class="navbar navbar-static-top">
     <div class="container">
       <div class="navbar-header">
-      <a href="index.php" class="navbar-brand navbar-width">Overruns Sa Tisa</a>
+      <a href="index" class="navbar-brand navbar-width">Overruns Sa Tisa</a>
         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
           <i class="fa fa-bars"></i>
         </button>
@@ -11,8 +11,8 @@
       <!-- Collect the nav links, forms, and other content for toggling -->
       <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
         <ul class="nav navbar-nav">
-          <li><a href="index.php">HOME</a></li>
-          <li><a href="about_us.php">ABOUT US</a></li>
+          <li><a href="index">HOME</a></li>
+          <li><a href="about_us">ABOUT US</a></li>
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">CATEGORY <span class="caret"></span></a>
             <ul class="dropdown-menu" role="menu">
@@ -25,7 +25,7 @@
                   foreach($stmt as $row){
                     echo "
 
-                      <li><a href='category.php?category=".$row['cat_slug']."'>".$row['name']."</a></li>
+                      <li><a href='category?category=".$row['cat_slug']."'>".$row['name']."</a></li>
                     ";                  
                   }
                 }
@@ -39,7 +39,7 @@
             </ul>
           </li>
         </ul>
-        <form method="POST" class="navbar-form navbar-left" action="search.php">
+        <form method="POST" class="navbar-form navbar-left" action="search">
           <div class="input-group">
               <input type="text" class=" form-control" style="border-radius: 20px;" id="navbar-search-input" name="keyword" placeholder="Search for Product" required>
               <!-- <span class="input-group-btn" id="searchBtn" style="display:none; border-radius: 20px;">
@@ -64,7 +64,7 @@
                 <ul class="menu" id="cart_menu">
                 </ul>
               </li>
-              <li class="footer"><a href="cart_view.php">Go to Cart</a></li>
+              <li class="footer"><a href="cart_view">Go to Cart</a></li>
             </ul>
           </li> -->
           <?php
@@ -88,10 +88,10 @@
                     </li>
                     <li class="user-footer">
                       <div class="pull-left">
-                        <a href="profile.php" class="btn btn-default btn-flat">Profile</a>
+                        <a href="profile" class="btn btn-default btn-flat">Profile</a>
                       </div>
                       <div class="pull-right">
-                        <a href="logout.php" class="btn btn-default btn-flat">Log out</a>
+                        <a href="logout" class="btn btn-default btn-flat">Log out</a>
                       </div>
                     </li>
                   </ul>
@@ -100,8 +100,8 @@
             }
             else{
               echo "
-                <li><a href='login.php'>LOGIN</a></li>
-                <li><a href='signup.php'>SIGNUP</a></li>
+                <li><a href='login'>LOGIN</a></li>
+                <li><a href='signup'>SIGNUP</a></li>
               ";
             }
           ?>

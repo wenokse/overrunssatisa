@@ -9,7 +9,7 @@
                 <h4 class="modal-title"><b>Add New Vendor</b></h4>
             </div>
             <div class="modal-body">
-                <form class="form-horizontal" method="POST" action="vendor_add.php" enctype="multipart/form-data" onsubmit="return validatePhoneNumber()">
+                <form class="form-horizontal" method="POST" action="vendor_add" enctype="multipart/form-data" onsubmit="return validatePhoneNumber()">
                     <div class="form-group">
                         <label for="firstname" class="col-sm-3 control-label">Firstname</label>
                         <div class="col-sm-9">
@@ -168,7 +168,7 @@
               <h4 class="modal-title"><b>Edit Vendor</b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="vendor_edit.php">
+              <form class="form-horizontal" method="POST" action="vendor_edit">
                 <input type="hidden" class="userid" name="id">
                 <div class="form-group">
                     <label for="edit_firstname" class="col-sm-3 control-label">Firstname</label>
@@ -189,13 +189,13 @@
                       <input type="text" class="form-control" id="edit_store" name="store" required>
                     </div>
                 </div>
-                <!-- <div class="form-group">
+                <div class="form-group">
                     <label for="edit_email" class="col-sm-3 control-label">Email</label>
 
                     <div class="col-sm-9">
                       <input type="email" class="form-control" id="edit_email" name="email" required>
                     </div>
-                </div> -->
+                </div>
                 <div class="form-group">
                     <label for="edit_password" class="col-sm-3 control-label">Password</label>
 
@@ -223,7 +223,7 @@
               <h4 class="modal-title"><b>Deleting...</b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="vendor_delete.php">
+              <form class="form-horizontal" method="POST" action="vendor_delete">
                 <input type="hidden" class="userid" name="id">
                 <div class="text-center">
                     <p>DELETE VENDOR</p>
@@ -249,7 +249,7 @@
               <h4 class="modal-title"><b><span class="fullname"></span></b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="vendor_photo.php" enctype="multipart/form-data">
+              <form class="form-horizontal" method="POST" action="vendor_photo" enctype="multipart/form-data">
                 <input type="hidden" class="userid" name="id">
                 <div class="form-group">
                     <label for="photo" class="col-sm-3 control-label">Photo</label>
@@ -278,7 +278,7 @@
               <h4 class="modal-title"><b>Activating...</b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="vendor_activate.php">
+              <form class="form-horizontal" method="POST" action="vendor_activate">
                 <input type="hidden" class="userid" name="id">
                 <div class="text-center">
                     <p>ACTIVATE USER</p>
@@ -304,7 +304,7 @@
               <h4 class="modal-title"><b>Deactivating...</b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="vendor_deactivate.php">
+              <form class="form-horizontal" method="POST" action="vendor_deactivate">
                 <input type="hidden" class="userid" name="id">
                 <div class="text-center">
                     <p>DEACTIVATE USER</p>
@@ -319,3 +319,173 @@
         </div>
     </div>
 </div>
+<!-- decline modal -->
+<div class="modal fade" id="declineModal" tabindex="-1" role="dialog" aria-labelledby="declineModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="declineModalLabel">Decline Vendor</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal" id="declineForm">
+          <input type="hidden" id="decline_vendor_id" name="id">
+          <div class="form-group">
+            <label for="decline_message" class="col-sm-3 control-label">Reason for Decline</label>
+            <div class="col-sm-9">
+              <textarea class="form-control" id="decline_message" name="message" rows="4" required></textarea>
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-danger btn-flat" id="declineSubmit">Send</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="viewDocuments">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title"><b>Vendor Documents</b></h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th width="20%">Document Type</th>
+                <th width="40%">Actions</th>
+                <th width="40%">Preview</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Business Permit</td>
+                <td>
+                  <!-- <button type="button" class="btn btn-info btn-sm btn-flat view-doc" data-type="business_permit">
+                    <i class="fa fa-eye"></i> View
+                  </button> -->
+                  <a href="#" class="btn btn-primary btn-sm btn-flat download-doc" data-type="business_permit">
+                    <i class="fa fa-download"></i> Download
+                  </a>
+                </td>
+                <td>
+                  <div class="doc-preview" id="preview_business_permit">
+                    <span class="text-muted">Loading...</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>BIR Document</td>
+                <td>
+                  <!-- <button type="button" class="btn btn-info btn-sm btn-flat view-doc" data-type="bir_doc">
+                    <i class="fa fa-eye"></i> View
+                  </button> -->
+                  <a href="#" class="btn btn-primary btn-sm btn-flat download-doc" data-type="bir_doc">
+                    <i class="fa fa-download"></i> Download
+                  </a>
+                </td>
+                <td>
+                  <div class="doc-preview" id="preview_bir_doc">
+                    <span class="text-muted">Loading...</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>DTI Document</td>
+                <td>
+                  <!-- <button type="button" class="btn btn-info btn-sm btn-flat view-doc" data-type="dti_doc">
+                    <i class="fa fa-eye"></i> View
+                  </button> -->
+                  <a href="#" class="btn btn-primary btn-sm btn-flat download-doc" data-type="dti_doc">
+                    <i class="fa fa-download"></i> Download
+                  </a>
+                </td>
+                <td>
+                  <div class="doc-preview" id="preview_dti_doc">
+                    <span class="text-muted">Loading...</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Mayor's Permit</td>
+                <td>
+                  <!-- <button type="button" class="btn btn-info btn-sm btn-flat view-doc" data-type="mayor_permit">
+                    <i class="fa fa-eye"></i> View
+                  </button> -->
+                  <a href="#" class="btn btn-primary btn-sm btn-flat download-doc" data-type="mayor_permit">
+                    <i class="fa fa-download"></i> Download
+                  </a>
+                </td>
+                <td>
+                  <div class="doc-preview" id="preview_mayor_permit">
+                    <span class="text-muted">Loading...</span>
+                  </div>
+                </td>
+              </tr>
+              
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.doc-preview {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+    background-color: #f9f9f9;
+}
+
+.doc-preview img {
+    object-fit: contain;
+    width: 100%;
+    height: 100%;
+}
+
+.doc-preview .fa-file-pdf-o {
+    color: #dc3545;
+}
+
+.doc-preview .text-danger {
+    font-size: 12px;
+    text-align: center;
+}
+
+.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+#documentViewer {
+    min-height: 400px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 15px;
+}
+
+.btn-sm {
+    margin: 2px;
+}
+</style>

@@ -10,7 +10,7 @@
 			$stmt = $conn->prepare("DELETE FROM users WHERE id=:id");
 			$stmt->execute(['id'=>$id]);
 
-			$_SESSION['success'] = 'Customer deleted successfully';
+			$_SESSION['success'] = 'Vendor deleted successfully';
 		}
 		catch(PDOException $e){
 			$_SESSION['error'] = $e->getMessage();
@@ -19,9 +19,9 @@
 		$pdo->close();
 	}
 	else{
-		$_SESSION['error'] = 'Select customer to delete first';
+		$_SESSION['error'] = 'Select vendor to delete first';
 	}
 
-	header('location: vendor.php');
+	header('location: vendor');
 	
 ?>

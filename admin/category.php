@@ -14,7 +14,7 @@
         Category
       </h1>
       <ol class="breadcrumb">
-        <li><a href="home.php"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="home"><i class="fa fa-dashboard"></i> Home</a></li>
         <!-- <li>Products</li> -->
         <li class="active">Category</li>
       </ol>
@@ -48,11 +48,11 @@
     border-radius: 10px;
    }
 </style>
-      <div class="">
+      <div class="row">
         <div class="col-xs-12">
-          <div class="">
+          <div class="box">
             <div class="box-header with-border">
-              <a href="#addnew" data-toggle="modal" class="btn btn-primary btn-sm btn-flat" style="border-radius: 8px;"><i class="fa fa-plus"></i> Add Category</a>
+              <a href="#addnew" data-toggle="modal" class="btn btn-sm btn-flat" style="background: linear-gradient(to right, #0072ff, #00c6ff); color: #fff; border-radius: 8px;"><i class="fa fa-plus"></i> Add Category</a>
             </div>
             <div class="box-body">
               <table id="example1" class="table table-bordered">
@@ -74,8 +74,8 @@
                             <td class='hidden'></td>
                             <td>".$row['name']."</td>
                             <td>
-                              <button class='btn btn-success btn-sm edit btn-flat' style='border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-edit'></i> Edit</button>
-                              <button class='btn btn-danger btn-sm delete btn-flat' style='border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-trash'></i> Delete</button>
+                              <button class='btn btn-success btn-sm edit btn-flat' style='color: #fff; border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-edit'></i> Edit</button>
+                              <button class='btn btn-danger btn-sm delete btn-flat' style='color: #fff; border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-trash'></i> Delete</button>
                             </td>
                           </tr>
                         ";
@@ -124,7 +124,7 @@ $(function(){
 function getRow(id){
   $.ajax({
     type: 'POST',
-    url: 'category_row.php',
+    url: 'category_row',
     data: {id:id},
     dataType: 'json',
     success: function(response){

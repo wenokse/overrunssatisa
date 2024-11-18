@@ -7,6 +7,64 @@ include 'includes/session.php';
 <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v13.0&appId=1346358252525630&autoLogAppEvents=1" nonce="hsdcri7l"></script>
 <script src="js/sweetalert.min.js"></script>
 <div class="wrapper">
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader"></div>
+    </div>
+    <style>
+        .container2 {
+            margin: 0px 50px 0px 50px; /* top right bottom left */
+        }
+        /* Preloader styles */
+        #preloader {
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 999;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loader {
+            border: 16px solid #f3f3f3; /* Light grey */
+            border-top: 16px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+            opacity: 0;
+            transition: opacity 5s ease-in-out;
+        }
+
+        .visible {
+            display: block;
+            opacity: 1;
+        }
+    </style>
+    <script>
+        window.addEventListener('load', function() {
+            var preloader = document.getElementById('preloader');
+            setTimeout(function() {
+                preloader.style.display = 'none'; 
+            }, 100);  // 3000 milliseconds = 3 seconds
+        });
+    </script>
+</div>
+
 <?php
   if (isset($_SESSION['error']) || isset($_SESSION['success'])) {
     $message = isset($_SESSION['error']) ? $_SESSION['error'] : $_SESSION['success'];
@@ -97,54 +155,57 @@ include 'includes/session.php';
                                         <th>Color</th>
                                         <th>Price</th>
                                         <th width="18%" class="text-center">Quantity</th>
-                                        <th class="shipping">Shipping</th>
+                                        
                                         <th>Subtotal</th>
                                     </thead>
                                     
                                     <tbody id="tbody">
-    <?php
-        $conn = $pdo->open();
-        try {
-            $stmt = $conn->prepare("SELECT *, cart.id AS cartid FROM cart LEFT JOIN products ON products.id=cart.product_id WHERE cart.user_id=:user_id");
-            $stmt->execute(['user_id' => $user['id']]);
-            foreach ($stmt as $row) {
-                $image = (!empty($row['photo'])) ? 'images/' . $row['photo'] : 'images/noimage.jpg';
-                echo "
-                <tr>
-                    <td><input type='checkbox' class='product-checkbox' data-id='" . $row['cartid'] . "' data-price='" . $row['price'] . "' data-quantity='" . $row['quantity'] . "' data-shipping='" . $row['shipping'] . "' /></td>
-                    <td>
-                        <button class='btn btn-danger btn-sm cart_delete' data-id='" . $row['cartid'] . "'><i class='fa fa-trash'></i></button>
-                    </td>
-                    <td><img src='" . $image . "' width='30px' height='30px'></td>
-                    <td>" . $row['name'] . "</td>
-                    <td>" . $row['size'] . "</td>
-                    <td>" . $row['color'] . "</td>
-                    <td>" . number_format($row['price'], 2) . "</td>
-                    <td class='input-group'>
-                        <span class='input-group-btn'>
-                            <button type='button' id='minus' class='btn btn-default btn-sm btn-flat minus' data-id='" . $row['cartid'] . "'><i class='fa fa-minus'></i></button>
-                        </span>
-                        <input type='text' class='form-control input-sm' value='" . $row['quantity'] . "' id='qty_" . $row['cartid'] . "'>
-                        <span class='input-group-btn'>
-                            <button type='button' id='add' class='btn btn-default btn-sm btn-flat add' data-id='" . $row['cartid'] . "'><i class='fa fa-plus'></i>
-                            </button>
-                        </span>
-                    </td>
-                    <td>" . $row['shipping'] . "</td>
-                    <td>" . number_format($row['price'] * $row['quantity'], 2) . "</td>
-                </tr>
-                ";
-            }
-        } catch (PDOException $e) {
-            echo "There is some problem in connection: " . $e->getMessage();
-        }
+                                    <?php
+                                        $conn = $pdo->open();
+                                        try {
+                                            $stmt = $conn->prepare("SELECT *, cart.id AS cartid FROM cart LEFT JOIN products ON products.id=cart.product_id WHERE cart.user_id=:user_id");
+                                            $stmt->execute(['user_id' => $user['id']]);
+                                            foreach ($stmt as $row) {
+                                                $image = (!empty($row['photo'])) ? 'images/' . $row['photo'] : 'images/noimage.jpg';
+                                                echo "
+                                                <tr>
+                                                    <td><input type='checkbox' class='product-checkbox' data-id='" . $row['cartid'] . "' data-price='" . $row['price'] . "' data-quantity='" . $row['quantity'] ."' data-shipping='' /></td>
+                                                    <td>
+                                                        <button class='btn btn-danger btn-sm cart_delete' data-id='" . $row['cartid'] . "'><i class='fa fa-trash'></i></button>
+                                                    </td>
+                                                    <td><img src='" . $image . "' width='30px' height='30px'></td>
+                                                    <td>" . $row['name'] . "</td>
+                                                    <td>" . $row['size'] . "</td>
+                                                    <td>" . $row['color'] . "</td>
+                                                    <td>" . number_format($row['price'], 2) . "</td>
+                                                    <td class='input-group'>
+                                                        <span class='input-group-btn'>
+                                                            <button type='button' id='minus' class='btn btn-default btn-sm btn-flat minus' data-id='" . $row['cartid'] . "'><i class='fa fa-minus'></i></button>
+                                                        </span>
+                                                        <input type='text' class='form-control input-sm' value='" . $row['quantity'] . "' id='qty_" . $row['cartid'] . "'>
+                                                        <span class='input-group-btn'>
+                                                            <button type='button' id='add' class='btn btn-default btn-sm btn-flat add' data-id='" . $row['cartid'] . "'><i class='fa fa-plus'></i>
+                                                            </button>
+                                                        </span>
+                                                    </td>
+                                                   
+                                                    <td>" . number_format($row['price'] * $row['quantity'], 2) . "</td>
+                                                </tr>
+                                                ";
+                                            }
+                                        } catch (PDOException $e) {
+                                            echo "There is some problem in connection: " . $e->getMessage();
+                                        }
 
-        $pdo->close();
-    ?>
-</tbody>
+                                        $pdo->close();
+                                    ?>
+                                </tbody>
 
 
                                 </table>
+                                <div id="cod_shipping" style="">
+                            <p style="color: red;">Shipping: 100</p>
+                        </div>
                             </div>
                         </div>
                         <div class="box box-solid">
@@ -152,6 +213,54 @@ include 'includes/session.php';
                                             <h3 class="box-title"><b>Selected Total: <span id="selected-total">₱ 0.00</span></b></h3>
                                         </div>
                                     </div>
+                                    <div class="box box-solid">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title"><b>Delivery Address</b></h3>
+                                    </div>
+                                    <div class="box-body">
+                                    <?php
+                                    $conn = $pdo->open();
+                                    try {
+                                        $stmt = $conn->prepare("SELECT * FROM delivery_address WHERE user_id=:user_id");
+                                        $stmt->execute(['user_id' => $user['id']]);
+                                        $address = $stmt->fetch();
+
+                                        if($address){
+                                            echo "
+                                                <div class='delivery-address-display'>
+                                                    <div class='address-checkbox-container'>
+                                                        <input type='checkbox' id='confirm_address' class='address-checkbox'>
+                                                        <label for='confirm_address'>I confirm this is my correct delivery address:</label>
+                                                    </div>
+                                                    <div class='address-details'>
+                                                        <p><strong>Name:</strong> ".$address['recipient_name']."</p>
+                                                        <p><strong>Phone:</strong> ".$address['phone']."</p>
+                                                        <p><strong>Address:</strong> ".$address['address']."</p>
+                                                        <p><strong>Purok:</strong> ".$address['address2']."</p>
+                                                        <p><strong>Address2:</strong> ".$address['address3']."</p>
+                                                        <button type='button' class='btn btn-primary btn-sm edit-address'>Edit Address</button>
+                                                        <button type='button' class='btn btn-danger btn-sm delete-address'>Delete Address</button>
+                                                    </div>
+                                                </div>
+                                            ";
+                                        } else {
+                                            echo "
+                                                <div class='no-address-message'>
+                                                    <p>No delivery address found. Please add your delivery address.</p>
+                                                    <button type='button' class='btn btn-primary btn-sm' data-toggle='modal' data-target='#addAddressModal'>
+                                                        Add Delivery Address
+                                                    </button>
+                                                </div>
+                                            ";
+                                        }
+                                    } catch(PDOException $e) {
+                                        echo "Connection error: " . $e->getMessage();
+                                    }
+                                    $pdo->close();
+                                    ?>
+                                    </div>
+                                </div>
+
                         <div class="box box-solid">
                         <div class="box-header with-border">
                         <div id="cod_shipping" style="">
@@ -167,6 +276,10 @@ include 'includes/session.php';
                         <h3 class="box-title"><b>Payment Method: COD only </b></h3><br><br></div>
                         </div>
                         </div>
+                        <div class="form-group has-feedback">
+                            <input type="checkbox" id="terms" name="terms" class="form-control-feedback1" required>
+                            <label for="terms">I agree to the <a href="#" id="termsLink">Terms and Conditions</a></label>
+                        </div>
                         <?php
                             if(isset($_SESSION['user'])){
                                 $pdo = new Database();
@@ -176,22 +289,39 @@ include 'includes/session.php';
                                     echo "Connection Failed";
                                 } else {
                                     $user_id = $_SESSION['user'];
-                                    $query1 = "SELECT * FROM cart WHERE user_id = :user_id";
-                                    $stmt = $conn->prepare($query1);
-                                    $stmt->execute(['user_id' => $user_id]);
+                                    
+                                    // Check for delivery address first
+                                    $addr_stmt = $conn->prepare("SELECT COUNT(*) as addr_count FROM delivery_address WHERE user_id = :user_id");
+                                    $addr_stmt->execute(['user_id' => $user_id]);
+                                    $addr_result = $addr_stmt->fetch();
+                                    
+                                    // Check cart items
+                                    $cart_stmt = $conn->prepare("SELECT COUNT(*) as cart_count FROM cart WHERE user_id = :user_id");
+                                    $cart_stmt->execute(['user_id' => $user_id]);
+                                    $cart_result = $cart_stmt->fetch();
 
-                                    if($stmt->rowCount() > 0) {
+                                    if($addr_result['addr_count'] == 0) {
                                         echo "
-                                            <form method='post' action='sales.php' id='payment_form'>
-                                            <input type='hidden' name='selected_products' id='selected-products'>
-                                            <button type='submit' class='btn btn-danger btn-lg checkout-btn' disabled>Place Order</button>
+                                            <div class='alert alert-warning'>
+                                                <h4>Please add a delivery address before placing your order.</h4>
+                                                <button type='button' class='btn btn-primary btn-sm' data-toggle='modal' data-target='#addAddressModal'>
+                                                    Add Delivery Address
+                                                </button>
+                                            </div>
+                                        ";
+                                    } 
+                                    else if($cart_result['cart_count'] > 0) {
+                                        echo "
+                                            <form method='post' action='sales' id='payment_form'>
+                                                <input type='hidden' name='selected_products' id='selected-products'>
+                                                <button type='submit' class='btn btn-danger btn-lg checkout-btn' disabled>Place Order</button>
                                             </form>
                                         ";
                                     }
                                 }
                                 $pdo->close();
                             } else {
-                                echo "<h4>You need to <a href='login.php'>Login</a> to checkout.</h4>";
+                                echo "<h4>You need to <a href='login'>Login</a> to checkout.</h4>";
                             }
                             ?>
                     </div>
@@ -204,9 +334,382 @@ include 'includes/session.php';
     </div>
     <?php include 'includes/footer.php'; ?>
 </div>
-
+<?php include 'includes/address_modal.php'; ?>
 <?php include 'includes/scripts.php'; ?>
+<script>
+    // Modal script
+ var modal = document.getElementById("termsModal");
+    var link = document.getElementById("termsLink");
+    var span = document.getElementsByClassName("close1")[0];
 
+    link.onclick = function(e) {
+        e.preventDefault();
+        modal.style.display = "block";
+    }
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+    
+   
+$(function() {
+    // Function to check if delivery address exists
+    function hasDeliveryAddress() {
+        return $('.delivery-address-display').length > 0;
+    }
+
+    // Function to check if order can be placed
+    function canPlaceOrder() {
+        var hasSelectedProducts = $('.product-checkbox:checked').length > 0;
+        var addressExists = hasDeliveryAddress();
+        var hasConfirmedAddress = $('#confirm_address').is(':checked');
+        var hasAcceptedTerms = $('#terms').is(':checked');
+        
+        // Additional check to ensure address exists
+        if (!addressExists) {
+            $('.checkout-btn').attr('title', 'Please add a delivery address first');
+            return false;
+        }
+
+        // Check for address confirmation
+        if (!hasConfirmedAddress) {
+            $('.checkout-btn').attr('title', 'Please confirm your delivery address');
+            return false;
+        }
+        if (!hasAcceptedTerms) {
+            $('.checkout-btn').attr('title', 'Please accept the terms and conditions');
+            return false;
+        }
+
+        // Check for product selection
+        if (!hasSelectedProducts) {
+            $('.checkout-btn').attr('title', 'Please select at least one product');
+            return false;
+        }
+
+        return true;
+    }
+
+    // Update button state
+    function updateOrderButton() {
+        var canOrder = canPlaceOrder();
+        $('.checkout-btn').prop('disabled', !canOrder);
+
+        // Show appropriate message if button is disabled
+        if (!canOrder) {
+            var message = '';
+            if (!hasDeliveryAddress()) {
+                message = 'Please add a delivery address first. ';
+            } else if (!$('#confirm_address').is(':checked')) {
+                message = 'Please confirm your delivery address. ';
+            } else if ($('.product-checkbox:checked').length === 0) {
+                message = 'Please select at least one product. ';
+            }else if (!$('#terms').is(':checked')) {
+                message = 'Please accept the terms and conditions. ';
+            }
+            
+            $('.checkout-btn').attr('title', message.trim());
+        } else {
+            $('.checkout-btn').attr('title', '');
+        }
+    }
+
+    // Update total and button state when checkboxes change
+    $('#confirm_address, #terms, .product-checkbox').change(function() {
+        updateTotal();
+        updateOrderButton();
+    });
+
+    // Select all products checkbox handler
+    $('#select-all').change(function() {
+        $('.product-checkbox').prop('checked', $(this).prop('checked'));
+        updateTotal();
+        saveCheckedState();
+        updateOrderButton();
+    });
+
+    // Update total amount and save state
+    
+
+    // Save checked state to localStorage
+    function saveCheckedState() {
+        var checkedProducts = [];
+        $('.product-checkbox:checked').each(function() {
+            checkedProducts.push($(this).data('id'));
+        });
+        localStorage.setItem('checkedProducts', JSON.stringify(checkedProducts));
+    }
+
+    // Load checked state from localStorage
+    function loadCheckedState() {
+        var checkedProducts = JSON.parse(localStorage.getItem('checkedProducts')) || [];
+        checkedProducts.forEach(function(id) {
+            $('.product-checkbox[data-id="' + id + '"]').prop('checked', true);
+        });
+        updateTotal();
+        updateOrderButton();
+    }
+
+    // Modify the form submission handler
+    $('#payment_form').submit(function(e) {
+        e.preventDefault();
+        
+        // Check if address exists before submitting
+        if (!hasDeliveryAddress()) {
+            swal({
+                title: 'Error!',
+                text: 'Please add a delivery address before placing your order.',
+                icon: 'error',
+                button: 'OK'
+            });
+            return false;
+        }
+
+        // Check if address is confirmed
+        if (!$('#confirm_address').is(':checked')) {
+            swal({
+                title: 'Error!',
+                text: 'Please confirm your delivery address before placing your order.',
+                icon: 'error',
+                button: 'OK'
+            });
+            return false;
+        }
+        if (!$('#terms').is(':checked')) {
+            swal({
+                title: 'warning!',
+                text: 'Please accept the terms and conditions before placing your order.',
+                icon: 'warning',
+                button: 'OK'
+            });
+            return false;
+        }
+
+        // If all checks pass, submit the form
+        this.submit();
+    });
+
+    // Initialize the page
+    loadCheckedState();
+    updateOrderButton();
+
+    // Show OTP Modal after address submission
+$('#addressForm').on('submit', function(e) {
+    e.preventDefault();
+    var formData = $(this).serialize();
+    
+    $.ajax({
+        type: 'POST',
+        url: 'address_add',
+        data: formData,
+        dataType: 'json',
+        success: function(response) {
+            if (!response.error) {
+                $('#addAddressModal').modal('hide');
+                swal({
+                    icon: 'success',
+                    title: 'OTP Sent!',
+                    text: 'An OTP has been sent to your phone. Please verify.',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    $('#otpModal').modal('show');
+                });
+            } else {
+                swal({
+                    icon: 'error',
+                    title: 'Error',
+                    text: response.message,
+                    confirmButtonText: 'Try Again'
+                });
+            }
+        },
+        error: function(xhr) {
+            swal({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred while submitting your address. Please try again.',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+});
+
+// Handle OTP verification
+$('#otpForm').on('submit', function(e) {
+    e.preventDefault();
+    var otp = $('#otp').val().trim();
+
+    if (otp.length !== 6 || isNaN(otp)) {
+        swal({
+            icon: 'warning',
+            title: 'Invalid OTP',
+            text: 'Please enter a valid 6-digit OTP.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: 'verify_otp',
+        data: { otp: otp },
+        dataType: 'json',
+        success: function(response) {
+            if (!response.error) {
+                swal({
+                    icon: 'success',
+                    title: 'OTP Verified!',
+                    text: response.message,
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                swal({
+                    icon: 'error',
+                    title: 'Error',
+                    text: response.message,
+                    confirmButtonText: 'Try Again'
+                });
+            }
+        },
+        error: function(xhr) {
+            swal({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred while verifying the OTP. Please try again.',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+});
+// Handle Resend OTP
+$('#resendOtpBtn').on('click', function(e) {
+    e.preventDefault();
+
+    swal({
+        title: 'Resend OTP?',
+        text: 'Are you sure you want to request a new OTP?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, resend it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                type: 'POST',
+                url: 'resend_otp',
+                dataType: 'json',
+                success: function(response) {
+                    if (!response.error) {
+                        swal({
+                            icon: 'success',
+                            title: 'OTP Resent!',
+                            text: response.message,
+                            confirmButtonText: 'OK'
+                        });
+                    } else {
+                        swal({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message,
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    swal({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while resending the OTP. Please try again.',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        }
+    });
+});
+
+
+    // Handle address deletion
+    $('.delete-address').click(function() {
+        swal({
+            title: "Are you sure?",
+            text: "Once deleted, you will not be able to recover this address!",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        })
+        .then((willDelete) => {
+            if (willDelete) {
+                $.ajax({
+                    type: 'POST',
+                    url: 'address_delete',
+                    dataType: 'json',
+                    success: function(response) {
+                        if(!response.error) {
+                            swal("Success!", "Address has been deleted!", "success")
+                            .then(function() {
+                                location.reload();
+                            });
+                        } else {
+                            swal("Error!", response.message, "error");
+                        }
+                    }
+                });
+            }
+        });
+    });
+
+    // Handle address editing
+    $('.edit-address').click(function() {
+        $('#addAddressModal').modal('show');
+        $.ajax({
+            type: 'POST',
+            url: 'get_address',
+            dataType: 'json',
+            success: function(response) {
+                if (!response.error) {
+                    $('#recipient_name').val(response.recipient_name);
+                    $('#phone').val(response.phone);
+                    $('#address').val(response.address);
+                    $('#address2').val(response.address2);
+                    $('#address3').val(response.address3);
+                }
+            }
+        });
+    });
+});
+</script>
+<style>
+.address-checkbox-container {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.address-checkbox {
+    margin-right: 10px;
+}
+
+.address-details {
+    margin-left: 25px;
+    padding: 10px;
+    border-left: 3px solid #007bff;
+}
+
+.address-checkbox-container label {
+    font-weight: 600;
+    color: #495057;
+}
+</style>
 <script>
 var total = 0;
 $(function(){
@@ -215,7 +718,7 @@ $(function(){
         var id = $(this).data('id');
         $.ajax({
             type: 'POST',
-            url: 'cart_delete.php',
+            url: 'cart_delete',
             data: {id:id},
             dataType: 'json',
             success: function(response){
@@ -253,7 +756,7 @@ $(function(){
         $('#qty_'+id).val(qty);
         $.ajax({
             type: 'POST',
-            url: 'cart_update.php',
+            url: 'cart_update',
             data: {
                 id: id,
                 qty: qty,
@@ -281,7 +784,7 @@ $(function(){
             $('#qty_'+id).val(qty);
             $.ajax({
                 type: 'POST',
-                url: 'cart_update.php',
+                url: 'cart_update',
                 data: {
                     id: id,
                     qty: qty,
@@ -305,13 +808,23 @@ $(function(){
     
 
     $(document).ajaxComplete(function(event, xhr, settings) {
-        if (settings.url === "cart_details.php") {
+        if (settings.url === "cart_details") {
             loadCheckedState();
         }
     });
 });
 
 $(function() {
+    
+    function canPlaceOrder() {
+        return $('.product-checkbox:checked').length > 0 && $('#confirm_address').is(':checked');
+    }
+
+    // Update button state when address checkbox changes
+    $('#confirm_address').change(function() {
+        $('.checkout-btn').prop('disabled', !canPlaceOrder());
+    });
+
     $(document).on('change', '.product-checkbox', function() {
         updateTotal();
         saveCheckedState();
@@ -324,39 +837,62 @@ $(function() {
     });
 
     function updateTotal() {
-        var selectedTotal = 0;
-        var selectedProducts = [];
-        $('.product-checkbox:checked').each(function() {
-            var price = parseFloat($(this).data('price'));
-            var quantity = parseInt($(this).data('quantity'));
-            var shipping = parseFloat($(this).data('shipping'));
-            selectedTotal += (price * quantity) + shipping;
-            selectedProducts.push($(this).data('id'));
-        });
-        $('#selected-total').text('₱ ' + selectedTotal.toFixed(2));
+    var selectedTotal = 0;
+    var selectedProducts = [];
+    var hasSelectedProducts = false;
 
-        // Enable/disable checkout button
-        $('.checkout-btn').prop('disabled', selectedProducts.length === 0);
+    $('.product-checkbox:checked').each(function() {
+        hasSelectedProducts = true;
+        var price = parseFloat($(this).data('price'));
+        var quantity = parseInt($(this).data('quantity'));
+        // Add product price * quantity
+        selectedTotal += (price * quantity);
+        selectedProducts.push($(this).data('id'));
+    });
 
-        // Set selected products to hidden input
-        $('#selected-products').val(selectedProducts.join(','));
+    // Add shipping fee of 100 if there are selected products
+    if (hasSelectedProducts) {
+        selectedTotal += 100; // Fixed shipping fee
     }
 
-    function saveCheckedState() {
-        var checkedProducts = [];
-        $('.product-checkbox:checked').each(function() {
-            checkedProducts.push($(this).data('id'));
-        });
-        localStorage.setItem('checkedProducts', JSON.stringify(checkedProducts));
-    }
+    // Format the total with 2 decimal places and display
+    $('#selected-total').text('₱ ' + selectedTotal.toFixed(2));
+    
+    // Update hidden input with selected products
+    $('#selected-products').val(selectedProducts.join(','));
+    
+    // Update checkout button state
+    $('.checkout-btn').prop('disabled', !hasSelectedProducts || !$('#confirm_address').is(':checked'));
+}
 
-    function loadCheckedState() {
-        var checkedProducts = JSON.parse(localStorage.getItem('checkedProducts')) || [];
-        checkedProducts.forEach(function(id) {
-            $('.product-checkbox[data-id="' + id + '"]').prop('checked', true);
-        });
-        updateTotal();
-    }
+// Update when checkboxes change
+$(document).on('change', '.product-checkbox', function() {
+    updateTotal();
+    saveCheckedState();
+});
+
+// Update when "Select All" changes
+$('#select-all').change(function() {
+    $('.product-checkbox').prop('checked', $(this).prop('checked'));
+    updateTotal();
+    saveCheckedState();
+});
+
+function saveCheckedState() {
+    var checkedProducts = [];
+    $('.product-checkbox:checked').each(function() {
+        checkedProducts.push($(this).data('id'));
+    });
+    localStorage.setItem('checkedProducts', JSON.stringify(checkedProducts));
+}
+
+function loadCheckedState() {
+    var checkedProducts = JSON.parse(localStorage.getItem('checkedProducts')) || [];
+    checkedProducts.forEach(function(id) {
+        $('.product-checkbox[data-id="' + id + '"]').prop('checked', true);
+    });
+    updateTotal();
+}
 
     loadCheckedState();
 });
@@ -406,7 +942,6 @@ function updateTotal() {
         var shipping = parseFloat($(this).data('shipping'));
         selectedTotal += (price * quantity) + shipping;
     });
-    $('#selected-total').text('₱ ' + selectedTotal.toFixed(2));
     
     // Enable/disable checkout button
     $('.checkout-btn').prop('disabled', $('.product-checkbox:checked').length === 0);
@@ -415,7 +950,7 @@ function updateTotal() {
 function getDetails(){
     $.ajax({
         type: 'POST',
-        url: 'cart_details.php',
+        url: 'cart_details',
         dataType: 'json',
         success: function(response){
             $('#tbody').html(response);
@@ -428,7 +963,7 @@ function getDetails(){
 function getTotal(){
     $.ajax({
         type: 'POST',
-        url: 'cart_total.php',
+        url: 'cart_total',
         dataType: 'json',
         success:function(response){
             total = response;
@@ -438,7 +973,7 @@ function getTotal(){
 function getCart(){
         $.ajax({
             type: 'POST',
-            url: 'cart_fetch.php',
+            url: 'cart_fetch',
             dataType: 'json',
             success: function(response){
                 $('#cart_menu').html(response.list);
@@ -450,20 +985,7 @@ function getCart(){
     // Call getCart() when the page loads
     getCart();
 
-$('#shipping').change(function() {
-    var shipping = $(this).val();
-    if (shipping === '90') {
-        $('#gcash_shipping').show();
-        $('#cod_shipping').hide();
-    } else if (shipping === '') {
-        $('#gcash_shipping').hide();
-        $('#cod_shipping').show();
-    } else {
-        $('#gcash_shipping').hide();
-        $('#cod_shipping').hide();
-    }
-    getTotal(); 
-});
+
 
 </script>
 

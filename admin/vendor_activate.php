@@ -22,5 +22,5 @@
 		$_SESSION['error'] = 'Select Vendor to activate first';
 	}
 
-	header('location: vendor.php');
+	header('location: vendor');
 ?>

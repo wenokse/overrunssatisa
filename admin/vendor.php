@@ -5,7 +5,6 @@
 
   <?php include 'includes/navbar.php'; ?>
   <?php include 'includes/menubar.php'; ?>
-  <script src="../js/sweetalert2.min.js"></script>
   <script src="../js/sweetalert.min.js"></script>
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -15,7 +14,7 @@
         Vendor List
       </h1>
       <ol class="breadcrumb">
-        <li><a href="home.php"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="home"><i class="fa fa-dashboard"></i> Home</a></li>
         <li class="active">Vendor</li>
       </ol>
     </section>
@@ -46,6 +45,25 @@
    .modal-content {
     border-radius: 10px;
    }
+   .action-buttons {
+        white-space: nowrap;
+        min-width: 120px;
+      }
+      .table-responsive {
+        margin: 15px 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      #example1 {
+        width: 100%;
+        margin-bottom: 0;
+        white-space: nowrap;
+      }
+      
+      
+      .table-bordered > thead > tr > th {
+        border-bottom-width: 1px;
+      }
 </style>
       <div class="row">
         <div class="col-xs-12">
@@ -60,69 +78,100 @@
                   <th>Photo</th>
                   <th>Email</th>
                   <th>Name</th>
+                  <th>Contact</th>
                   <th>Name Of Store</th>
+                  <th>Valid ID</th>
+                  <th>TIN Number</th>
+                  <th>View</th>
                   <th>Status</th>
                   <th>Date Added</th>
                   <th>Action</th>
                 </thead>
                 <tbody>
-                    <?php
-                      $conn = $pdo->open();
+                <?php
+                    $conn = $pdo->open();
 
-                      try {
+                    try {
                         $stmt = $conn->prepare("SELECT * FROM users WHERE type=:type ORDER BY id DESC");
                         $stmt->execute(['type' => 2]);
+                        
                         foreach ($stmt as $row) {
-                          $image = (!empty($row['photo'])) ? '../images/' . $row['photo'] : '../images/profile.jpg';
-                          if ($row['status'] == 1) {
-                            $status = '<span class="label label-success">Active</span>';
-                        } elseif ($row['status'] == 0) {
-                            $status = '<span class="label label-danger">Deactive</span>';
-                        } elseif ($row['status'] == 3) {
-                            $status = '<span class="label label-warning">Pending</span>';
-                        }
-                        $active = (!$row['status']) ? '<span class="pull-right"><a href="#activate" class="status"  data-toggle="modal" data-id="'.$row['id'].'"><i class="fa fa-check-square-o"></i></a></span>' : '<span class="pull-right"><a href="#deactivate" class="status" data-toggle="modal" data-id="'.$row['id'].'"><i class="fa fa-check-square-o"></i></a></span>';
-                          
-                          $actionButtons = '';
+                            $image = (!empty($row['photo'])) ? '../images/' . $row['photo'] : '../images/profile.jpg';
+                            $images = (!empty($row['valid_id'])) ? '../images/' . $row['valid_id'] : '../images/profile.jpg';
+                            
+                            // Status label handling
+                            switch ($row['status']) {
+                                case 1:
+                                    $status = '<span class="label label-success">Active</span>';
+                                    break;
+                                case 0:
+                                    $status = '<span class="label label-danger">Deactive</span>';
+                                    break;
+                                case 3:
+                                    $status = '<span class="label label-warning">Pending</span>';
+                                    break;
+                                case 5:
+                                    $status = '<span class="label label-danger">Declined</span>';
+                                    break;
+                            }
+                            
+                            $active = '';  
+                            if ($row['status'] != 5 && $row['status'] != 3) {
+                                $active = (!$row['status']) 
+                                    ? '<span class="pull-right"><a href="#activate" class="status" data-toggle="modal" data-id="'.$row['id'].'"><i class="fa fa-pencil-square-o"></i></a></span>' 
+                                    : '<span class="pull-right"><a href="#deactivate" class="status" data-toggle="modal" data-id="'.$row['id'].'"><i class="fa fa-check-square-o"></i></a></span>';
+                            }
+                            
                             if ($row['status'] == 3) {
                                 $actionButtons = "
-                                    <button class='btn btn-success btn-sm accept btn-flat' style='border-radius: 8px;' data-id='" . $row['id'] . "'><i class='fa fa-check'></i> Accept</button>
-                                    <button class='btn btn-danger btn-sm decline btn-flat' style='border-radius: 8px;' data-id='" . $row['id'] . "'><i class='fa fa-close'></i> Decline</button>
+                                    <button class='btn btn-success btn-sm accept btn-flat' style='border-radius: 8px;' data-id='{$row['id']}'><i class='fa fa-check'></i> Accept</button>
+                                    <button class='btn btn-danger btn-sm decline btn-flat' style='border-radius: 8px;' data-id='{$row['id']}'><i class='fa fa-close'></i> Decline</button>
+                                ";
+                            } elseif ($row['status'] == 5) {
+                                $actionButtons = "
+                                    <button class='btn btn-danger btn-sm delete btn-flat' style='color: #fff; border-radius: 8px;' data-id='{$row['id']}'><i class='fa fa-trash'></i> Delete</button>
                                 ";
                             } else {
                                 $actionButtons = "
-                                    <button class='btn btn-success btn-sm edit btn-flat' style='background: linear-gradient(to right, #39FF14, #B4EC51); color: #fff; border-radius: 8px;' data-id='" . $row['id'] . "'><i class='fa fa-edit'></i> Edit</button>
-                                    <button class='btn btn-danger btn-sm delete btn-flat' style='background: linear-gradient(to right, #FF416C, #FF4B2B); color: #fff; border-radius: 8px;' data-id='" . $row['id'] . "'><i class='fa fa-trash'></i> Delete</button>
+                                    <button class='btn btn-success btn-sm edit btn-flat' style='color: #fff; border-radius: 8px;' data-id='{$row['id']}'><i class='fa fa-edit'></i> Edit</button>
+                                    <button class='btn btn-danger btn-sm delete btn-flat' style='color: #fff; border-radius: 8px;' data-id='{$row['id']}'><i class='fa fa-trash'></i> Delete</button>
                                 ";
                             }
 
-                          echo "
-                            <tr>
-                              <td class='hidden'></td>
-                              <td>
-                                <img class='pic' src='" . $image . "'>
-                                <img class='picbig' src='" . $image . "'>
-                                <span class='pull-right'><a href='#edit_photo' class='photo' data-toggle='modal' data-id='" . $row['id'] . "'><i class='fa fa-edit'></i></a></span>
-                              </td>
-                              <td>" . $row['email'] . "</td>
-                              <td>" . $row['firstname'] . ' ' . $row['lastname'] . "</td>
-                              <td>" . $row['store'] . "</td>
-                              <td>
-                                " . $status . "
-                                " . $active . "
-                              </td>
-                              <td>" . date('M d, Y', strtotime($row['created_on'])) . "</td>
-                              <td>
-                                " . $actionButtons . "
-                                </td>
-                            </tr>
-                          ";
+                            echo "
+                                <tr>
+                                    <td class='hidden'></td>
+                                    <td>
+                                        <img class='pic' src='{$image}'>
+                                        <img class='picbig' src='{$image}'>
+                                        <span class='pull-right'><a href='#edit_photo' class='photo' data-toggle='modal' data-id='{$row['id']}'><i class='fa fa-edit'></i></a></span>
+                                    </td>
+                                    <td>{$row['email']}</td>
+                                    <td>{$row['firstname']} {$row['lastname']}</td>
+                                     <td>{$row['contact_info']}</td>
+                                    <td>{$row['store']}</td>
+                                    <td> 
+                                        <img class='pic' src='{$images}'>
+                                        <img class='picbig' src='{$images}'>
+                                    </td>
+                                    <td>{$row['tin_number']}</td>
+                                    <td>
+                                        <button class='btn btn-info btn-sm view-documents btn-flat' style='border-radius: 8px;' data-id='{$row['id']}'><i class='fa fa-eye'></i> View</button>
+                                    </td>
+                                    <td>
+                                        {$status}
+                                        {$active}
+                                    </td>
+                                    <td>" . date('M d, Y', strtotime($row['created_on'])) . "</td>
+                                    <td>{$actionButtons}</td>
+                                </tr>
+                            ";
                         }
-                      } catch (PDOException $e) {
+                    } catch (PDOException $e) {
                         echo $e->getMessage();
-                      }
+                    }
 
-                      $pdo->close();
+                    $pdo->close();
                     ?>
                   </tbody>
 
@@ -142,6 +191,134 @@
 
 <?php include 'includes/scripts.php'; ?>
 <script>
+$(function(){
+    $(document).on('click', '.view-documents', function(e){
+        e.preventDefault();
+        var id = $(this).data('id');
+        $('#viewDocuments').modal('show');
+        loadDocuments(id);
+    });
+
+    function loadDocuments(id) {
+        $.ajax({
+            type: 'POST',
+            url: 'get_vendor_documents',
+            data: {id: id},
+            dataType: 'json',
+            success: function(response) {
+                if(!response.error) {
+                    const documentTypes = ['business_permit', 'bir_doc', 'dti_doc', 'mayor_permit', 'valid_id'];
+                    
+                    documentTypes.forEach(docType => {
+                        const docPath = response[docType];
+                        updateDocumentDisplay(docType, docPath);
+                    });
+                } else {
+                    showError("Error loading documents: " + response.error);
+                }
+            },
+            error: function(xhr, status, error) {
+                showError("Failed to load documents");
+            }
+        });
+    }
+
+    function updateDocumentDisplay(docType, docPath) {
+        const previewDiv = $('#preview_' + docType);
+        const downloadBtn = $('.download-doc[data-type="' + docType + '"]');
+        const viewBtn = $('.view-doc[data-type="' + docType + '"]');
+        
+        if(docPath) {
+            if(isImageFile(docPath)) {
+                previewDiv.html(`<img src="../images/${docPath}" alt="Preview" style="max-width: 100px; max-height: 100px;">`);
+            } else {
+                previewDiv.html('<i class="fa fa-file-pdf-o fa-3x"></i>');
+            }
+            
+            downloadBtn
+                .attr('href', '../images/' + docPath)
+                .attr('download', '')  
+                .removeClass('disabled');
+            viewBtn
+                .data('path', '../images/' + docPath)
+                .data('type', isImageFile(docPath) ? 'image' : 'pdf')
+                .removeClass('disabled');
+        } else {
+            previewDiv.html('<span class="text-muted">No document</span>');
+            downloadBtn.addClass('disabled');
+            viewBtn.addClass('disabled');
+        }
+    }
+    function isImageFile(filename) {
+        return /\.(jpg|jpeg|png|gif)$/i.test(filename.toLowerCase());
+    }
+
+    $(document).on('click', '.view-doc', function(e) {
+        e.preventDefault();
+        if($(this).hasClass('disabled')) {
+            showError("No document available for preview");
+            return;
+        }
+
+        const docPath = $(this).data('path');
+        const docType = $(this).data('type');
+        
+        if(docPath) {
+            if(!$('#documentPreviewModal').length) {
+                $('body').append(`
+                    <div class="modal fade" id="documentPreviewModal">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Document Preview</h4>
+                                </div>
+                                <div class="modal-body text-center">
+                                    <div id="documentViewer" style="min-height: 500px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+            }
+
+            if(docType === 'image') {
+                $('#documentViewer').html(`
+                    <img src="${docPath}" style="max-width: 100%; max-height: 80vh; object-fit: contain;">
+                `);
+            } else {
+                $('#documentViewer').html(`
+                    <object data="${docPath}" type="application/pdf" width="100%" height="500px">
+                        <p>Unable to display PDF. <a href="${docPath}" target="_blank">Click here to download</a></p>
+                    </object>
+                `);
+            }
+            
+            $('#documentPreviewModal').modal('show');
+        } else {
+            showError("Document not found");
+        }
+    });
+
+    $(document).on('click', '.download-doc', function(e) {
+        if($(this).hasClass('disabled')) {
+            e.preventDefault();
+            showError("No document available for download");
+        }
+    });
+
+    function showError(message) {
+        swal({
+            title: "Error",
+            text: message,
+            icon: "error",
+            button: "OK"
+        });
+    }
+});
+
+
+
 $(function(){
 
   $(document).on('click', '.edit', function(e){
@@ -178,16 +355,10 @@ $(function() {
     updateVendorStatus(id, 1);  // Accept = status 1
   });
 
-  $(document).on('click', '.decline', function(e) {
-    e.preventDefault();
-    var id = $(this).data('id');
-    updateVendorStatus(id, 0);  // Decline = status 0
-  });
-
   function updateVendorStatus(id, status) {
     $.ajax({
       type: 'POST',
-      url: 'update_vendor_status.php',
+      url: 'update_vendor_status',
       data: {id: id, status: status},
       success: function(response) {
         location.reload();  // Reload the page to reflect the changes
@@ -198,12 +369,56 @@ $(function() {
     });
   }
 });
+// Update your existing JavaScript code to handle the decline modal
+$(function() {
+  $(document).on('click', '.decline', function(e) {
+    e.preventDefault();
+    var id = $(this).data('id');
+    $('#decline_vendor_id').val(id);
+    $('#declineModal').modal('show');
+  });
 
+  $('#declineForm').on('submit', function(e) {
+    e.preventDefault();
+    var vendorId = $('#decline_vendor_id').val();
+    var message = $('#decline_message').val();
+
+    $.ajax({
+      type: 'POST',
+      url: 'decline_vendor',
+      data: {
+        id: vendorId,
+        message: message,
+        status: 5
+      },
+      success: function(response) {
+        $('#declineModal').modal('hide');
+        swal({
+          title: "Vendor Declined",
+          text: "Notification has been sent to the vendor",
+          icon: "success",
+          button: "OK"
+        }).then(function() {
+          location.reload();
+        });
+      },
+      error: function(xhr, status, error) {
+        console.error(error);
+        swal({
+          title: "Error",
+          text: "There was an error processing your request",
+          icon: "error",
+          button: "OK"
+        });
+      }
+    });
+  });
+});
 
 function getRow(id){
   $.ajax({
     type: 'POST',
-    url: 'vendor_row.php',
+    url: 'vendor_row',
     data: {id:id},
     dataType: 'json',
     success: function(response){

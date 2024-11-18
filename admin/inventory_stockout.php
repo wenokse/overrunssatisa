@@ -31,5 +31,5 @@
 		$_SESSION['error'] = 'Fill up edit inventory form first';
 	}
 
-	header('location: inventory.php');
+	header('location: inventory');
 ?>

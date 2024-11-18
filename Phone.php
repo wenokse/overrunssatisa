@@ -6,15 +6,15 @@
         <div class="login-box-body">
             <p class="login-box-msg" style="font-size: 20px; color: yellow;"><b>Enter your phone number:</b></p>
             
-            <form action="very.php" method="POST">
+            <form action="very" method="POST">
                 <div class="form-group has-feedback">
                     <input type="text" class="form-control" name="contact_info" id="contact_info" placeholder="Phone Number" maxlength="11" required>
                     <span class="glyphicon glyphicon-phone form-control-feedback"></span><br>
                     <button type="submit" class="btn btn-primary btn-block btn-flat" name="login"><i class="fa fa-sign-in"></i> Continue</button>
                 </div>
             </form>
-            <a href="login.php">I remembered my password</a><br>
-            <a href="index.php"><i class="fa fa-home"></i> Home</a>
+            <a href="login">I remembered my password</a><br>
+            <a href="index"><i class="fa fa-home"></i> Home</a>
         </div>
     </div>
     <?php include 'includes/scripts.php' ?>

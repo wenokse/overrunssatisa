@@ -14,7 +14,7 @@
         Customer Users
       </h1>
       <ol class="breadcrumb">
-        <li><a href="home.php"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="home"><i class="fa fa-dashboard"></i> Home</a></li>
         <li class="active">Customer</li>
       </ol>
     </section>
@@ -59,21 +59,57 @@
                   <th>Photo</th>
                   <th>Email</th>
                   <th>Name</th>
+                  <th>Contact</th>
+                  <th>Address</th>
+                  <th>Purok</th>
                   <th>Status</th>
                   <th>Date Added</th>
                   <th>Action</th>
                 </thead>
                 <tbody>
-                  <?php
+                <?php
                     $conn = $pdo->open();
 
                     try{
-                      $stmt = $conn->prepare("SELECT * FROM users WHERE type=:type ORDER BY id DESC");
-                      $stmt->execute(['type'=>0]);
+                      // Get user type and ID
+                      $user_id = isset($_SESSION['admin']) ? $_SESSION['admin'] : null;
+                      if ($user_id === null) {
+                          die("Error: User not logged in");
+                      }
+                      
+                      $stmt = $conn->prepare("SELECT type FROM users WHERE id = :user_id");
+                      $stmt->execute(['user_id' => $user_id]);
+                      $user = $stmt->fetch();
+                      
+                      if (!$user) {
+                          die("Error: User not found");
+                      }
+                      
+                      $user_type = $user['type'];
+
+                      // Different queries based on user type
+                      if ($user_type == 1) {
+                        // Admin sees all customers
+                        $stmt = $conn->prepare("SELECT DISTINCT u.* FROM users u 
+                                             WHERE u.type = 0 
+                                             ORDER BY u.id DESC");
+                        $stmt->execute();
+                      } else {
+                        // Vendors see only customers who purchased their products
+                        $stmt = $conn->prepare("SELECT DISTINCT u.* FROM users u 
+                                             INNER JOIN sales s ON s.user_id = u.id 
+                                             INNER JOIN details d ON d.sales_id = s.id 
+                                             INNER JOIN products p ON p.id = d.product_id 
+                                             WHERE u.type = 0 
+                                             AND s.admin_id = :admin_id 
+                                             ORDER BY u.id DESC");
+                        $stmt->execute(['admin_id' => $user_id]);
+                      }
+
                       foreach($stmt as $row){
                         $image = (!empty($row['photo'])) ? '../images/'.$row['photo'] : '../images/profile.jpg';
                         $status = ($row['status']) ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Deactive</span>';
-                        $active = (!$row['status']) ? '<span class="pull-right"><a href="#activate" class="status"  data-toggle="modal" data-id="'.$row['id'].'"><i class="fa fa-check-square-o"></i></a></span>' : '<span class="pull-right"><a href="#deactivate" class="status" data-toggle="modal" data-id="'.$row['id'].'"><i class="fa fa-check-square-o"></i></a></span>';
+                        $active = (!$row['status']) ? '<span class="pull-right"><a href="#activate" class="status" data-toggle="modal" data-id="'.$row['id'].'"><i class="fa fa-check-square-o"></i></a></span>' : '<span class="pull-right"><a href="#deactivate" class="status" data-toggle="modal" data-id="'.$row['id'].'"><i class="fa fa-check-square-o"></i></a></span>';
                         echo "
                           <tr>
                             <td class='hidden'></td>
@@ -84,14 +120,17 @@
                             </td>
                             <td>".$row['email']."</td>
                             <td>".$row['firstname'].' '.$row['lastname']."</td>
+                            <td>".$row['contact_info']."</td>
+                            <td>".$row['address']."</td>
+                            <td>".$row['address2']."</td>
                             <td>
                               ".$status."
                               ".$active."
                             </td>
                             <td>".date('M d, Y', strtotime($row['created_on']))."</td>
                             <td>
-                              <button class='btn btn-success btn-sm edit btn-flat' style='background: linear-gradient(to right, #39FF14, #B4EC51); color: #fff; border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-edit'></i> Edit</button>
-                              <button class='btn btn-danger btn-sm delete btn-flat' style='background: linear-gradient(to right, #FF416C, #FF4B2B); color: #fff; border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-trash'></i> Delete</button>
+                              <button class='btn btn-success btn-sm edit btn-flat' style='color: #fff; border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-edit'></i> Edit</button>
+                              <button class='btn btn-danger btn-sm delete btn-flat' style='color: #fff; border-radius: 8px;' data-id='".$row['id']."'><i class='fa fa-trash'></i> Delete</button>
                             </td>
                           </tr>
                         ";
@@ -153,7 +192,7 @@ $(function(){
 function getRow(id){
   $.ajax({
     type: 'POST',
-    url: 'users_row.php',
+    url: 'users_row',
     data: {id:id},
     dataType: 'json',
     success: function(response){

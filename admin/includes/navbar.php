@@ -1,7 +1,7 @@
 
 <header class="main-header">
   <!-- Logo -->
-  <a href="home.php" class="logo">
+  <a href="home" class="logo">
     <span class="logo-lg" style="font-size: 12px;">
       <b><?php echo htmlspecialchars($admin['store']); ?></b>
     </span>
@@ -50,13 +50,13 @@
             <li>
               <ul class="menu">
                 <li>
-                  <a href="sales.php">
+                  <a href="sales">
                     <i class="fa fa-shopping-cart text-yellow"></i> <?php echo $pending_count; ?> new orders
                   </a>
                 </li>
               </ul>
             </li>
-            <li class="footer"><a href="sales.php">View all</a></li>
+            <li class="footer"><a href="sales">View all</a></li>
           </ul>
         </li>
 
@@ -87,7 +87,7 @@
                 <a href="#profile" data-toggle="modal" class="btn btn-default btn-flat" style="border-radius: 8px;" id="admin_profile">Update</a>
               </div>
               <div class="pull-right">
-                <a href="../logout.php" class="btn btn-default btn-flat" style="border-radius: 8px;">Log out</a>
+                <a href="../logout" class="btn btn-default btn-flat" style="border-radius: 8px;">Log out</a>
               </div>
             </li>
           </ul>
@@ -127,6 +127,357 @@
   </div>
 </div>
 
+
+<script src="../js/sweetalert.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const messageToggle = document.getElementById('messageToggle');
+  const messagePanel = document.getElementById('messagePanel');
+  const closeMessages = document.getElementById('closeMessages');
+  const senderList = document.getElementById('senderList');
+  const chatWindow = document.getElementById('chatWindow');
+  const backToSenders = document.getElementById('backToSenders');
+  const chatUserName = document.getElementById('chatUserName');
+  const unreadCount = document.getElementById('unreadCount');
+  const searchBar = document.getElementById('searchBar');
+
+  let allSenders = [];
+
+  messageToggle.addEventListener('click', function(e) {
+    e.preventDefault();
+    messagePanel.classList.toggle('active');
+    loadSenders();  
+  });
+
+  closeMessages.addEventListener('click', function() {
+    messagePanel.classList.remove('active');
+  });
+
+  backToSenders.addEventListener('click', function() {
+    chatWindow.style.display = 'none';
+    senderList.style.display = 'block';
+  });
+
+  function loadSenders() {
+  fetch('get_messages')
+    .then(response => response.json())
+    .then(data => {
+      allSenders = data;
+      renderSenders(allSenders);
+    })
+    .catch(error => console.error('Error fetching senders:', error));
+}
+
+function renderSenders(senders) {
+  senderList.innerHTML = '';  // Clear the sender list
+  senders.forEach(sender => {
+    const senderElement = document.createElement('div');
+    senderElement.classList.add('sender');
+    senderElement.innerHTML = `
+      <img src="${sender.photo ? '../images/' + sender.photo : '../images/profile.jpg'}" alt="User Photo" />
+      <div>
+        <strong>${sender.firstname} ${sender.lastname}</strong>
+        ${sender.store ? `<small class="store-name">${sender.store}</small>` : ''}
+        <p>${sender.message_type === 'sent' ? 
+             `${sender.last_message} <span class="message-status">Sent</span>` : 
+             sender.last_message ? `<strong>${sender.last_message}</strong>` : 'No messages yet'}</p>
+      </div>
+    `;
+    senderElement.addEventListener('click', () => openChat(sender));
+    senderList.appendChild(senderElement);
+  });
+}
+setInterval(loadSenders, 10000);
+
+loadSenders();
+
+
+  searchBar.addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const filteredSenders = allSenders.filter(sender => 
+      sender.firstname.toLowerCase().includes(searchTerm) || 
+      sender.lastname.toLowerCase().includes(searchTerm)
+    );
+    renderSenders(filteredSenders);
+  });
+
+  function openChat(sender) {
+    senderList.style.display = '';
+    chatWindow.style.display = 'block';
+    chatUserName.textContent = `${sender.firstname} ${sender.lastname}`;
+    currentReceiverId = sender.sender_id;
+    loadChatMessages(sender.sender_id);
+  }
+
+
+  function loadChatMessages(senderId) {
+    fetch(`get_chat?sender_id=${senderId}`)
+        .then(response => response.json())
+        .then(data => {
+            const chatMessageList = document.getElementById('chatMessageList');
+            chatMessageList.innerHTML = '';  // Clear the chat message list
+
+            const chatHeader = document.querySelector('.chat-header');
+
+            // Remove the previous delete button if it exists
+            const existingDeleteButton = chatHeader.querySelector('.delete-conversation-btn');
+            if (existingDeleteButton) {
+                existingDeleteButton.remove();
+            }
+
+            // Add the delete conversation button
+            const deleteConversationButton = document.createElement('button');
+            deleteConversationButton.innerHTML = '<i class="fa fa-trash"></i>'; // Use Font Awesome trash icon
+            deleteConversationButton.classList.add('delete-conversation-btn');
+            deleteConversationButton.setAttribute('title', 'Delete Conversation'); // Add tooltip
+            deleteConversationButton.addEventListener('click', () => deleteConversation(senderId));
+            chatHeader.appendChild(deleteConversationButton);
+
+            data.forEach(message => {
+                const isSent = message.sender_id != senderId; // Reversed logic as per your setup
+                
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message', isSent ? 'sent' : 'received');
+                const messageAlignmentClass = isSent ? 'right-message' : 'left-message';
+                
+                messageElement.innerHTML = `
+                    <div class="message-content ${messageAlignmentClass}">
+                        <img src="${message.photo ? '../images/' + message.photo : '../images/profile.jpg'}" alt="User Photo" class="message-photo" />
+                        <div>
+                            <p>${message.message}</p>
+                        </div>
+                    </div>
+                    <span class="timestamp">${new Date(message.timestamp).toLocaleString()}</span>
+                `;
+                
+                // Add context menu event listener
+                messageElement.addEventListener('contextmenu', (e) => showMessageContextMenu(e, message, isSent));
+                
+                chatMessageList.appendChild(messageElement);
+            });
+            
+            // Scroll to the bottom of the chat
+            chatMessageList.scrollTop = chatMessageList.scrollHeight;
+        });
+}
+
+
+function deleteConversation(senderId) {
+    swal({
+        title: 'Are you sure?',
+        text: 'You are about to delete this entire conversation.',
+        icon: 'warning',
+        buttons: ['Cancel', 'Delete'],
+        dangerMode: true,
+    }).then((willDelete) => {
+        if (willDelete) {
+            fetch('delete_conversation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ sender_id: senderId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    swal('Deleted!', 'Conversation deleted successfully', 'success');
+                    // Close the chat window and refresh the sender list
+                    document.getElementById('chatWindow').style.display = 'none';
+                    document.getElementById('senderList').style.display = 'block';
+                    loadSenders();
+                } else {
+                    swal('Failed!', 'Failed to delete conversation', 'error');
+                }
+            });
+        }
+    });
+}
+
+
+function showMessageContextMenu(e, message, isSent) {
+    e.preventDefault();
+    const contextMenu = document.createElement('div');
+    contextMenu.className = 'message-context-menu';
+    
+    let menuItems = `<div class="context-menu-item" data-action="delete">Delete</div>`;
+    
+    if (isSent) {
+        menuItems += `
+            <div class="context-menu-item" data-action="edit">Edit</div>
+            <div class="context-menu-item" data-action="unsend">Unsend</div>
+        `;
+    }
+    
+    contextMenu.innerHTML = menuItems;
+    
+    contextMenu.style.position = 'fixed';
+    contextMenu.style.left = `${e.clientX}px`;
+    contextMenu.style.top = `${e.clientY}px`;
+    
+    document.body.appendChild(contextMenu);
+    
+    contextMenu.addEventListener('click', (event) => {
+        const action = event.target.getAttribute('data-action');
+        if (action) {
+            handleMessageAction(action, message);
+        }
+        contextMenu.remove();
+    });
+    
+    // Close context menu when clicking outside
+    document.addEventListener('click', function closeMessageContextMenu(e) {
+        if (!contextMenu.contains(e.target)) {
+            contextMenu.remove();
+            document.removeEventListener('click', closeMessageContextMenu);
+        }
+    });
+}
+
+function handleMessageAction(action, message) {
+    switch (action) {
+        case 'delete':
+            deleteMessage(message.id);
+            break;
+        case 'edit':
+            editMessage(message);
+            break;
+        case 'unsend':
+            unsendMessage(message.id);
+            break;
+    }
+}
+
+function deleteMessage(messageId) {
+    swal({
+        title: 'Are you sure?',
+        text: 'You are about to delete this message.',
+        icon: 'warning',
+        buttons: ['Cancel', 'Delete'],
+        dangerMode: true,
+    }).then((willDelete) => {
+        if (willDelete) {
+            fetch('delete_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message_id: messageId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadChatMessages(currentReceiverId); 
+                    loadSenders();
+                } else {
+                    swal('Failed!', 'Failed to delete message', 'error');
+                }
+            });
+        }
+    });
+}
+
+function editMessage(message) {
+    swal({
+        title: 'Edit your message',
+        content: {
+            element: 'input',
+            attributes: {
+                value: message.message,
+            },
+        },
+        button: {
+            text: 'Update',
+            closeModal: false,
+        },
+    }).then(newMessage => {
+        if (newMessage !== null && newMessage !== message.message) {
+            fetch('edit_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message_id: message.id, new_message: newMessage }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadChatMessages(currentReceiverId); 
+                    loadSenders();
+                } else {
+                    swal('Failed!', 'Failed to edit message', 'error');
+                }
+            });
+        }
+    });
+}
+
+function unsendMessage(messageId) {
+    swal({
+        title: 'Are you sure?',
+        text: 'You are about to unsend this message.',
+        icon: 'warning',
+        buttons: ['Cancel', 'Unsend'],
+        dangerMode: true,
+    }).then((willUnsend) => {
+        if (willUnsend) {
+            fetch('unsend_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message_id: messageId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadChatMessages(currentReceiverId); 
+                    loadSenders();
+                } else {
+                    swal('Failed!', 'Failed to unsend message', 'error');
+                }
+            });
+        }
+    });
+}
+
+  function updateUnreadCount() {
+    fetch('get_unread_count')
+        .then(response => response.json())
+        .then(data => {
+            const unreadCountElement = document.getElementById('unreadCount');
+            unreadCountElement.textContent = data.unread_count > 0 ? data.unread_count : '';
+        });
+}
+setInterval(loadSenders, 10000);
+  setInterval(updateUnreadCount, 10000);
+
+ 
+  const sendMessageForm = document.getElementById('sendMessageForm');
+  sendMessageForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const message = document.getElementById('messageInput').value.trim();
+    const receiverId = currentReceiverId; 
+    
+    if (message) {
+        fetch('send_message', {
+            method: 'POST',
+            body: JSON.stringify({ message, receiver_id: receiverId }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(response => response.json())
+          .then(data => {
+              loadChatMessages(receiverId); 
+          });
+        document.getElementById('messageInput').value = '';  
+    }
+});
+
+setInterval(loadSenders, 10000);
+setInterval(updateUnreadCount, 10000);
+});
+</script>
 <!-- Styles -->
 <style>
   .search-bar {
@@ -434,352 +785,3 @@
 }
 
 </style>
-<script src="../js/sweetalert.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const messageToggle = document.getElementById('messageToggle');
-  const messagePanel = document.getElementById('messagePanel');
-  const closeMessages = document.getElementById('closeMessages');
-  const senderList = document.getElementById('senderList');
-  const chatWindow = document.getElementById('chatWindow');
-  const backToSenders = document.getElementById('backToSenders');
-  const chatUserName = document.getElementById('chatUserName');
-  const unreadCount = document.getElementById('unreadCount');
-  const searchBar = document.getElementById('searchBar');
-
-  let allSenders = [];
-
-  messageToggle.addEventListener('click', function(e) {
-    e.preventDefault();
-    messagePanel.classList.toggle('active');
-    loadSenders();  
-  });
-
-  closeMessages.addEventListener('click', function() {
-    messagePanel.classList.remove('active');
-  });
-
-  backToSenders.addEventListener('click', function() {
-    chatWindow.style.display = 'none';
-    senderList.style.display = 'block';
-  });
-
-  function loadSenders() {
-  fetch('get_messages.php')
-    .then(response => response.json())
-    .then(data => {
-      allSenders = data;
-      renderSenders(allSenders);
-    })
-    .catch(error => console.error('Error fetching senders:', error));
-}
-
-function renderSenders(senders) {
-  senderList.innerHTML = '';  // Clear the sender list
-  senders.forEach(sender => {
-    const senderElement = document.createElement('div');
-    senderElement.classList.add('sender');
-    senderElement.innerHTML = `
-      <img src="${sender.photo ? '../images/' + sender.photo : '../images/profile.jpg'}" alt="User Photo" />
-      <div>
-        <strong>${sender.firstname} ${sender.lastname}</strong>
-        <p>${sender.message_type === 'sent' ? 
-             `${sender.last_message} <span class="message-status">Sent</span>` : 
-             `<strong>${sender.last_message}</strong>`}</p>
-      </div>
-    `;
-    senderElement.addEventListener('click', () => openChat(sender));
-    senderList.appendChild(senderElement);
-  });
-}
-setInterval(loadSenders, 10000);
-
-loadSenders();
-
-
-  searchBar.addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase();
-    const filteredSenders = allSenders.filter(sender => 
-      sender.firstname.toLowerCase().includes(searchTerm) || 
-      sender.lastname.toLowerCase().includes(searchTerm)
-    );
-    renderSenders(filteredSenders);
-  });
-
-  function openChat(sender) {
-    senderList.style.display = '';
-    chatWindow.style.display = 'block';
-    chatUserName.textContent = `${sender.firstname} ${sender.lastname}`;
-    currentReceiverId = sender.sender_id;
-    loadChatMessages(sender.sender_id);
-  }
-
-
-  function loadChatMessages(senderId) {
-    fetch(`get_chat.php?sender_id=${senderId}`)
-        .then(response => response.json())
-        .then(data => {
-            const chatMessageList = document.getElementById('chatMessageList');
-            chatMessageList.innerHTML = '';  // Clear the chat message list
-
-            const chatHeader = document.querySelector('.chat-header');
-
-            // Remove the previous delete button if it exists
-            const existingDeleteButton = chatHeader.querySelector('.delete-conversation-btn');
-            if (existingDeleteButton) {
-                existingDeleteButton.remove();
-            }
-
-            // Add the delete conversation button
-            const deleteConversationButton = document.createElement('button');
-            deleteConversationButton.innerHTML = '<i class="fa fa-trash"></i>'; // Use Font Awesome trash icon
-            deleteConversationButton.classList.add('delete-conversation-btn');
-            deleteConversationButton.setAttribute('title', 'Delete Conversation'); // Add tooltip
-            deleteConversationButton.addEventListener('click', () => deleteConversation(senderId));
-            chatHeader.appendChild(deleteConversationButton);
-
-            data.forEach(message => {
-                const isSent = message.sender_id != senderId; // Reversed logic as per your setup
-                
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('message', isSent ? 'sent' : 'received');
-                const messageAlignmentClass = isSent ? 'right-message' : 'left-message';
-                
-                messageElement.innerHTML = `
-                    <div class="message-content ${messageAlignmentClass}">
-                        <img src="${message.photo ? '../images/' + message.photo : '../images/profile.jpg'}" alt="User Photo" class="message-photo" />
-                        <div>
-                            <p>${message.message}</p>
-                        </div>
-                    </div>
-                    <span class="timestamp">${new Date(message.timestamp).toLocaleString()}</span>
-                `;
-                
-                // Add context menu event listener
-                messageElement.addEventListener('contextmenu', (e) => showMessageContextMenu(e, message, isSent));
-                
-                chatMessageList.appendChild(messageElement);
-            });
-            
-            // Scroll to the bottom of the chat
-            chatMessageList.scrollTop = chatMessageList.scrollHeight;
-        });
-}
-
-
-function deleteConversation(senderId) {
-    swal({
-        title: 'Are you sure?',
-        text: 'You are about to delete this entire conversation.',
-        icon: 'warning',
-        buttons: ['Cancel', 'Delete'],
-        dangerMode: true,
-    }).then((willDelete) => {
-        if (willDelete) {
-            fetch('delete_conversation.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ sender_id: senderId }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    swal('Deleted!', 'Conversation deleted successfully', 'success');
-                    // Close the chat window and refresh the sender list
-                    document.getElementById('chatWindow').style.display = 'none';
-                    document.getElementById('senderList').style.display = 'block';
-                    loadSenders();
-                } else {
-                    swal('Failed!', 'Failed to delete conversation', 'error');
-                }
-            });
-        }
-    });
-}
-
-
-function showMessageContextMenu(e, message, isSent) {
-    e.preventDefault();
-    const contextMenu = document.createElement('div');
-    contextMenu.className = 'message-context-menu';
-    
-    let menuItems = `<div class="context-menu-item" data-action="delete">Delete</div>`;
-    
-    if (isSent) {
-        menuItems += `
-            <div class="context-menu-item" data-action="edit">Edit</div>
-            <div class="context-menu-item" data-action="unsend">Unsend</div>
-        `;
-    }
-    
-    contextMenu.innerHTML = menuItems;
-    
-    contextMenu.style.position = 'fixed';
-    contextMenu.style.left = `${e.clientX}px`;
-    contextMenu.style.top = `${e.clientY}px`;
-    
-    document.body.appendChild(contextMenu);
-    
-    contextMenu.addEventListener('click', (event) => {
-        const action = event.target.getAttribute('data-action');
-        if (action) {
-            handleMessageAction(action, message);
-        }
-        contextMenu.remove();
-    });
-    
-    // Close context menu when clicking outside
-    document.addEventListener('click', function closeMessageContextMenu(e) {
-        if (!contextMenu.contains(e.target)) {
-            contextMenu.remove();
-            document.removeEventListener('click', closeMessageContextMenu);
-        }
-    });
-}
-
-function handleMessageAction(action, message) {
-    switch (action) {
-        case 'delete':
-            deleteMessage(message.id);
-            break;
-        case 'edit':
-            editMessage(message);
-            break;
-        case 'unsend':
-            unsendMessage(message.id);
-            break;
-    }
-}
-
-function deleteMessage(messageId) {
-    swal({
-        title: 'Are you sure?',
-        text: 'You are about to delete this message.',
-        icon: 'warning',
-        buttons: ['Cancel', 'Delete'],
-        dangerMode: true,
-    }).then((willDelete) => {
-        if (willDelete) {
-            fetch('delete_message.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message_id: messageId }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    loadChatMessages(currentReceiverId); 
-                    loadSenders();
-                } else {
-                    swal('Failed!', 'Failed to delete message', 'error');
-                }
-            });
-        }
-    });
-}
-
-function editMessage(message) {
-    swal({
-        title: 'Edit your message',
-        content: {
-            element: 'input',
-            attributes: {
-                value: message.message,
-            },
-        },
-        button: {
-            text: 'Update',
-            closeModal: false,
-        },
-    }).then(newMessage => {
-        if (newMessage !== null && newMessage !== message.message) {
-            fetch('edit_message.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message_id: message.id, new_message: newMessage }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    loadChatMessages(currentReceiverId); 
-                    loadSenders();
-                } else {
-                    swal('Failed!', 'Failed to edit message', 'error');
-                }
-            });
-        }
-    });
-}
-
-function unsendMessage(messageId) {
-    swal({
-        title: 'Are you sure?',
-        text: 'You are about to unsend this message.',
-        icon: 'warning',
-        buttons: ['Cancel', 'Unsend'],
-        dangerMode: true,
-    }).then((willUnsend) => {
-        if (willUnsend) {
-            fetch('unsend_message.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message_id: messageId }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    loadChatMessages(currentReceiverId); 
-                    loadSenders();
-                } else {
-                    swal('Failed!', 'Failed to unsend message', 'error');
-                }
-            });
-        }
-    });
-}
-
-  function updateUnreadCount() {
-    fetch('get_unread_count.php')
-        .then(response => response.json())
-        .then(data => {
-            const unreadCountElement = document.getElementById('unreadCount');
-            unreadCountElement.textContent = data.unread_count > 0 ? data.unread_count : '';
-        });
-}
-updateUnreadCount();
-
-  setInterval(updateUnreadCount, 60000);
-
- 
-  const sendMessageForm = document.getElementById('sendMessageForm');
-  sendMessageForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const message = document.getElementById('messageInput').value.trim();
-    const receiverId = currentReceiverId; 
-    
-    if (message) {
-        fetch('send_message.php', {
-            method: 'POST',
-            body: JSON.stringify({ message, receiver_id: receiverId }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then(response => response.json())
-          .then(data => {
-              loadChatMessages(receiverId); 
-          });
-        document.getElementById('messageInput').value = '';  
-    }
-});
-
-  updateUnreadCount();
-});
-</script>

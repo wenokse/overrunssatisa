@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt = $conn->prepare($query);
         $stmt->execute(['user_id' => $user_id, 'size' => $size, 'color' => $color, 'product_id' => $product_id]);
 
-        header("Location: product.php?product=$product_id");
+        header("Location: product?product=$product_id");
         exit(); 
     } catch(PDOException $e) {
         echo "There is some problem in connection: " . $e->getMessage();

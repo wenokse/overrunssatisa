@@ -1,5 +1,9 @@
 <?php include 'includes/session.php'; ?>
 <?php include 'includes/header.php'; ?>
+<?php
+ $user_type = $_SESSION['admin'];
+ $user_id = $_SESSION['admin'];
+?>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
 
@@ -14,7 +18,7 @@
         Return Products
       </h1>
       <ol class="breadcrumb">
-        <li><a href="home.php"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="home"><i class="fa fa-dashboard"></i> Home</a></li>
         <li class="active">Return</li>
       </ol>
     </section>
@@ -46,9 +50,9 @@
     border-radius: 10px;
    }
 </style>
-      <div class="">
+      <div class="row">
         <div class="col-xs-12">
-          <div class="">
+          <div class="box">
             <div class="box-header with-border">
               <!-- <a href="#addnew" data-toggle="modal" class="btn btn-primary btn-sm btn-flat"><i class="fa fa-plus"></i> Add Customer</a> -->
               <div class="pull-right">
@@ -56,7 +60,7 @@
                 
               </div>
             </div>
-            <div class="box-body">
+            <div class="box-body table-responsive">
               <table id="example1" class="table table-bordered">
                 <thead>
                   <th class="hidden"></th>
@@ -65,40 +69,74 @@
                   <th>Transaction #</th>
                   <th>Amount</th>
                   <th>Full Details</th>
+                  <?php if($user_type != 195): ?>
                   <th>Action</th>
+                  <?php endif; ?>
                 </thead>
                 <tbody>
-                  <?php
+                <?php
                     $conn = $pdo->open();
 
                     try{
-                      $stmt = $conn->prepare("SELECT *, return_products.id AS return_id, users.firstname, users.lastname FROM return_products LEFT JOIN users ON users.id=return_products.user_id ORDER BY return_products.return_date DESC");
-                      $stmt->execute();
+                      $user_type = $_SESSION['admin'];
+                      $user_id = $_SESSION['admin'];
+
+                      if($user_type == 195){
+                        $stmt = $conn->prepare("SELECT DISTINCT r.*, r.id AS return_id, 
+                                             u.firstname, u.lastname 
+                                             FROM return_products r 
+                                             LEFT JOIN users u ON u.id=r.user_id 
+                                             ORDER BY r.return_date DESC");
+                        $stmt->execute();
+                      } else {
+                        $stmt = $conn->prepare("SELECT DISTINCT r.*, r.id AS return_id, 
+                                             u.firstname, u.lastname 
+                                             FROM return_products r 
+                                             LEFT JOIN users u ON u.id=r.user_id 
+                                             LEFT JOIN details d ON d.sales_id=r.sales_id 
+                                             LEFT JOIN products p ON p.id=d.product_id 
+                                             WHERE p.user_id = :vendor_id 
+                                             ORDER BY r.return_date DESC");
+                        $stmt->execute(['vendor_id' => $user_id]);
+                      }
+
                       foreach($stmt as $row){
-                        $stmt = $conn->prepare("SELECT * FROM details LEFT JOIN products ON products.id=details.product_id WHERE details.sales_id=:id");
-                        $stmt->execute(['id'=>$row['sales_id']]);
+                        $stmt2 = $conn->prepare("SELECT d.*, p.price 
+                                               FROM details d 
+                                               LEFT JOIN products p ON p.id=d.product_id 
+                                               WHERE d.sales_id=:id");
+                        $stmt2->execute(['id' => $row['sales_id']]);
+                        
                         $total = 0;
-                        foreach($stmt as $details){
-                          $subtotal = $details['price']*$details['quantity']+$details['shipping'];
+                        foreach($stmt2 as $details){
+                          $subtotal = $details['price'] * $details['quantity'] + $details['shipping'];
                           $total += $subtotal;
-                        } ?>
-
-                          <tr>
-                            <td class='hidden'></td>
-                            <td><?php echo date('M d, Y', strtotime($row['return_date']))?></td>
-                            <td><?php echo $row['firstname'].' '.$row['lastname']?></td>
-                            <td><?php echo $row['pay_id']?></td>
-                            <td>&#8369; <?php echo number_format($total, 2)?></td>
-                            
-                            <td>
-                            <button type='button' class='btn btn-info btn-sm btn-flat transac' style='border-radius: 8px;'  data-id="<?php echo$row['sales_id']?>"><i class='fa fa-search'></i> View</button>
-                            </td>
-                            <td>
-                            <button class='btn btn-sm btn-flat btn-danger delete-return' style='border-radius: 8px;'  data-id="<?php echo $row['return_id']?>"><i class='fa fa-trash'></i> Delete</button>
-                            </td>
-
-                          </tr>
-
+                        }
+                        ?>
+                        <tr>
+                          <td class='hidden'></td>
+                          <td><?php echo date('M d, Y', strtotime($row['return_date']))?></td>
+                          <td><?php echo $row['firstname'].' '.$row['lastname']?></td>
+                          <td><?php echo $row['pay_id']?></td>
+                          <td>&#8369; <?php echo number_format($total, 2)?></td>
+                          <td>
+                            <button type='button' class='btn btn-info btn-sm btn-flat transac' 
+                                    style='background: linear-gradient(to right, #00C9FF, #92FE9D); 
+                                           color: #fff; border-radius: 8px;' 
+                                    data-id="<?php echo $row['sales_id']?>">
+                              <i class='fa fa-search'></i> View
+                            </button>
+                          </td>
+                          <?php if($user_type != 195): ?>
+                          <td>
+                            <button class='btn btn-sm btn-flat btn-danger delete-return' 
+                                    style='color: #fff; border-radius: 8px;' 
+                                    data-id="<?php echo $row['return_id']?>">
+                              <i class='fa fa-trash'></i> Delete
+                            </button>
+                          </td>
+                          <?php endif; ?>
+                        </tr>
                       <?php }
                     }
                     catch(PDOException $e){
@@ -140,7 +178,7 @@ $(document).on('click', '.delete-return', function(e){
         if (willDelete) {
             $.ajax({
                 type: 'POST',
-                url: 'delete_return.php',
+                url: 'delete_return',
                 data: {id: id},
                 dataType: 'json',
                 success: function(response){
@@ -172,7 +210,7 @@ $(function(){
     var id = $(this).data('id');
     $.ajax({
       type: 'POST',
-      url: 'transac.php',
+      url: 'transac',
       data: {id:id},
       dataType: 'json',
       success:function(response){
@@ -180,6 +218,8 @@ $(function(){
         $('#transid').html(response.transaction);
         $('#detail').prepend(response.list);
         $('#total').html(response.total);
+        $('#address_details').html(response.address);
+        $('#rider_details').html(response.rider);
       }
     });
   });

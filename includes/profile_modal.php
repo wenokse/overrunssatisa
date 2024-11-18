@@ -1,6 +1,6 @@
 <!-- Transaction History -->
 <div class="modal fade" id="transaction">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -12,28 +12,60 @@
                 Date: <span id="date"></span>
                 <span class="pull-right">Transaction #: <span id="transid"></span></span> 
               </p>
+              <!-- Add Recipient Details Section -->
+              <div class="well">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4><b>Delivery Information</b></h4>
+                                <p><strong>Recipient Name:</strong> <span id="recipient"></span></p>
+                                <p><strong>Delivery Address:</strong> <span id="delivery_address"></span></p>
+                                <p><strong>Purok/Area:</strong> <span id="address2"></span></p>
+                                <p><strong>Landmark:</strong> <span id="address3"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <h4><b>Rider Information</b></h4>
+                                <p><strong>Rider Name:</strong> <span id="rider_name"></span></p>
+                                <p><strong>Phone Number:</strong> <span id="phone_number"></span></p>
+                                <p><strong>Address:</strong> <span id="rider_address"></span></p>
+                            </div>
+                        </div>
+                    </div>
               <table class="table table-bordered">
                 <thead>
-                  <th>Product</th>
-                  <th>Price</th>
-                  <th>Size</th>
-                  <th>Color</th>
-                  <th class="text-center">Quantity</th>
-                  <th>Shipping</th>
-                  <th>Subtotal</th>
+                <th>Product Image</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Size</th>
+                <th>Color</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+                <th>Action</th>
                 </thead>
                 <tbody id="detail">
-                  <tr>
-                    <td colspan="3" class="text-right"><b>Total</b></td>
-                    <td><span id="total"></span></td>
-                  </tr>
                 </tbody>
               </table>
+              <div class="pull-right">
+              <p style="color: red;">Shipping: 100</p><p><b>Total Amount: <span id="total"></span></b></p>
+              </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
             </div>
-            
+        </div>
+    </div>
+</div>
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content MODAL-IMG">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="color: red;">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="" id="modalImage" class="img-responsive center-block" style="max-height: 70vh;">
+            </div>
         </div>
     </div>
 </div>
@@ -48,7 +80,7 @@
               <h4 class="modal-title"><b>Update Account</b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="profile_edit.php" enctype="multipart/form-data" onsubmit="return validatePhoneNumber()">
+              <form class="form-horizontal" method="POST" action="profile_edit" enctype="multipart/form-data" onsubmit="return validatePhoneNumber()">
                 <div class="form-group">
                     <label for="firstname" class="col-sm-3 control-label">Firstname</label>
 
@@ -64,12 +96,12 @@
                     </div>
                 </div>
                 <div class="form-group">
-                  <label for="email" class="col-sm-3 control-label">Email</label>
-                  <div class="col-sm-9">
-                      <input type="text" class="form-control" id="email" name="email" value="<?php echo $user['email']; ?>" readonly>
-                  </div>
-              </div>
+                    <label for="email" class="col-sm-3 control-label">Email</label>
 
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control" id="email" name="email" value="<?php echo $user['email']; ?>">
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="password" class="col-sm-3 control-label">Password</label>
 
@@ -124,6 +156,37 @@
     </div>
 </div>
 <script>
+
+// Add this to your existing script section
+document.getElementById('photo').addEventListener('change', function() {
+    const file = this.files[0];
+    const fileSize = file.size / 1024 / 1024; // Convert to MB
+    const fileType = file.type;
+    
+    // Check file size (5MB limit)
+    if (fileSize > 5) {
+        swal({
+            title: 'File size must not exceed 5MB',
+            icon: 'warning',
+            button: 'OK'
+        });
+        this.value = ''; // Clear the file input
+        return false;
+    }
+    
+    // Check file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(fileType)) {
+        swal({
+            title: 'Only JPG, PNG & GIF files are allowed',
+            icon: 'warning',
+            button: 'OK'
+        });
+        this.value = ''; // Clear the file input
+        return false;
+    }
+});
+
     // Restrict input for the phone number field to numbers only
     var input = document.getElementById('contact_info');
     input.addEventListener('input', function() {

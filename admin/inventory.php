@@ -15,8 +15,7 @@
 
   <?php include 'includes/navbar.php'; ?>
   <?php include 'includes/menubar.php'; ?>
-  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="../js/sweetalert.min.js"></script>
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -25,7 +24,7 @@
       Inventory List
       </h1>
       <ol class="breadcrumb">
-        <li><a href="home.php"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="home"><i class="fa fa-dashboard"></i> Home</a></li>
         <li class="active">Inventory</li>
       </ol>
     </section>
@@ -112,7 +111,7 @@
                                             $avail = ($row['stock']) ? '<span class="label label-success">Stock In</span>' : '<span class="label label-danger">Stock Out</span>';
                                             $edit_avail = '';
                                             if ($user_type != 195 && $row['stock']) {
-                                                $edit_avail = '<button class="btn btn-success btn-sm btn-flat edit_stockout" style="background: linear-gradient(to right, #39FF14, #B4EC51); color: #fff; border-radius: 8px;" data-id="' . $row['id'] . '"><i class="fa fa-edit"></i> Edit</button>';
+                                                $edit_avail = '<button class="btn btn-success btn-sm btn-flat edit_stockout" style="color: #fff; border-radius: 8px;" data-id="' . $row['id'] . '"><i class="fa fa-edit"></i> Edit</button>';
                                             }
                                             echo "
                                             <tr>
@@ -166,10 +165,10 @@ $(function(){
   $('#select_category').change(function(){
     var val = $(this).val();
     if(val == 0){
-      window.location = 'inventory.php';
+      window.location = 'inventory';
     }
     else{
-      window.location = 'inventory.php?category='+val;
+      window.location = 'inventory?category='+val;
     }
   });
 
@@ -178,7 +177,7 @@ $(function(){
 function getRow(id){
   $.ajax({
     type: 'POST',
-    url: 'products_row.php',
+    url: 'products_row',
     data: {id:id},
     dataType: 'json',
     success: function(response){
@@ -196,7 +195,7 @@ function getRow(id){
 function getCategory(){
   $.ajax({
     type: 'POST',
-    url: 'category_fetch.php',
+    url: 'category_fetch',
     dataType: 'json',
     success:function(response){
       $('#category').append(response);

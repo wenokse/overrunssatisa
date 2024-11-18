@@ -9,12 +9,12 @@ if(isset($_POST['email'])){
         $row = $stmt->fetch();
         if($row['numrows'] > 0){
             $_SESSION['success'] = 'Success';
-            header('location: Phone.php');
+            header('location: Phone');
             exit(); 
         }
         else{
             $_SESSION['error'] = 'Email not found';
-            header('location: login.php');
+            header('location: login');
             exit(); 
         }
     }
@@ -23,7 +23,7 @@ if(isset($_POST['email'])){
     }
 }
 else {
-    header('location: login.php');
+    header('location: login');
     exit(); 
 }
 $pdo->close();

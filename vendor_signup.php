@@ -1,12 +1,13 @@
 <?php include 'includes/session.php'; ?>
 <?php
   if(isset($_SESSION['user'])){
-    header('location: cart_view.php');
+    header('location: cart_view');
   }
 ?>
 <?php include 'includes/header.php'; ?>
 
 <!-- Include SweetAlert -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <script src="js/sweetalert.min.js"></script>
 <div id="preloader">
         <div class="loader"></div>
@@ -66,266 +67,419 @@
 ?>
 <br>
 <div class="container">
-<a href="index.php" style="color: rgb(0, 51, 102); "><i class="fa fa-arrow-left" style="color: rgb(0, 51, 102);"></i></a></p>
+    <a href="index" style="color: rgb(0, 51, 102);"><i class="fa fa-arrow-left"></i></a>
     <p class="login-box-msg" style="font-size: 30px; color: rgb(0, 51, 102);">
-        <b>Create an account for Vendor</b></p>
+        <b>Create an account for Vendor</b>
+    </p>
 
-    <form action="vendor_register.php" method="POST" onsubmit="return validatePhoneNumber()">
-        <div class="form-group has-feedback">
-            <input type="text" class="form-control" name="store" placeholder="Name of Store" required>
-            <span class="glyphicon glyphicon-user form-control-feedback"></span>
-        </div>
-        <div class="form-group has-feedback">
-            <input type="text" class="form-control" name="firstname" placeholder="First Name" required>
-            <span class="glyphicon glyphicon-user form-control-feedback"></span>
-        </div>
-        <div class="form-group has-feedback">
-            <input type="text" class="form-control" name="lastname" placeholder="Last Name" required>
-            <span class="glyphicon glyphicon-user form-control-feedback"></span>
-        </div>
-        <div class="form-group has-feedback">
-            <input type="text" class="form-control" name="contact_info" id="contact_info" placeholder="Phone Number" maxlength="11" required>
-            <span class="glyphicon glyphicon-phone form-control-feedback"></span>
-        </div>
-        <div class="form-group has-feedback">
-            <label for="municipality">Municipality</label>
-            <select id="municipality" class="form-control" name="municipality" required>
-                <option value="">Select Municipality</option>
-                <option value="Bantayan">Bantayan</option>
-                <option value="Madridejos">Madridejos</option>
-                <option value="Santa Fe">Santa Fe</option>
-            </select>
-        </div>
-        <div class="form-group has-feedback">
-            <label for="barangay">Barangay</label>
-            <select id="barangay" class="form-control" name="barangay" required>
-                <option value="">Select Barangay</option>
-            </select>
-        </div>
-        <div class="form-group has-feedback">
-            <input type="text" class="form-control" name="address" id="address" placeholder="Address" required readonly>
-            <span class="fa fa-address-book form-control-feedback"></span>
-        </div>
-        <div class="form-group has-feedback">
-            <input type="text" class="form-control" name="address2" placeholder="Purok" required>
-            <span class="glyphicon glyphicon-book form-control-feedback"></span>
-        </div>
-        <div class="form-group has-feedback">
-            <input type="email" class="form-control" name="email" placeholder="Email" required>
-            <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
-        </div>
-        <div class="form-group has-feedback">
-            <input type="password" class="form-control" name="password" placeholder="Password" required>
-            <input type="checkbox" id="togglePassword" class="form-control-feedback1">
-        </div>
-        <div class="form-group has-feedback">
-            <input type="password" class="form-control" name="repassword" placeholder="Retype password" required>
-            <span class="glyphicon glyphicon-log-in form-control-feedback"></span>
-        </div>
-         <label for="photo" class="">Shop Image</label>
-         <div class="form-group has-feedback">
-             <input type="file" id="photo" name="photo" required>
-         </div>
-         <label for="business_permit" class="">Business Permit Image</label>
-          <div class="form-group has-feedback">
-              <input type="file" id="business_permit" name="business_permit" required>
-           </div>
-      <?php
-            if(!isset($_SESSION['captcha'])){
-              echo '
-                <di class="form-group" style="width:100%;">
-                  <div class="g-recaptcha" data-sitekey="6LfmdVQqAAAAAGDAr09cjmfyP3veq9SJe5lN0doF"></div>
-                </di>
-              ';
-            }
-          ?>
-        <div class="form-group has-feedback">
-            <button type="submit" class="btn btn-primary btn-block" name="signup"><i class="fa fa-pencil"></i> Sign Up</button>
+    <form action="vendor_register" method="POST" enctype="multipart/form-data" onsubmit="return validatePhoneNumber()">
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-md-6">
+                <div class="form-group has-feedback">
+                    <input type="text" class="form-control" name="store" placeholder="Name of Store" required>
+                    <span class="glyphicon glyphicon-user form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
+                    <input type="text" class="form-control" name="firstname" placeholder="First Name" required>
+                    <span class="glyphicon glyphicon-user form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
+                    <input type="text" class="form-control" name="lastname" placeholder="Last Name" required>
+                    <span class="glyphicon glyphicon-user form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
+                    <input type="text" class="form-control" name="contact_info" id="contact_info" placeholder="Phone Number" maxlength="11" required>
+                    <span class="glyphicon glyphicon-phone form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
+                    <label for="municipality">Municipality</label>
+                    <select id="municipality" class="form-control" name="municipality" required>
+                        <option value="">Select Municipality</option>
+                        <option value="Bantayan">Bantayan</option>
+                        <option value="Madridejos">Madridejos</option>
+                        <option value="Santa Fe">Santa Fe</option>
+                    </select>
+                </div>
+                <div class="form-group has-feedback">
+                    <label for="barangay">Barangay</label>
+                    <select id="barangay" class="form-control" name="barangay" required>
+                        <option value="">Select Barangay</option>
+                    </select>
+                </div>
+                <div class="form-group has-feedback">
+                    <input type="text" class="form-control" name="address" id="address" placeholder="Address" required readonly>
+                    <span class="fa fa-address-book form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
+                    <input type="text" class="form-control" name="address2" placeholder="Purok" required>
+                    <span class="glyphicon glyphicon-book form-control-feedback"></span>
+                </div>
+           
+
+            <!-- Right Column -->
+           
+                <div class="form-group has-feedback">
+                    <input type="email" class="form-control" name="email" placeholder="Email" required>
+                    <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
+                    <input type="password" class="form-control" name="password" placeholder="Password" required>
+                </div>
+                <div class="form-group has-feedback">
+                    <input type="password" class="form-control" name="repassword" placeholder="Retype password" required>
+                </div>
+                </div>
+                <div class="col-md-6">
+                <div class="form-group">
+                    <label>Shop Image</label>
+                    <input type="file" id="photo" name="photo" accept="image/png, image/jpeg, image/jpg" required>
+                    <img id="photo-preview" src="#" alt="Your Image" style="display:none; border-radius: 50%; width: 100px; height: 100px; margin-top: 10px;">
+                </div>
+                
+                <div class="form-group">
+                    <label>BIR Documents</label>
+                    <input type="file" name="bir_doc" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                    <small class="text-muted">Upload your BIR Certificate of Registration (Form 2303)</small>
+                </div>
+
+                <div class="form-group">
+                    <label>DTI Registration</label>
+                    <input type="file" name="dti_doc" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                    <small class="text-muted">Upload your DTI Business Registration Certificate</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Mayor's Permit</label>
+                    <input type="file" name="mayor_permit" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                    <small class="text-muted">Upload your valid Mayor's Permit</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Valid Government ID</label>
+                    <input type="file" name="valid_id" class="form-control" accept="image/png, image/jpeg, image/jpg" required>
+                    <small class="text-muted">Upload any valid government ID (e.g., Driver's License, Passport, UMID)</small>
+                </div>
+
+                <div class="form-group">
+                    <label>TIN Number</label>
+                    <input type="text" class="form-control" name="tin_number" id="tin_number" placeholder="XXX-XXX-XXX-XXX" pattern="\d{3}-\d{3}-\d{3}-\d{3}" required>
+                    <small class="text-muted">Format: XXX-XXX-XXX-XXX</small>
+                </div>
+            </div>
         </div>
 
+        <!-- Bottom Section -->
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <div class="form-group has-feedback">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">I agree to the <a href="#" id="termsLink">Terms and Conditions</a></label>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block" name="signup" id="signupButton" disabled>
+                        <i class="fa fa-pencil"></i> Sign Up
+                    </button>
+                </div>
+                <p class="text-center" style="color: rgb(0, 51, 102);">
+                    Already have an account? <a href="login">Login</a>
+                </p>
+            </div>
+        </div>
     </form>
-    <br>
-    <p class="text-center" style="color: rgb(0, 51, 102); ">Already have an account? <a href="login.php">Login</a></p>
 </div>
 
 </div>
+<div id="termsModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h1>Vendor Terms and Conditions</h1>
+        <div class="modal-body">
+       
+    
+    <p>Welcome to Overruns Sa Tisa Online Shop! These Terms and Conditions govern the relationship between Overruns Sa Tisa Online Shop ("we," "us," or "our") and vendors ("you" or "your") who register to sell products on our platform. By signing up as a vendor, you agree to comply with these terms. If you do not agree with any part of these terms, you may not register as a vendor or use our platform.</p>
 
+    <h3>1. Acceptance of Terms</h3>
+    <p>By creating a vendor account, you affirm that you have a larravel store and you are at least 18 years old or that you are using the site with parental consent. You agree to abide by all applicable laws and regulations concerning your use of our platform.</p>
+
+    <h3>2. Vendor Registration</h3>
+    <p>To become a vendor, you must complete the registration process, providing accurate and complete information. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. Notify us immediately of any unauthorized use of your account.</p>
+
+    <h3>3. Product Listings</h3>
+    <p>As a vendor, you are responsible for creating and managing your product listings. All product descriptions, images, prices, and availability must be accurate and comply with applicable laws and regulations. You agree not to post any prohibited items as outlined in our prohibited items policy.</p>
+
+    <h3>4. Fees and Payments</h3>
+    <p>We may charge a commission or listing fee for the sale of products through our platform. The specific fees will be outlined in your vendor agreement. Payments to vendors will be processed after the customer has completed their order and any return period has expired.</p>
+
+    <h3>5. Order Fulfillment</h3>
+    <p>Vendors are responsible for fulfilling orders placed through their listings, including packaging, shipping, and handling customer service inquiries. You agree to ship products promptly and notify customers of tracking information when applicable.</p>
+
+    <h3>6. Returns and Refunds</h3>
+    <p>Vendors must adhere to our return policy. You agree to accept returns and provide refunds in accordance with our guidelines. All return requests must be processed through our platform.</p>
+
+    <h3>7. Intellectual Property</h3>
+    <p>You grant Overruns Sa Tisa Online Shop a non-exclusive, royalty-free license to use, reproduce, and display your product listings and any associated materials for the purpose of promoting and operating our platform.</p>
+
+    <h3>8. Compliance with Laws</h3>
+    <p>You agree to comply with all applicable laws, regulations, and third-party rights in connection with your use of our platform and the sale of your products. This includes, but is not limited to, consumer protection laws, trademark laws, and copyright laws.</p>
+
+    <h3>9. Limitation of Liability</h3>
+    <p>To the fullest extent permitted by law, Overruns Sa Tisa Online Shop shall not be liable for any indirect, incidental, or consequential damages arising from your use of our platform or any products sold. Our total liability to you for any claim shall not exceed the fees paid by you to us for the services rendered.</p>
+
+    <h3>10. Termination</h3>
+    <p>We reserve the right to suspend or terminate your vendor account at any time for violations of these terms or for any conduct that we deem inappropriate or harmful to the platform or its users.</p>
+
+    <h3>11. Changes to Terms</h3>
+    <p>We may update these Terms and Conditions at any time. Any changes will be posted on this page, and your continued use of the platform after any changes constitutes your acceptance of the new terms.</p>
+
+    <h3>12. Contact Information</h3>
+    <p>If you have any questions or concerns about these Terms and Conditions, please contact us at:</p>
+    <p>
+        Email: rowensecuya25@gmail.com<br>
+       
+    </p>
+        </div>
+    </div>
+</div>
 <?php include 'includes/scripts.php' ?>
+<script>
+    document.getElementById('photo').onchange = function(event) {
+        var reader = new FileReader();
+        reader.onload = function(){
+            var preview = document.getElementById('photo-preview');
+            preview.src = reader.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    };
+</script>
 <style>
-      body {
-        background: rgb(0, 51, 102);
-        background-size: cover;
-        background-repeat: no-repeat;
-    }
-
-    .container {
-        width: 500px;
-        height: 1190px;
-        margin: 0 auto 50px;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 20px;
-        background-color: #f9f9f9;
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-    }
-    .larg {
-        font-size: 1.2em;
-    }
-
-    .form-control-feedback1 {
-        position: absolute;
-        right: -215px;
-        top: 45%;
-        transform: translateY(-100%);
-        line-height: 46px;
-    }
-
-    cssCopy<style>
-    /* Existing styles */
-    body {
-        background: rgb(0, 51, 102);
-        background-size: cover;
-        background-repeat: no-repeat;
-    }
-
-    .container {
-        width: 500px;
-        height: 1150px;
-        margin: 0 auto 50px;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 20px;
-        background-color: #f9f9f9;
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    /* ... (keep other existing styles) ... */
-
-    /* Mobile view styles */
-    @media (max-width: 768px) {
-        .container {
-            width: 90%;
-            height: auto;
-            margin: 20px auto;
-            padding: 15px;
+   body {
+            background: rgb(0, 51, 102);
+            background-size: cover;
+            background-repeat: no-repeat;
         }
 
-        .login-box-msg {
-            font-size: 24px;
+        .container {
+            width: 850px;
+            padding: 20px;
+            margin: 0 auto 50px;
+            background-color: #f9f9f9;
+            border-radius: 20px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Enhanced form styles */
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
         }
 
         .form-control {
-            font-size: 14px;
-            padding: 8px 12px;
+            background-color: #eee;
+            border: none;
+            padding: 7px 15px;
+            padding-right: 40px; /* Space for the icon */
+            font-size: 13px;
+            border-radius: 10px;
+            width: 100%;
+            outline: none;
+            box-sizing: border-box;
         }
 
-        .btn {
-            font-size: 14px;
-            padding: 8px 30px;
+        /* Password toggle button styling */
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            font-size: 16px;
         }
 
-        .form-control-feedback1 {
-           position: absolute;
-        right: -142px;
-        top: 45%;
-        transform: translateY(-100%);
-        line-height: 46px;
+        .password-toggle:hover {
+            color: #333;
         }
-    }
 
-    @media (max-width: 480px) {
-        .container {
-            width: 95%;
+        /* File input styling */
+        .file-input-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .file-input-wrapper input[type="file"] {
             padding: 10px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        .login-box-msg {
-            font-size: 20px;
+        .file-input-wrapper small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
         }
 
-        .form-control,
-        .btn {
-            font-size: 12px;
+        /* Enhanced button styling */
+        .btn-primary {
+            background-color: rgb(0, 51, 102);
+            color: #fff;
+            padding: 12px 45px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
-        .form-group {
-            margin-bottom: 10px;
+        .btn-primary:hover {
+            background-color: rgb(0, 71, 122);
         }
-    }
 
-    /* Adjustments for the preloader */
-    @media (max-width: 768px) {
-        .loader {
-            width: 80px;
-            height: 80px;
-            border-width: 12px;
+        .btn-primary:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
-    }
 
-    .container input {
-        background-color: #eee;
-        border: none;
-        margin: 8px 0;
-        padding: 10px 15px;
-        font-size: 13px;
-        border-radius: 10px;
+        /* Terms checkbox styling */
+        .terms-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px 0;
+        }
+
+        .terms-wrapper input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+    
+
+    
+    
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
         width: 100%;
-        outline: none;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
     }
 
-    .container button {
-        background-color: #512da8;
-        color: #fff;
-        font-size: 12px;
-        padding: 10px 45px;
-        border: 1px solid transparent;
-        border-radius: 20px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        margin-top: 10px;
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 700px;
+        max-height: 80vh;
+        overflow-y: auto;
+        border-radius: 25px;
+    }
+
+    .close {
+        color: black;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
         cursor: pointer;
+    }
+    .modal-content h2 {
+        margin-top: 0;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .modal-body {
+        margin-top: 20px;
     }
 </style>
 <script>
-    // Email validation for Gmail and special character validation
-    function validateForm() {
-        const email = document.querySelector('input[name="email"]').value;
-        const invalidChars = /[<>:\/$;,?!]/;
-        const fields = ['store', 'firstname', 'lastname'];
+// Add this to your existing JavaScript
+document.getElementById('tin_number').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 12) {
+        value = value.slice(0, 12);
+    }
+    
+    // Format as XXX-XXX-XXX-XXX
+    if (value.length >= 3) {
+        value = value.slice(0,3) + "-" + value.slice(3);
+    }
+    if (value.length >= 7) {
+        value = value.slice(0,7) + "-" + value.slice(7);
+    }
+    if (value.length >= 11) {
+        value = value.slice(0,11) + "-" + value.slice(11);
+    }
+    
+    e.target.value = value;
+});
 
-        // Gmail validation
-        if (!email.endsWith('@gmail.com')) {
+// Add file size validation
+const maxFileSize = 5 * 1024 * 1024; // 5MB
+const fileInputs = document.querySelectorAll('input[type="file"]');
+
+fileInputs.forEach(input => {
+    input.addEventListener('change', function() {
+        if (this.files[0] && this.files[0].size > maxFileSize) {
             swal({
-                title: 'Email must be a Gmail account (@gmail.com)',
+                title: 'File too large',
+                text: 'Please upload a file smaller than 5MB',
                 icon: 'warning',
                 button: 'OK'
             });
-            return false;
+            this.value = '';
         }
-
-        // Check for special characters
-        for (let i = 0; i < fields.length; i++) {
-            const field = document.querySelector(`input[name="${fields[i]}"]`).value;
-            if (invalidChars.test(field)) {
-                swal({
-                    title: 'Special characters like <>:/$;,?! are not allowed.',
-                    icon: 'warning',
-                    button: 'OK'
-                });
-                return false;
-            }
-        }
-
-        return true;
-    }
-    
-    // Attach validation to the form
-    const form = document.querySelector('form');
-    form.onsubmit = validateForm;
+    });
+});
 </script>
 
 <script>
+    // Modal script
+ var modal = document.getElementById("termsModal");
+    var link = document.getElementById("termsLink");
+    var span = document.getElementsByClassName("close")[0];
+
+    link.onclick = function(e) {
+        e.preventDefault();
+        modal.style.display = "block";
+    }
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+    document.getElementById('terms').addEventListener('change', function() {
+        var signupButton = document.getElementById('signupButton');
+        signupButton.disabled = !this.checked; // Enable button only if terms checkbox is checked
+    });
+
     var input = document.getElementById('contact_info');
     input.addEventListener('input', function() {
         this.value = this.value.replace(/[^0-9]/g, '');
@@ -344,18 +498,35 @@
         return true;
     }
 
-    const togglePassword = document.querySelector('#togglePassword');
-    const passwordField = document.querySelector('input[name="password"]');
+    document.addEventListener('DOMContentLoaded', function() {
+            const passwordFields = document.querySelectorAll('input[type="password"]');
+            
+            passwordFields.forEach(field => {
+                // Create toggle button
+                const toggleBtn = document.createElement('button');
+                toggleBtn.type = 'button';
+                toggleBtn.className = 'password-toggle';
+                toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+                
+                // Insert toggle button after password field
+                field.parentNode.appendChild(toggleBtn);
+                
+                // Toggle password visibility
+                toggleBtn.addEventListener('click', function() {
+                    const type = field.type === 'password' ? 'text' : 'password';
+                    field.type = type;
+                    this.innerHTML = type === 'password' ? 
+                        '<i class="fas fa-eye"></i>' : 
+                        '<i class="fas fa-eye-slash"></i>';
+                });
+            });
+        });
 
-    togglePassword.addEventListener('click', function(e) {
-        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordField.setAttribute('type', type);
-    });
 
-    const barangays = {
-        'Bantayan': ['Atop-atop', 'Baigad', 'Bantigue', 'Baod', 'Binaobao', 'Guiwanon', 'Hilotongan', 'Kabac', 'Kabangbang', 'Kampingganon', 'Kangkaibe', 'Lipayran', 'Luyongbaybay', 'Mojon', 'Obo-ob', 'Patao', 'Putian', 'Sillon', 'Suba', 'Sulangan', 'Sungko', 'Tamiao', 'Ticad'],
+        const barangays = {
+        'Bantayan': ['Atop-atop', 'Baigad', 'Bantigue', 'Baod', 'Binaobao', 'Guiwanon', 'Kabac', 'Kabangbang', 'Kampingganon', 'Kangkaibe', 'Mojon', 'Obo-ob', 'Patao', 'Putian', 'Sillon', 'Suba', 'Sulangan', 'Sungko', 'Tamiao', 'Ticad'],
         'Madridejos': ['Bunakan', 'Kangwayan', 'Kaongkod', 'Kodia', 'Maalat', 'Malbago', 'Mancilang', 'Pili', 'Poblacion', 'San Agustin', 'Talangnan', 'Tarong', 'Tugas', 'Tabagak'],
-        'Santa Fe': ['Balidbid', 'Hagdan', 'Hilantagaan', 'Kinatarkan', 'Langub', 'Maricaban', 'Okoy', 'Poblacion', 'Pooc', 'Talisay']
+        'Santa Fe': ['Balidbid', 'Hagdan', 'Langub', 'Maricaban', 'Okoy', 'Poblacion', 'Talisay']
     };
 
     const municipalitySelect = document.getElementById('municipality');

@@ -22,6 +22,6 @@
 		$_SESSION['error'] = 'Select category to delete first';
 	}
 
-	header('location: category.php');
+	header('location: category');
 	
 ?>

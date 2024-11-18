@@ -1,3 +1,4 @@
+<!-- product -->
 <?php
 include 'includes/session.php'; 
 
@@ -36,77 +37,30 @@ try {
     $avg_rating = $stmt->fetch()['avg_rating'];
     $avg_rating = round($avg_rating, 1);
 
+// Add this after the other queries, before closing the try block
+$stmt = $conn->prepare("SELECT DISTINCT size FROM product_sizes WHERE product_id = :product_id ORDER BY size");
+$stmt->execute(['product_id' => $product['prodid']]);
+$sizes = '';
+$size_options = $stmt->fetchAll();
+
+if (!empty($size_options)) {
+    $sizes .= "<option value=''>Select Size</option>";
+    foreach ($size_options as $size) {
+        $sizes .= "<option value='" . htmlspecialchars($size['size']) . "'>" . htmlspecialchars($size['size']) . "</option>";
+    }
+}
+
+// Add this before the category check in your display section
+$stmt = $conn->prepare("SELECT c.name as category_name FROM products p 
+                       LEFT JOIN category c ON c.id = p.category_id 
+                       WHERE p.id = :product_id");
+$stmt->execute(['product_id' => $product['prodid']]);
+$category_result = $stmt->fetch();
+$category_name = $category_result['category_name'];
+
 } catch (PDOException $e) {
     exit("There is some problem in connection: " . $e->getMessage());
 }
-
-
-$category_name = strtolower($product['catname']);
-$sizes = '';
-$colors = '';
-
-if ($category_name == 'shoes' || $category_name == 'sandals') {
-    $sizes = '
-        <option value="36">36</option>
-        <option value="37">37</option>
-        <option value="38">38</option>
-        <option value="39">39</option>
-        <option value="40">40</option>
-        <option value="41">41</option>
-    ';
-    $colors = '
-        <option value="White">White</option>
-        <option value="Black">Black</option>
-        <option value="Brown">Brown</option>
-        <option value="Gray">Gray</option>
-    ';
-} elseif ($category_name == 'pants') {
-    $sizes = '
-        <option value="24">24</option>
-        <option value="25">25</option>
-        <option value="26">26</option>
-        <option value="27">27</option>
-        <option value="28">28</option>
-        <option value="29">29</option>
-    ';
-    $colors = '
-        <option value="Blue">Blue</option>
-        <option value="Black">Black</option>
-        <option value="Grey">Grey</option>
-    ';
-
-} elseif ($category_name == 't-shirts') {
-    $sizes = '
-        <option value="Small">Small</option>
-        <option value="Medium">Medium</option>
-        <option value="Large">Large</option>
-        <option value="XLarge">XLarge</option>
-    ';
-    $colors = '
-        <option value="White">White</option>
-        <option value="Blue">Blue</option>
-        <option value="Black">Black</option>
-        <option value="Grey">Grey</option>
-    ';
-} elseif ($category_name == 'bags' || $category_name == 'accessories') {
-    $colors = '
-        <option value="Red">Red</option>
-        <option value="Green">Green</option>
-        <option value="Blue">Blue</option>
-    ';
-} else {
-    $sizes = '
-        <option value="Small">Small</option>
-        <option value="Medium">Medium</option>
-        <option value="Large">Large</option>
-        <option value="XLarge">XLarge</option>
-    ';
-    $colors = '
-        <option value="Red">Red</option>
-        <option value="Green">Green</option>
-        <option value="Yellow">Yellow</option>
-    ';
-} 
 
 $now = date('Y-m-d');
 if ($product['date_view'] == $now) {
@@ -146,36 +100,56 @@ $pdo->close();
                                 <span class="message"></span>
                             </div>
                             <div class="row">
+                                <!-- Left column - Product Image and Controls -->
                                 <div class="col-sm-4">
-                                <div class="show" href="<?php echo (!empty($product['photo'])) ? 'images/'.$product['photo'] : 'images/noimage.jpg'; ?>">
-                                <img src="<?php echo (!empty($product['photo'])) ? 'images/'.$product['photo'] : 'images/noimage.jpg'; ?>" id="product-img" class="zoom img1" data-magnify-src="images/large-<?php echo $product['photo']; ?>">
-                                </div>
-                               
+                                    <div class="show">      
+                                        <img src="<?php echo (!empty($product['photo'])) ? 'images/'.$product['photo'] : 'images/noimage.jpg'; ?>" 
+                                            id="product-img" 
+                                            class="zoom img1" 
+                                            data-magnify-src="<?php echo (!empty($product['photo'])) ? 'images/large-'.$product['photo'] : 'images/noimage.jpg'; ?>">
+                                    </div>
+                                
                                     <br>
-                                   
+                                
                                     <?php if (!empty($sizes) && !in_array($category_name, ['bags', 'accessories'])) : ?>
                                     <div class="form-group">
                                         <label for="size">Size :</label>
-                                        <select class="form-control input-lg" id="size" name="size">
+                                        <select class="form-control input-lg" id="size" name="size" required>
                                             <?php echo $sizes; ?>
                                         </select>
                                     </div>
-                                <?php endif; ?>
+                                    <?php endif; ?>
 
                                     <br>
-                                    <label for="color">Color :</label>
-                                    
-                                    <div class="form-group" id="color-buttons">
-                                    <?php foreach ($color_options as $color): ?>
-                                        <button type="button" class="btn btn-default color-btn" 
-                                                style="background-color: <?php echo $color['color']; ?>; width: 30px; height: 30px; margin-right: 5px;"
-                                                data-color="<?php echo $color['color']; ?>"
-                                                data-photo="<?php echo $color['photo']; ?>">
-                                        </button>
-                                    <?php endforeach; ?>
-                                </div>
+                                    <div class="form-group">
+                                        <label for="color">Color:</label>
+                                        <div id="color-buttons" class="color-buttons-container">
+                                            <button type="button" 
+                                                class="btn btn-default color-btn active"
+                                                data-photo="<?php echo $product['photo']; ?>"
+                                                data-color="default"
+                                                style="background: linear-gradient(45deg, #f3f3f3 50%, #ddd 50%);
+                                                    width: 30px; 
+                                                    height: 30px; 
+                                                    margin-right: 5px;">
+                                            </button>
+                                            <?php foreach ($color_options as $color): ?>
+                                                <button type="button" 
+                                                    class="btn btn-default color-btn" 
+                                                    data-color="<?php echo htmlspecialchars($color['color']); ?>"
+                                                    data-photo="<?php echo htmlspecialchars($color['photo']); ?>"
+                                                    style="background-color: <?php echo htmlspecialchars($color['color']); ?>; 
+                                                        width: 30px; 
+                                                        height: 30px; 
+                                                        margin-right: 5px; 
+                                                        border-radius: 50%;">
+                                                </button>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+
                                     <br>
-                                    <form class="form-inline" id="productForm" method="post" action="cart_add.php">
+                                    <form class="form-inline" id="productForm" method="post" action="cart_add">
                                         <div class="input-group col-sm-6">
                                             <span class="input-group-btn">
                                                 <button type="button" id="minus" class="btn btn-default btn-flat btn-lg"><i class="fa fa-minus"></i></button>
@@ -190,38 +164,24 @@ $pdo->close();
                                             <input type="hidden" id="selected_color" name="selected_color">
                                             <input type="hidden" value="<?php echo $shipping; ?>" id="shipping" name="shipping">
                                         </div>
-                                       <button type="submit" class="btn btn-primary btn-lg btn-flat" style="border-radius: 15px;" <?php if($product['stock'] == '0'){echo "disabled";}?>>
-                                        <i class="fa fa-shopping-cart"></i> Add to Cart
-                                    </button>
-
+                                        <button type="submit" class="btn btn-primary btn-lg btn-flat" style="border-radius: 15px;" <?php if($product['stock'] == '0'){echo "disabled";}?>>
+                                            <i class="fa fa-shopping-cart"></i> Add to Cart
+                                        </button>
                                     </form>
                                 </div>
-                                <div class="col-sm-8">
-                                <div class="vendor-info">
-                                <a href="shop.php?id=<?php echo $product['vendor_id']; ?>" style="color: black;">
-                                    <img src="<?php echo (!empty($product['vendor_photo'])) ? 'images/'.$product['vendor_photo'] : 'images/noimage.jpg'; ?>" 
-                                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
-                                    <strong><?php echo $product['vendor_store']; ?></strong>
-                                </a>
+
+                                <!-- Middle column - Product Details -->
+                                <div class="col-sm-5">
+                                    <div class="vendor-info">
+                                        <a href="shop?id=<?php echo $product['vendor_id']; ?>" style="color: black;">
+                                            <img src="<?php echo (!empty($product['vendor_photo'])) ? 'images/'.$product['vendor_photo'] : 'images/noimage.jpg'; ?>" 
+                                                style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
+                                            <strong><?php echo $product['vendor_store']; ?></strong>
+                                        </a>
                                     </div>
-                                    <h1 class="page-header"><b><?php echo $product['prodname']; ?></b>
-                                   </h1>
-                                    <span><h3><b>&#8369; <span id="price"><?php echo number_format($product['price'], 2); ?> per.</span></b></h3>
-                                    <div class="comment-section pull-right">
-                                        <h3>Leave a Comment</h3>
-                                        <form id="comment_form" onsubmit="return validateComment()">
-                                            <div class="form-group">
-                                                <label for="comment">Your Comment:</label>
-                                                <textarea class="form-control" id="comment" name="comment" required></textarea>
-                                            </div>
-                                            <input type="hidden" name="product_id" value="<?php echo $product['prodid']; ?>">
-                                            <button type="submit" class="btn btn-primary">Submit Comment</button>
-                                        </form>
-                                        <br>
-                                        <div id="comment_message" class="alert" style="display: none;"></div>
-                                        <div id="comment_list"></div>
-                                    </div>
-                                    </span>
+                                    <h1 class="page-header"><b><?php echo $product['prodname']; ?></b></h1>
+                                    <h3><b>&#8369; <span id="price"><?php echo number_format($product['price'], 2); ?> per.</span></b></h3>
+                                    
                                     <p><b>Stock:</b> 
                                         <span id="stock">
                                             <?php 
@@ -234,11 +194,10 @@ $pdo->close();
                                         </span>
                                     </p>
 
-                                    <p><b>Category:</b> <a href="category.php?category=<?php echo $product['cat_slug']; ?>"><?php echo $product['catname']; ?></a></p>
+                                    <p><b>Category:</b> <a href="category?category=<?php echo $product['cat_slug']; ?>"><?php echo $product['catname']; ?></a></p>
                                     <p><b>Description:</b></p>
                                     <p1><?php echo $product['description']; ?></p1>
 
-                                    <!-- Display Average Rating -->
                                     <p><b>Average Rating:</b> <?php echo $avg_rating; ?> / 5</p>
                                     <div class='star-rating' data-product-id='<?php echo $product['prodid']; ?>'>
                                         <?php
@@ -254,28 +213,8 @@ $pdo->close();
                                     </div>
                                 </div>
 
-                                <!-- <div class="col-sm-8">
-                                    
-                                    <div class="comment-section pull-right">
-                                        <h3>Leave a Comment</h3>
-                                        <form id="comment_form">
-                                            <div class="form-group">
-                                                <label for="comment">Your Comment:</label>
-                                                <textarea class="form-control" id="comment" name="comment" required></textarea>
-                                            </div>
-                                            <input type="hidden" name="product_id" value="<?php echo $product['prodid']; ?>">
-                                            
-                                            <button type="submit" class="btn btn-primary">Submit Comment</button>
-                                        </form>
-                                        <br>
-                                        <div id="comment_message" class="alert" style="display: none;"></div>
-                                        <div id="comment_list"></div>
-                                    </div>
-                                </div> -->
-                            </div>
-                            <br>  <br> 
-                            <div class="row">
-                                <div class="col-sm-12">
+                                <!-- Right column - Related Products -->
+                                <div class="col-sm-3">
                                     <h3 class="page-header">Related Products</h3>
                                     <?php
                                     function getStarRating($rating) {
@@ -303,17 +242,15 @@ $pdo->close();
 
                                         $image = (!empty($related_product['photo'])) ? 'images/'.$related_product['photo'] : 'images/noimage.jpg';
                                         echo "
-                                        <a href='product.php?product=".$related_product['slug']."'>
-                                            <div class='col-sm-3'>
-                                                <div class='box box-solid'>
-                                                    <div class='box-body prod-body'>
-                                                        <img src='$image' width='100%' height='230px' class='thumbnail'>
-                                                        <h5><a href='product.php?product=".$related_product['slug']."'>".$related_product['name']."</a></h5>
-                                                    </div>
-                                                    <div class='box-footer'>
-                                                        <b>&#8369; ".number_format($related_product['price'], 2)."</b>
-                                                        <div>Rating: ".getStarRating($product_with_rating['average_rating'])."</div>
-                                                    </div>
+                                        <a href='product?product=".$related_product['slug']."'>
+                                            <div class='box box-solid'>
+                                                <div class='box-body prod-body'>
+                                                    <img src='$image' width='100%' height='230px' class='thumbnail'>
+                                                    <h5><a href='product?product=".$related_product['slug']."'>".$related_product['name']."</a></h5>
+                                                </div>
+                                                <div class='box-footer'>
+                                                    <b>&#8369; ".number_format($related_product['price'], 2)."</b>
+                                                    <div>Rating: ".getStarRating($product_with_rating['average_rating'])."</div>
                                                 </div>
                                             </div>
                                         </a>
@@ -322,6 +259,11 @@ $pdo->close();
                                     ?>
                                 </div>
                             </div>
+                           
+                            <div id="reviews-section" class="reviews-container">
+                                        <h3>Customer Reviews</h3>
+                                        <div id="reviews-list"></div>
+                                    </div>
                         </div>
                     </div>
                 </section>
@@ -331,22 +273,283 @@ $pdo->close();
     </div>
     <?php include 'includes/scripts.php'; ?>
     <script>
-        function validateComment() {
-        const comment = document.getElementById('comment').value.trim();
-        const regex = /^[a-zA-Z0-9\s?!.,\-=:]+$/;
+$(document).ready(function() {
+    // Initialize reviews
+    loadReviews();
 
-        if (comment.length === 0) {
-            alert('Comment cannot be empty.');
-            return false;
+    // Handle like/dislike buttons
+    $(document).on('click', '.like-btn, .dislike-btn', function(e) {
+        e.preventDefault();
+        
+        if(!isLoggedIn()) {
+            alert('Please login to like or dislike reviews');
+            return;
         }
+        
+        const commentId = $(this).data('comment-id');
+        const action = $(this).hasClass('like-btn') ? 'like' : 'dislike';
+        
+        handleReviewAction(commentId, action);
+    });
+});
 
-        if (!regex.test(comment)) {
-            alert('Invalid comment! Only letters, numbers, spaces, and . , ? ! - = : are allowed.');
-            return false;
+function isLoggedIn() {
+    return <?php echo isset($_SESSION['user']) ? 'true' : 'false'; ?>;
+}
+
+function loadReviews() {
+    const productId = <?php echo json_encode($product['prodid']); ?>;
+    
+    $.ajax({
+        url: 'fetch_reviews',
+        type: 'GET',
+        data: { product_id: productId },
+        success: function(response) {
+            if(response.success) {
+                $('#reviews-list').html(response.reviews);
+            } else {
+                console.error('Error loading reviews:', response.error);
+                $('#reviews-list').html('<div class="alert alert-danger">Error loading reviews</div>');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Ajax error:', error);
+            $('#reviews-list').html('<div class="alert alert-danger">Error loading reviews</div>');
         }
+    });
+}
 
-        return true;
+function handleReviewAction(commentId, action) {
+    $.ajax({
+        url: 'like_comment',
+        type: 'POST',
+        data: {
+            review_id: commentId,
+            action: action
+        },
+        success: function(response) {
+            if(response.success) {
+                loadReviews(); // Reload reviews to show updated counts
+            } else {
+                alert(response.error || 'An error occurred while processing your request');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Ajax error:', error);
+            alert('An error occurred while processing your request');
+        }
+    });
+}
+
+function viewAttachment(path) {
+    if(path) {
+        window.open(path, '_blank');
     }
+}
+</script>
+
+
+
+    <script>
+        $(document).ready(function() {
+    // Initial validation setup
+    const categoryName = '<?php echo $category_name; ?>';
+    const hasSizes = <?php echo !empty($sizes) ? 'true' : 'false'; ?>;
+    const requireSize = hasSizes && !['bags', 'accessories'].includes(categoryName);
+    const hasColors = <?php echo !empty($color_options) ? 'true' : 'false'; ?>;
+    const requireColor = hasColors; // Color selection is required if colors are available
+    
+    // Disable Add to Cart button initially if size or color selection is required
+    if (requireSize || requireColor) {
+        $('button[type="submit"]').prop('disabled', true);
+    }
+
+    // Form submission handling
+    $('#productForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Get selected values
+        const selectedSize = $('#size').val();
+        const selectedColor = $('#selected_color').val();
+        const stock = $('#quantity').data('stock');
+        
+        // Build error message if selections are missing
+        let errorMessage = '';
+        
+        if (requireSize && !selectedSize) {
+            errorMessage += 'Please select a size\n';
+        }
+        
+        if (requireColor && !selectedColor) {
+            errorMessage += errorMessage ? '\n' : '';
+            errorMessage += 'Please select a color';
+        }
+        
+        // Show combined error message if any validations failed
+        if (errorMessage) {
+            swal({
+                title: 'Required Selections',
+                text: errorMessage,
+                icon: 'warning',
+                buttons: {
+                    confirm: {
+                        text: "OK",
+                        value: true,
+                        visible: true,
+                        className: "btn btn-primary",
+                        closeModal: true
+                    }
+                }
+            });
+            return false;
+        }
+        
+        // Check stock
+        if (stock === '0') {
+            swal({
+                title: 'Out of Stock',
+                text: 'Sorry, this product is currently out of stock',
+                icon: 'error',
+                buttons: {
+                    confirm: {
+                        text: "OK",
+                        value: true,
+                        visible: true,
+                        className: "btn btn-primary",
+                        closeModal: true
+                    }
+                }
+            });
+            return false;
+        }
+
+        // If all validations pass, confirm the selection
+        swal({
+            title: 'Confirm Selection',
+            text: `Add to cart with:\n${requireSize ? 'Size: ' + selectedSize + '\n' : ''}Color: ${selectedColor}`,
+            icon: 'info',
+            buttons: {
+                cancel: {
+                    text: "Cancel",
+                    value: null,
+                    visible: true,
+                    className: "btn btn-default",
+                    closeModal: true
+                },
+                confirm: {
+                    text: "Add to Cart",
+                    value: true,
+                    visible: true,
+                    className: "btn btn-primary",
+                    closeModal: true
+                }
+            }
+        }).then((willAdd) => {
+            if (willAdd) {
+                this.submit();
+            }
+        });
+    });
+
+    // Enable/disable submit button based on size selection
+    $('#size').change(function() {
+        const selectedSize = $(this).val();
+        if (requireSize) {
+            updateSubmitButton(selectedSize, $('#selected_color').val());
+        }
+        $('#selected_size').val(selectedSize);
+    });
+
+    // Update hidden color input and button state when color is selected
+    $('.color-btn').click(function() {
+        const selectedColor = $(this).data('color');
+        $('#selected_color').val(selectedColor);
+        
+        // Update button state
+        const sizeSelected = requireSize ? $('#size').val() !== '' : true;
+        updateSubmitButton(sizeSelected, selectedColor);
+    });
+
+    // Helper function to update submit button state
+    function updateSubmitButton(sizeSelected, colorSelected) {
+        const sizeValid = requireSize ? sizeSelected : true;
+        const colorValid = requireColor ? colorSelected : true;
+        const stock = $('#quantity').data('stock');
+        
+        $('button[type="submit"]').prop('disabled', 
+            !(sizeValid && colorValid) || stock === '0'
+        );
+    }
+});
+$(document).ready(function() {
+    // Handle color button clicks
+    $('.color-btn').click(function() {
+        // Remove active class from all buttons
+        $('.color-btn').removeClass('active');
+        
+        // Add active class to clicked button
+        $(this).addClass('active');
+        
+        // Get color and photo data
+        var selectedColor = $(this).data('color');
+        var selectedPhoto = $(this).data('photo');
+        
+        // Update hidden input with selected color
+        $('#selected_color').val(selectedColor);
+        
+        // Fade out current image
+        $('#product-img').css('opacity', '0.5');
+        
+        // Update image source with small delay for transition effect
+        setTimeout(function() {
+            // Determine correct path based on whether it's default or color photo
+            var imagePath = selectedColor === 'default' 
+                ? 'images/' + selectedPhoto 
+                : 'images/colors/' + selectedPhoto;
+                
+            // Update main image
+            $('#product-img').attr('src', imagePath)
+                           .on('load', function() {
+                               $(this).css('opacity', '1');
+                           });
+            
+            // Update magnify source if using image zoom
+            var largePath = selectedColor === 'default'
+                ? 'images/large-' + selectedPhoto
+                : 'images/colors/large-' + selectedPhoto;
+            $('#product-img').attr('data-magnify-src', largePath);
+        }, 200);
+    });
+
+    // Initialize magnify/zoom if you're using it
+    if(typeof $('.zoom').magnify === 'function') {
+        $('.zoom').magnify({
+            speed: 200,
+            src: $('.zoom').attr('data-magnify-src')
+        });
+    }
+});
+</script>
+
+<!-- Add this to your head section or after jQuery is loaded -->
+<script>
+// Preload images for smooth transitions
+$(window).on('load', function() {
+    $('.color-btn').each(function() {
+        var photo = $(this).data('photo');
+        var color = $(this).data('color');
+        if(photo) {
+            var img = new Image();
+            img.src = color === 'default' 
+                ? 'images/' + photo 
+                : 'images/colors/' + photo;
+        }
+    });
+});
+</script>
+
+    <script>
+       
 
         $(function(){
             $('#add').click(function(e){
@@ -383,7 +586,7 @@ $pdo->close();
                 star.addEventListener('click', function() {
                     const rating = this.dataset.rating;
                     const productId = this.closest('.star-rating').dataset.productId;
-                    fetch('rate_product.php', {
+                    fetch('ratess_product', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -402,23 +605,7 @@ $pdo->close();
                     .catch(error => console.error('Error:', error));
                 });
             });
-            $('.color-btn').click(function() {
-        var selectedColor = $(this).data('color');
-        var selectedPhoto = $(this).data('photo');
-        
-        // Update hidden input for color
-        $('#selected_color').val(selectedColor);
-        
-        // Update product image
-        $('#product-img').attr('src', 'images/colors/' + selectedPhoto);
-        
-        // Update magnify source if you're using image zoom
-        $('#product-img').data('magnify-src', 'images/large-' + selectedPhoto);
-        
-        // Highlight selected color button
-        $('.color-btn').removeClass('selected');
-        $(this).addClass('selected');
-    });
+           
 
 
             function updateStars(productId, rating) {
@@ -439,7 +626,7 @@ $pdo->close();
         e.preventDefault();
         var formData = $(this).serialize();
         $.ajax({
-            url: 'submit_comment.php',
+            url: 'submit_comment',
             method: 'POST',
             data: formData,
             dataType: 'json',
@@ -463,7 +650,7 @@ $pdo->close();
     // Function to load the comments without page refresh
     function loadComments() {
         $.ajax({
-            url: 'fetch_comments.php',
+            url: 'fetch_comments',
             method: 'GET',
             data: { product_id: <?php echo $product['prodid']; ?> },
             dataType: 'json',
@@ -471,7 +658,7 @@ $pdo->close();
                 if (response.success) {
                     $('#comment_list').html(response.comments);  // Display updated comments
                 } else {
-                    $('#comment_list').html('<p>No comments yet, be the first to comment.</p>');
+                   
                 }
             },
             error: function() {
@@ -483,44 +670,7 @@ $pdo->close();
     // Call loadComments when the page is loaded
     loadComments();
 
-    // Handle like, dislike, delete, reply actions
-    $(document).on('click', '.like-btn', function() {
-        var commentId = $(this).data('comment-id');
-        handleCommentAction(commentId, 'like');
-    });
-
-    $(document).on('click', '.dislike-btn', function() {
-        var commentId = $(this).data('comment-id');
-        handleCommentAction(commentId, 'dislike');
-    });
-
-    $(document).on('click', '.delete-btn', function() {
-        var commentId = $(this).data('comment-id');
-        if (confirm('Are you sure you want to delete this comment?')) {
-            $.ajax({
-                url: 'delete_comment.php',
-                method: 'POST',
-                data: { comment_id: commentId },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
-                        swal({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: response.message
-                        });
-                        loadComments();  // Refresh comments after deletion
-                    } else {
-                        swal({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: response.message
-                        });
-                    }
-                }
-            });
-        }
-    });
+    
 
     $(document).on('click', '.view-replies-link', function(e) {
         e.preventDefault();
@@ -548,7 +698,7 @@ $pdo->close();
         var replyText = $(this).siblings('.reply-text').val();
         
         $.ajax({
-            url: 'submit_reply.php',
+            url: 'submit_reply',
             method: 'POST',
             data: {
                 parent_id: parentId,
@@ -575,28 +725,7 @@ $pdo->close();
         });
     });
 
-    function handleCommentAction(commentId, action) {
-        $.ajax({
-            url: 'like_comment.php',
-            method: 'POST',
-            data: {
-                comment_id: commentId,
-                action: action
-            },
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    loadComments();  
-                } else {
-                    swal({
-                icon: 'error',
-                title: 'Login Required',
-                text: response.message,
-                });
-                }
-            }
-        });
-    }
+    
 
     function handleErrorResponse(response) {
         if (response.redirect === true) {
@@ -632,6 +761,172 @@ window.addEventListener('load', function() {
 });
 
     </script>
+    <style>
+.reviews-container {
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.review-box {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    padding: 20px;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.user-photo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+    object-fit: cover;
+}
+
+.user-details h4 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.rating {
+    margin: 5px 0;
+}
+
+.review-date {
+    color: #666;
+    font-size: 14px;
+}
+
+.review-content {
+    margin: 15px 0;
+}
+
+.review-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #444;
+}
+
+.review-attachment {
+    margin: 15px 0;
+}
+
+.attachment-preview {
+    max-width: 400px;
+    max-height: 400px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.video-preview {
+    max-width: 300%;
+    max-height: 400px;
+    border-radius: 4px;
+}
+
+.review-footer {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.like-btn, .dislike-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    background: #f8f9fa;
+    color: #666;
+}
+
+.like-btn.active, .dislike-btn.active {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.no-reviews {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+}
+
+@media (max-width: 576px) {
+    .review-box {
+        padding: 15px;
+    }
+    
+    .user-photo {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .user-details h4 {
+        font-size: 14px;
+    }
+    
+    .review-text {
+        font-size: 14px;
+    }
+}
+</style>
+<style>
+.color-buttons-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.color-btn {
+    border: 2px solid #ddd;
+    border-radius: 50%;
+    padding: 0;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.color-btn.active {
+    border: 2px solid #333;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    transform: scale(1.1);
+}
+
+.color-btn:hover {
+    transform: scale(1.1);
+}
+
+#product-img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    transition: opacity 0.3s ease;
+}
+
+.zoom {
+    transition: transform .2s;
+}
+
+.zoom:hover {
+    transform: scale(1.05);
+}
+</style>
     <style>
 /* Preloader styles */
 #preloader {

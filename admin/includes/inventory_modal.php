@@ -8,7 +8,7 @@
                 <h4 class="modal-title"><b>Updating...</b></h4>
             </div>
             <div class="modal-body">
-                <form class="form-horizontal" method="POST" action="inventory_stockout.php" id="stockForm">
+                <form class="form-horizontal" method="POST" action="inventory_stockout" id="stockForm">
                     <input type="hidden" class="prodid" name="id"> 
                     <div class="text-center">
                         <p>UPDATE STOCK</p>

@@ -10,7 +10,7 @@ require 'vendor/autoload.php';
 $email = filter_var($_POST["email"], FILTER_SANITIZE_EMAIL);
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $_SESSION['error'] = "Invalid email address.";
-    header('location: password_forgot.php');
+    header('location: password_forgot');
     exit();
 }
 
@@ -64,7 +64,7 @@ if ($stmt->execute()) {
 }
 
 $pdo->close();
-header('location: password_forgot.php');
+header('location: password_forgot');
 
 function sendSMS($email, $otp) {
     // Implement your SMS sending logic here
