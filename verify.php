@@ -224,115 +224,89 @@ $stmt = null;
 try {
     $conn = $pdo->open();
 
-    if(isset($_POST['login'])) {
+    if (isset($_POST['login'])) {
+        // Sanitize and validate input
         $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
         $password = $_POST['password'];
+        $recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
 
-        if(!$email || !$password) {
-            throw new Exception('Invalid input');
+        if (!$email || !$password || !$recaptchaResponse) {
+            $_SESSION['error'] = 'All fields are required.';
+            header('Location: login');
+            exit();
         }
 
-        if (!isset($_SESSION['captcha'])) {
-            require('recaptcha/src/autoload.php');
-        
-            $secretKey = '6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk';
-        
-            $recaptchaResponse = $_POST['g-recaptcha-response'];
-        
-            $recaptcha = new \ReCaptcha\ReCaptcha($secretKey, new \ReCaptcha\RequestMethod\SocketPost());
-            $resp = $recaptcha->verify($recaptchaResponse, $_SERVER['REMOTE_ADDR']);
-        
-            if (!$resp->isSuccess() || $resp->getScore() < 0.5) {
-                $_SESSION['error'] = 'Failed reCAPTCHA verification. Please try again.';
-                header('location: login');
-                exit();
-            } else {
-                $_SESSION['captcha'] = time() + (10 * 60); // 10 minutes
-            }
+        // Verify reCAPTCHA
+        require('recaptcha/src/autoload.php');
+        $secretKey = '6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk';
+        $recaptcha = new \ReCaptcha\ReCaptcha($secretKey, new \ReCaptcha\RequestMethod\SocketPost());
+        $resp = $recaptcha->verify($recaptchaResponse, $_SERVER['REMOTE_ADDR']);
+
+        if (!$resp->isSuccess() || $resp->getScore() < 0.5) {
+            $_SESSION['error'] = 'Failed reCAPTCHA verification. Please try again.';
+            header('Location: login');
+            exit();
         }
 
-        // Check if account is locked
+        // Check user account
         $stmt = $conn->prepare("SELECT *, COUNT(*) AS numrows FROM users WHERE email = :email");
         $stmt->bindParam(':email', $email, PDO::PARAM_STR);
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if($row && $row['numrows'] > 0) {
-            if($row['lockout_time'] > time()) {
+        if ($row && $row['numrows'] > 0) {
+            // Check account status
+            if ($row['lockout_time'] > time()) {
                 $remainingTime = ceil(($row['lockout_time'] - time()) / 60);
-                $_SESSION['error'] = "Account is locked. Please try again in {$remainingTime} minute(s).";
+                $_SESSION['error'] = "Account locked. Try again in {$remainingTime} minute(s).";
                 header('Location: login');
                 exit();
             }
 
-            if($row['status'] == 1) {
-                if(password_verify($password, $row['password'])) {
-                    // Reset login attempts on successful login
+            if ($row['status'] == 1) {
+                if (password_verify($password, $row['password'])) {
+                    // Reset login attempts
                     $resetAttempts = $conn->prepare("UPDATE users SET login_attempts = 0, lockout_time = 0 WHERE email = :email");
                     $resetAttempts->bindParam(':email', $email, PDO::PARAM_STR);
                     $resetAttempts->execute();
 
-                    // Send login notification email
-                    sendLoginNotification($email, $row['firstname'], $row['lastname']);
-
+                    // Set session and redirect
                     setSessionVariables($row);
+                    sendLoginNotification($email, $row['firstname'], $row['lastname']);
                     $redirect = $row['type'] ? 'admin/home' : 'profile';
                     $_SESSION['success'] = 'Login successful';
                     header("Location: $redirect");
                     exit();
                 } else {
-                    // Increment login attempts
-                    $attempts = $row['login_attempts'] + 1;
-                    $lockoutTime = 0;
-                    $message = '';
-
-                    // Tiered lockout system
-                    if($attempts >= 8) {
-                        $lockoutTime = time() + (3 * 60); // 3 minutes lockout
-                        $attempts = 0;
-                        $message = 'Too many failed attempts. Account locked for 3 minutes.';
-                    } elseif($attempts >= 5) {
-                        $lockoutTime = time() + (1 * 60); // 1 minute lockout
-                        $message = 'Too many failed attempts. Account locked for 1 minute.';
-                    } else {
-                        $remainingAttempts = 5 - $attempts;
-                        $message = "Incorrect Password. {$remainingAttempts} attempts remaining before temporary lockout.";
-                    }
-
-                    $updateAttempts = $conn->prepare("UPDATE users SET login_attempts = :attempts, lockout_time = :lockout WHERE email = :email");
-                    $updateAttempts->bindParam(':attempts', $attempts, PDO::PARAM_INT);
-                    $updateAttempts->bindParam(':lockout', $lockoutTime, PDO::PARAM_INT);
-                    $updateAttempts->bindParam(':email', $email, PDO::PARAM_STR);
-                    $updateAttempts->execute();
-
-                    $_SESSION['error'] = $message;
+                    // Handle failed login attempts
+                    handleFailedLogin($row, $conn);
                 }
-            } elseif($row['status'] == 0) {
+            } elseif ($row['status'] == 0) {
                 $_SESSION['error'] = 'Please verify your email address before logging in.';
-            } elseif($row['status'] == 5) {
-                $_SESSION['error'] = 'Sorry your account has been declined. Check your email for the reason.';
+            } elseif ($row['status'] == 5) {
+                $_SESSION['error'] = 'Your account has been declined. Check your email for details.';
             } elseif ($row['status'] == 3) {
                 $_SESSION['error'] = 'Please wait for admin approval.';
             } else {
-                $_SESSION['error'] = 'Account Deactivated.';
+                $_SESSION['error'] = 'Account is deactivated.';
             }
         } else {
-            $_SESSION['error'] = 'Email Not Found. Please sign up first.';
+            $_SESSION['error'] = 'Email not found. Please register first.';
         }
     } else {
-        $_SESSION['error'] = 'Input login credentials first';
+        $_SESSION['error'] = 'Please enter your login credentials.';
     }
-} catch(PDOException $e) {
+} catch (PDOException $e) {
     $_SESSION['error'] = 'Database error occurred. Please try again later.';
-    error_log('Database error in login: ' . $e->getMessage());
-} catch(Exception $e) {
+    error_log('Database error: ' . $e->getMessage());
+} catch (Exception $e) {
     $_SESSION['error'] = 'An error occurred. Please try again.';
-    error_log('Error in login: ' . $e->getMessage());
+    error_log('Error: ' . $e->getMessage());
 } finally {
-    if($stmt) {
+    if ($stmt) {
         $stmt = null;
     }
-    if($conn) {
+    if ($conn) {
         $pdo->close();
     }
 }
@@ -340,8 +314,35 @@ try {
 header('Location: login');
 exit();
 
+function handleFailedLogin($row, $conn) {
+    $attempts = $row['login_attempts'] + 1;
+    $lockoutTime = 0;
+    $message = '';
+
+    if ($attempts >= 8) {
+        $lockoutTime = time() + (3 * 60); // 3 minutes lockout
+        $attempts = 0;
+        $message = 'Too many failed attempts. Account locked for 3 minutes.';
+    } elseif ($attempts >= 5) {
+        $lockoutTime = time() + (1 * 60); // 1 minute lockout
+        $message = 'Too many failed attempts. Account locked for 1 minute.';
+    } else {
+        $remainingAttempts = 5 - $attempts;
+        $message = "Incorrect Password. {$remainingAttempts} attempts remaining before temporary lockout.";
+    }
+
+    $updateAttempts = $conn->prepare("UPDATE users SET login_attempts = :attempts, lockout_time = :lockout WHERE email = :email");
+    $updateAttempts->bindParam(':attempts', $attempts, PDO::PARAM_INT);
+    $updateAttempts->bindParam(':lockout', $lockoutTime, PDO::PARAM_INT);
+    $updateAttempts->bindParam(':email', $row['email'], PDO::PARAM_STR);
+    $updateAttempts->execute();
+
+    $_SESSION['error'] = $message;
+    header('Location: login');
+    exit();
+}
+
 function setSessionVariables($userData) {
     $_SESSION[$userData['type'] ? 'admin' : 'user'] = $userData['id'];
-    $_SESSION['success'] = 'Login successful';
 }
 ?>
