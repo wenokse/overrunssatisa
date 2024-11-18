@@ -214,14 +214,15 @@
                 <i class="fa fa-eye" id="toggleIcon"></i>
             </span>
         </div>
+        <div class="form-group" style="width:100%; text-align: center;">
+            <div class="g-recaptcha" data-sitekey="6LfmdVQqAAAAAGDAr09cjmfyP3veq9SJe5lN0doF"></div>
+        </div>
         <div class="terms-checkbox">
-        <input type="checkbox" id="termsCheck" name="terms" required>
+                <input type="checkbox" id="termsCheck" name="terms">
                 <label for="termsCheck">I agree to the <span class="terms-link" onclick="openTerms()">Terms and Conditions</span></label>
                 <div class="error-message" id="termsError">Please accept the terms and conditions to continue</div>
             </div>
-            <input type="hidden" id="recaptchaToken" name="g-recaptcha-response">
         <div class="form-group has-feedback">
-        
             <button type="submit" class="btn btn-primary btn-block" name="login">
                 <i class="fa fa-sign-in"></i> Sign In
             </button>
@@ -261,24 +262,7 @@
             </div>
         </div>
     </div>
-    <script src="https://www.google.com/recaptcha/api.js?render=6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf"></script>
-<script>
-    function loadRecaptcha() {
-        grecaptcha.ready(function() {
-            // Generate a token and assign it to the hidden field
-            grecaptcha.execute('6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf', { action: 'login' }).then(function(token) {
-                document.getElementById('recaptchaToken').value = token;
-            });
-        });
-    }
-
-    // Refresh token every 2 minutes
-    setInterval(loadRecaptcha, 120000);
-
-    // Initial token generation
-    loadRecaptcha();
-</script>
-
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <style>
  .password-container {
             position: relative;

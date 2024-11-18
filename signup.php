@@ -126,9 +126,10 @@
             <input type="checkbox" id="terms" name="terms" class="form-control-feedback1" required>
             <label for="terms">I agree to the <a href="#" id="termsLink">Terms and Conditions</a></label>
         </div>
-       
+        <div class="form-group" style="width:100%; text-align: center;">
+            <div class="g-recaptcha" data-sitekey="6LfmdVQqAAAAAGDAr09cjmfyP3veq9SJe5lN0doF"></div>
+        </div>
         <div class="form-group has-feedback">
-        <input type="hidden" id="recaptchaToken" name="g-recaptcha-response">
             <button type="submit" class="btn btn-primary btn-block" name="signup" id="signupButton" disabled><i class="fa fa-pencil"></i> Sign Up</button>
         </div>
       
@@ -190,14 +191,7 @@
     </div>
 </div>
 
-<script src="https://www.google.com/recaptcha/api.js?render=6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf"></script>
-<script>
-    grecaptcha.ready(function() {
-        grecaptcha.execute('6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf', { action: 'register' }).then(function(token) {
-            document.getElementById('recaptchaToken').value = token;
-        });
-    });
-</script>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script>
     document.getElementById('terms').addEventListener('change', function() {
         var signupButton = document.getElementById('signupButton');
