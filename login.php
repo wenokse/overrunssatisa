@@ -202,41 +202,46 @@
     <div class="container2">
     <a href="index" style="color: rgb(0, 51, 102);"><i class="fa fa-arrow-left" style="color: rgb(0, 51, 102);"></i></a>
     <center><h2 class="animate__animated animate__slideInLeft">Welcome Back</h2></center><br><br>
-
     <form id="loginForm" action="verify" method="POST">
-        <div class="form-group has-feedback">
-            <input type="email" class="form-control" name="email" placeholder="Email" required>
-            <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
-        </div>
-        <div class="form-group has-feedback password-container">
-            <input type="password" class="form-control" name="password" id="passwordField" placeholder="Password" required>
-            <span class="password-toggle" onclick="togglePassword()">
-                <i class="fa fa-eye" id="toggleIcon"></i>
-            </span>
-        </div>
-        <div class="terms-checkbox">
-            <input type="checkbox" id="termsCheck" name="terms" required>
-            <label for="termsCheck">I agree to the <span class="terms-link" onclick="openTerms()">Terms and Conditions</span></label>
-            <div class="error-message" id="termsError">Please accept the terms and conditions to continue</div>
-        </div>
-        <div class="form-group has-feedback">
-            <button type="button" class="btn btn-primary btn-block g-recaptcha" 
-                data-sitekey="6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk" 
-                data-callback="onSubmit" 
-                data-action="submit">
-                <i class="fa fa-sign-in"></i> Sign In
-            </button>
-        </div>
-    </form>
-    <a href="password_forgot">Forgot Password?</a><br>
-    <p style="color: rgb(0, 51, 102);">Don't have an account? 
-        <a href="signup" class="text-center">Register</a>
-    </p>
-</div>
+    <div class="form-group has-feedback">
+        <input type="email" class="form-control" name="email" placeholder="Email" required>
+        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+    </div>
+    <div class="form-group has-feedback password-container">
+        <input type="password" class="form-control" name="password" id="passwordField" placeholder="Password" required>
+        <span class="password-toggle" onclick="togglePassword()">
+            <i class="fa fa-eye" id="toggleIcon"></i>
+        </span>
+    </div>
+    <div class="terms-checkbox">
+        <input type="checkbox" id="termsCheck" name="terms" required>
+        <label for="termsCheck">I agree to the <span class="terms-link" onclick="openTerms()">Terms and Conditions</span></label>
+        <div class="error-message" id="termsError">Please accept the terms and conditions to continue</div>
+    </div>
+    <div class="form-group has-feedback">
+        <button type="submit" class="btn btn-primary btn-block g-recaptcha" 
+            data-sitekey="6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk" 
+            data-callback="onSubmit" 
+            data-action="submit">
+            <i class="fa fa-sign-in"></i> Sign In
+        </button>
+    </div>
+</form>
+<a href="password_forgot">Forgot Password?</a><br>
+<p style="color: rgb(0, 51, 102);">Don't have an account? 
+    <a href="signup" class="text-center">Register</a>
+</p>
 
 <script src="https://www.google.com/recaptcha/api.js?render=6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk"></script>
 <script>
     function onSubmit(token) {
+        // Set the token as a hidden field in the form
+        const recaptchaInput = document.createElement('input');
+        recaptchaInput.type = 'hidden';
+        recaptchaInput.name = 'g-recaptcha-response';
+        recaptchaInput.value = token;
+        document.getElementById('loginForm').appendChild(recaptchaInput);
+
         document.getElementById('loginForm').submit();
     }
 </script>

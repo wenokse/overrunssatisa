@@ -254,10 +254,10 @@ try {
         $password = $_POST['password'];
         $recaptchaToken = $_POST['g-recaptcha-response'];
 
-        if (!$email || !$password || !$recaptchaToken) {
+        if (!$email || !$password) {
             throw new Exception('All fields are required.');
         }
-        
+
         // Verify reCAPTCHA token
         if (!verifyRecaptcha($recaptchaToken)) {
             $_SESSION['error'] = 'Failed reCAPTCHA validation. Please try again.';
