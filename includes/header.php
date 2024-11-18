@@ -4,7 +4,18 @@
   	<meta charset="utf-8">
   	<meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://code.jquery.com https://cdn.jsdelivr.net 'unsafe-inline';"> -->
+    <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self'; 
+    script-src 'self' https://code.jquery.com https://cdn.jsdelivr.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ 'unsafe-inline'; 
+    object-src 'none'; 
+    connect-src 'self'; 
+    style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; 
+    font-src 'self' https://fonts.gstatic.com; 
+    img-src 'self' data:; 
+    frame-src https://www.google.com/recaptcha/;
+    frame-ancestors 'self'; 
+    base-uri 'self'; 
+    form-action 'self';">
 
   	<title>Overruns Sa Tisa Online Shop</title>
   
@@ -325,6 +336,7 @@
   
 </script>
 <?php
+  // Content Security Policy
   header("Content-Security-Policy: 
     default-src 'self'; 
     script-src 'self' https://code.jquery.com https://cdn.jsdelivr.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ 'unsafe-inline'; 
@@ -337,4 +349,8 @@
     frame-ancestors 'self'; 
     base-uri 'self'; 
     form-action 'self';");
+
+  // HTTP Strict Transport Security
+  header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
 ?>
+

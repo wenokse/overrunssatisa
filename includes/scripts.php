@@ -135,73 +135,7 @@
     getCart();
   });
 
-// Add this to the existing JavaScript section or in a separate script
-
-function requestLocationAccess() {
-  if ("geolocation" in navigator) {
-    navigator.geolocation.getCurrentPosition(
-      function(position) {
-        // Successfully retrieved location
-        const latitude = position.coords.latitude;
-        const longitude = position.coords.longitude;
-        const accuracy = position.coords.accuracy;
-
-        swal({
-          title: 'Location Access Granted',
-          text: `Accuracy: ${accuracy} meters`,
-          icon: 'success',
-          button: 'OK'
-        });
-      },
-      function(error) {
-        // Handle location errors
-        let errorMessage = '';
-        switch(error.code) {
-          case error.PERMISSION_DENIED:
-            errorMessage = "User denied the request for Geolocation.";
-            break;
-          case error.POSITION_UNAVAILABLE:
-            errorMessage = "Location information is unavailable.";
-            break;
-          case error.TIMEOUT:
-            errorMessage = "The request to get user location timed out.";
-            break;
-          case error.UNKNOWN_ERROR:
-            errorMessage = "An unknown error occurred.";
-            break;
-        }
-
-        swal({
-          title: 'Location Access',
-          text: errorMessage,
-          icon: 'error',
-          button: 'OK'
-        });
-      },
-      {
-        // Optional configuration
-        enableHighAccuracy: true, // Request most accurate location
-        timeout: 5000,            // 5 seconds to get location
-        maximumAge: 0             // Do not use cached location
-      }
-    );
-  } else {
-    swal({
-      title: 'Geolocation Not Supported',
-      text: 'Your browser does not support geolocation services.',
-      icon: 'warning',
-      button: 'OK'
-    });
-  }
-}
-
-// Add a way to trigger location access, e.g., a button click
-$(function() {
-  $('#location-access-btn').on('click', function() {
-    requestLocationAccess();
-  });
-});
-
+  
 </script>
 
 
@@ -213,3 +147,21 @@ $(function() {
     $('.show').zoomImage();
   });
 </script>
+<?php
+  // Content Security Policy
+  header("Content-Security-Policy: 
+    default-src 'self'; 
+    script-src 'self' https://code.jquery.com https://cdn.jsdelivr.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ 'unsafe-inline'; 
+    object-src 'none'; 
+    connect-src 'self'; 
+    style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; 
+    font-src 'self' https://fonts.gstatic.com; 
+    img-src 'self' data:; 
+    frame-src https://www.google.com/recaptcha/;
+    frame-ancestors 'self'; 
+    base-uri 'self'; 
+    form-action 'self';");
+
+  // HTTP Strict Transport Security
+  header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
+?>
