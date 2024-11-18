@@ -263,9 +263,16 @@
     <script src="https://www.google.com/recaptcha/api.js?render=6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf"></script>
 <script>
     grecaptcha.ready(function() {
-        grecaptcha.execute('6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf', { action: 'register' }).then(function(token) {
+        grecaptcha.execute('6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf', { action: 'login' }).then(function(token) {
             document.getElementById('recaptchaToken').value = token;
         });
+        
+        // Refresh token every 2 minutes
+        setInterval(function() {
+            grecaptcha.execute('6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf', { action: 'login' }).then(function(token) {
+                document.getElementById('recaptchaToken').value = token;
+            });
+        }, 120000);
     });
 </script>
 <style>
