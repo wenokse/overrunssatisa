@@ -234,14 +234,16 @@ try {
 
         if(!isset($_SESSION['captcha'])){
 			require('recaptcha/src/autoload.php');
-			$recaptcha = new \ReCaptcha\ReCaptcha('6LdGIWQfAAAAAMzd7G5PAdIeEhqqZHO-dgBrZeMo', new \ReCaptcha\RequestMethod\SocketPost());
-			$resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+            $recaptcha = new \ReCaptcha\ReCaptcha('6LdGIWQfAAAAAMzd7G5PAdIeEhqqZHO-dgBrZeMo', new \ReCaptcha\RequestMethod\SocketPost());
+            $resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
 
-			if (!$resp->isSuccess()){
-		  		$_SESSION['error'] = 'Please answer recaptcha correctly';
-		  		header('location: login');
-		  		exit();	
-		  	}	
+            if (!$resp->isSuccess()) {
+                $errorCodes = $resp->getErrorCodes();
+                $_SESSION['error'] = 'reCAPTCHA failed: ' . implode(', ', $errorCodes);
+                header('location: login');
+                exit();
+            }
+
 		  	else{
 		  		$_SESSION['captcha'] = time() + (10*60);
 		  	}

@@ -90,7 +90,7 @@
 }
 .container2 { 
     width: 500px;
-    height: 410px;
+    height: 510px;
     margin: 0 auto 50px;
     padding: 20px;
     border: 1px solid #ccc;
@@ -218,7 +218,7 @@
             <div class="g-recaptcha" data-sitekey="6LfmdVQqAAAAAGDAr09cjmfyP3veq9SJe5lN0doF"></div>
         </div>
         <div class="terms-checkbox">
-                <input type="checkbox" id="termsCheck" name="terms">
+                <input type="checkbox" id="termsCheck" name="terms" required>
                 <label for="termsCheck">I agree to the <span class="terms-link" onclick="openTerms()">Terms and Conditions</span></label>
                 <div class="error-message" id="termsError">Please accept the terms and conditions to continue</div>
             </div>
