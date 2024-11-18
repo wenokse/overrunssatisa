@@ -219,12 +219,12 @@
         <div class="error-message" id="termsError">Please accept the terms and conditions to continue</div>
     </div>
     <div class="form-group has-feedback">
-        <button type="submit" class="btn btn-primary btn-block g-recaptcha" 
-            data-sitekey="6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk" 
-            data-callback="onSubmit" 
-            data-action="submit">
-            <i class="fa fa-sign-in"></i> Sign In
-        </button>
+    <button type="submit" name="login" class="btn btn-primary btn-block g-recaptcha" 
+        data-sitekey="6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk" 
+        data-callback="onSubmit" 
+        data-action="submit">
+        <i class="fa fa-sign-in"></i> Sign In
+    </button>
     </div>
 </form>
 <a href="password_forgot">Forgot Password?</a><br>
@@ -276,6 +276,52 @@
         </div>
     </div>
    
+
+<script>
+  function openTerms() {
+            document.getElementById("termsModal").style.display = "block";
+        }
+
+        function closeTerms() {
+            document.getElementById("termsModal").style.display = "none";
+        }
+
+        function validateForm() {
+            const termsCheck = document.getElementById("termsCheck");
+            const termsError = document.getElementById("termsError");
+
+            if (!termsCheck.checked) {
+                termsError.style.display = "block";
+                return false;
+            }
+            termsError.style.display = "none";
+            return true;
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById("termsModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+function togglePassword() {
+    const passwordField = document.getElementById("passwordField");
+    const toggleIcon = document.getElementById("toggleIcon");
+    
+    if (passwordField.type === "password") {
+        passwordField.type = "text";
+        toggleIcon.classList.remove("fa-eye");
+        toggleIcon.classList.add("fa-eye-slash");
+    } else {
+        passwordField.type = "password";
+        toggleIcon.classList.remove("fa-eye-slash");
+        toggleIcon.classList.add("fa-eye");
+    }
+}
+</script>
+	
+<?php include 'includes/scripts.php' ?>
 <style>
  .password-container {
             position: relative;
@@ -347,51 +393,6 @@
         }
 </style>
 
-<script>
-  function openTerms() {
-            document.getElementById("termsModal").style.display = "block";
-        }
-
-        function closeTerms() {
-            document.getElementById("termsModal").style.display = "none";
-        }
-
-        function validateForm() {
-            const termsCheck = document.getElementById("termsCheck");
-            const termsError = document.getElementById("termsError");
-
-            if (!termsCheck.checked) {
-                termsError.style.display = "block";
-                return false;
-            }
-            termsError.style.display = "none";
-            return true;
-        }
-
-        // Close modal when clicking outside of it
-        window.onclick = function(event) {
-            const modal = document.getElementById("termsModal");
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-function togglePassword() {
-    const passwordField = document.getElementById("passwordField");
-    const toggleIcon = document.getElementById("toggleIcon");
-    
-    if (passwordField.type === "password") {
-        passwordField.type = "text";
-        toggleIcon.classList.remove("fa-eye");
-        toggleIcon.classList.add("fa-eye-slash");
-    } else {
-        passwordField.type = "password";
-        toggleIcon.classList.remove("fa-eye-slash");
-        toggleIcon.classList.add("fa-eye");
-    }
-}
-</script>
-	
-<?php include 'includes/scripts.php' ?>
 <style>
   body{
    
