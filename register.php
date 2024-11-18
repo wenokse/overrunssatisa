@@ -20,22 +20,31 @@ if (isset($_POST['signup'])) {
     $password = $_POST['password'];
     $repassword = $_POST['repassword'];
 
-    if(!isset($_SESSION['captcha'])){
-			require('recaptcha/src/autoload.php');
-			$recaptcha = new \ReCaptcha\ReCaptcha('6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk', new \ReCaptcha\RequestMethod\SocketPost());
-			$resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
-
-			if (!$resp->isSuccess()){
-		  		$_SESSION['error'] = 'Please answer recaptcha correctly';
-		  		header('location: signup.php');
-		  		exit();	
-		  	}	
-		  	else{
-		  		$_SESSION['captcha'] = time() + (10*60);
-		  	}
-
-		}
-
+    if (!isset($_SESSION['captcha'])) {
+        require('recaptcha/src/autoload.php');
+    
+        // Your secret key for verification
+        $secretKey = '6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk';
+    
+        // Retrieve the response from the form
+        $recaptchaResponse = $_POST['g-recaptcha-response'];
+    
+        // Verify the response with Google's reCAPTCHA API
+        $recaptcha = new \ReCaptcha\ReCaptcha($secretKey, new \ReCaptcha\RequestMethod\SocketPost());
+        $resp = $recaptcha->verify($recaptchaResponse, $_SERVER['REMOTE_ADDR']);
+    
+        // Check if the response is valid
+        if (!$resp->isSuccess() || $resp->getScore() < 0.5) {
+            // Failed reCAPTCHA or low confidence score
+            $_SESSION['error'] = 'Failed reCAPTCHA verification. Please try again.';
+            header('location: signup.php');
+            exit();
+        } else {
+            // Set session variable for captcha validation
+            $_SESSION['captcha'] = time() + (10 * 60); // 10 minutes
+        }
+    }
+    
     // Input validation
     if (containsSpecialCharacters($firstname) || containsSpecialCharacters($lastname) ||
         containsSpecialCharacters($email) || containsSpecialCharacters($password)) {
