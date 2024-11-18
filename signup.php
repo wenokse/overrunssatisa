@@ -192,10 +192,8 @@
 
 <script src="https://www.google.com/recaptcha/api.js?render=6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf"></script>
 <script>
-    // Render reCAPTCHA v3 and get the token
     grecaptcha.ready(function() {
         grecaptcha.execute('6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf', { action: 'register' }).then(function(token) {
-            // Attach token to a hidden input in your form
             document.getElementById('recaptchaToken').value = token;
         });
     });

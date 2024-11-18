@@ -232,6 +232,25 @@ try {
             throw new Exception('Invalid input');
         }
 
+        if (!isset($_SESSION['captcha'])) {
+            require('recaptcha/src/autoload.php');
+        
+            $secretKey = '6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk';
+        
+            $recaptchaResponse = $_POST['g-recaptcha-response'];
+        
+            $recaptcha = new \ReCaptcha\ReCaptcha($secretKey, new \ReCaptcha\RequestMethod\SocketPost());
+            $resp = $recaptcha->verify($recaptchaResponse, $_SERVER['REMOTE_ADDR']);
+        
+            if (!$resp->isSuccess() || $resp->getScore() < 0.5) {
+                $_SESSION['error'] = 'Failed reCAPTCHA verification. Please try again.';
+                header('location: signup');
+                exit();
+            } else {
+                $_SESSION['captcha'] = time() + (10 * 60); // 10 minutes
+            }
+        }
+
         // Check if account is locked
         $stmt = $conn->prepare("SELECT *, COUNT(*) AS numrows FROM users WHERE email = :email");
         $stmt->bindParam(':email', $email, PDO::PARAM_STR);

@@ -220,6 +220,7 @@
                 <div class="error-message" id="termsError">Please accept the terms and conditions to continue</div>
             </div>
         <div class="form-group has-feedback">
+        <input type="hidden" id="recaptchaToken" name="g-recaptcha-response">
             <button type="submit" class="btn btn-primary btn-block" name="login">
                 <i class="fa fa-sign-in"></i> Sign In
             </button>
@@ -259,7 +260,14 @@
             </div>
         </div>
     </div>
-
+    <script src="https://www.google.com/recaptcha/api.js?render=6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf"></script>
+<script>
+    grecaptcha.ready(function() {
+        grecaptcha.execute('6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf', { action: 'register' }).then(function(token) {
+            document.getElementById('recaptchaToken').value = token;
+        });
+    });
+</script>
 <style>
  .password-container {
             position: relative;

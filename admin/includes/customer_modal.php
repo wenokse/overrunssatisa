@@ -9,7 +9,7 @@
                 <h4 class="modal-title"><b>Add New Customer</b></h4>
             </div>
             <div class="modal-body">
-                <form class="form-horizontal" method="POST" action="customer_add.php" enctype="multipart/form-data" onsubmit="return validatePhoneNumber()">
+                <form class="form-horizontal" method="POST" action="customer_add" enctype="multipart/form-data" onsubmit="return validatePhoneNumber()">
                     <div class="form-group">
                         <label for="firstname" class="col-sm-3 control-label">Firstname</label>
                         <div class="col-sm-9">
@@ -162,7 +162,7 @@
               <h4 class="modal-title"><b>Edit Customer User</b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="customer_edit.php">
+              <form class="form-horizontal" method="POST" action="customer_edit">
                 <input type="hidden" class="userid" name="id">
                 <div class="form-group">
                     <label for="edit_firstname" class="col-sm-3 control-label">Firstname</label>
@@ -212,7 +212,7 @@
               <h4 class="modal-title"><b>Deleting...</b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="customer_delete.php">
+              <form class="form-horizontal" method="POST" action="customer_delete">
                 <input type="hidden" class="userid" name="id">
                 <div class="text-center">
                     <p>DELETE CUSTOMER</p>
@@ -238,7 +238,7 @@
               <h4 class="modal-title"><b><span class="fullname"></span></b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="customer_photo.php" enctype="multipart/form-data">
+              <form class="form-horizontal" method="POST" action="customer_photo" enctype="multipart/form-data">
                 <input type="hidden" class="userid" name="id">
                 <div class="form-group">
                     <label for="photo" class="col-sm-3 control-label">Photo</label>
@@ -267,7 +267,7 @@
               <h4 class="modal-title"><b>Activating...</b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="customer_activate.php">
+              <form class="form-horizontal" method="POST" action="customer_activate">
                 <input type="hidden" class="userid" name="id">
                 <div class="text-center">
                     <p>ACTIVATE USER</p>
@@ -293,7 +293,7 @@
               <h4 class="modal-title"><b>Deactivating...</b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="customer_deactivate.php">
+              <form class="form-horizontal" method="POST" action="customer_deactivate">
                 <input type="hidden" class="userid" name="id">
                 <div class="text-center">
                     <p>DEACTIVATE USER</p>
