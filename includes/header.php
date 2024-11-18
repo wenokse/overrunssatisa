@@ -28,14 +28,9 @@
     <link rel="stylesheet" href="js/sweetalert2.min.css">
     <link rel="stylesheet" href="js/sweetalert.min.css">
 
-  	<!-- Custom CSS -->
+  
     <style type="text/css">
 
-    /* ::-webkit-scrollbar{
-      display: none;
-    } */
-
-    /* Small devices (tablets, 768px and up) */
     @media (min-width: 768px){ 
       #navbar-search-input{ 
         width: 60px; 

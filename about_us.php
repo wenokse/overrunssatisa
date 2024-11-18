@@ -78,9 +78,14 @@
                 </div>
 
                 <div class="map-container animated fadeInUp">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3935.187907224754!2d123.7156801!3d11.166587!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33a88903adb82363%3A0x6133fa0a7224a6!2sOverruns%20SA%20Tisa%20and%20Fashion%20Shop!5e0!3m2!1sen!2sph!4v1615687637855!5m2!1sen!2sph" 
+                <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3935.187907224754!2d123.7156801!3d11.166587!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33a88903adb82363%3A0x6133fa0a7224a6!2sOverruns%20SA%20Tisa%20and%20Fashion%20Shop!5e0!3m2!1sen!2sph!4v1615687637855!5m2!1sen!2sph" 
+                        width="100%" 
+                        height="400" 
+                        style="border:0;" 
                         allowfullscreen="" 
-                        loading="lazy">
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
                     </iframe>
                 </div>
             </div>
