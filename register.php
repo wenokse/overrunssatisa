@@ -27,7 +27,7 @@ if (isset($_POST['signup'])) {
 
 			if (!$resp->isSuccess()){
 		  		$_SESSION['error'] = 'Please answer recaptcha correctly';
-		  		header('location: signup.php');
+		  		header('location: signup');
 		  		exit();	
 		  	}	
 		  	else{
