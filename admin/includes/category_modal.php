@@ -8,7 +8,7 @@
               <h4 class="modal-title"><b>Add New Category</b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="category_add.php">
+              <form class="form-horizontal" method="POST" action="category_add">
                 <div class="form-group">
                     <label for="name" class="col-sm-3 control-label">Name</label>
 
@@ -36,7 +36,7 @@
               <h4 class="modal-title"><b>Edit Category</b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="category_edit.php">
+              <form class="form-horizontal" method="POST" action="category_edit">
                 <input type="hidden" class="catid" name="id">
                 <div class="form-group">
                     <label for="edit_name" class="col-sm-3 control-label">Name</label>
@@ -65,7 +65,7 @@
               <h4 class="modal-title"><b>Deleting...</b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="category_delete.php">
+              <form class="form-horizontal" method="POST" action="category_delete">
                 <input type="hidden" class="catid" name="id">
                 <div class="text-center">
                     <p>DELETE CATEGORY</p>
