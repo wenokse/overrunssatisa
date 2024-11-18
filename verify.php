@@ -232,33 +232,37 @@ try {
             throw new Exception('Invalid input');
         }
 
-        if (!isset($_SESSION['captcha'])) {
-            require('recaptcha/src/autoload.php');
-        
-            $secretKey = '6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk';  // This is your secret key
+        require 'recaptcha/src/autoload.php';
+
+            $secretKey = '6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk';  // Your Secret Key
             $recaptchaResponse = $_POST['g-recaptcha-response'];
-        
+
             if (!$recaptchaResponse) {
                 $_SESSION['error'] = 'Please complete the reCAPTCHA verification.';
                 header('location: login');
                 exit();
             }
-        
+
             $recaptcha = new \ReCaptcha\ReCaptcha($secretKey);
-            $resp = $recaptcha->setExpectedAction('login')
-                              ->setScoreThreshold(0.5)
-                              ->verify($recaptchaResponse, $_SERVER['REMOTE_ADDR']);
-        
-            if (!$resp->isSuccess()) {
-                $_SESSION['error'] = 'Failed reCAPTCHA verification. Please try again.';
+            $response = $recaptcha->verify($recaptchaResponse, $_SERVER['REMOTE_ADDR']);
+
+            // Check if the verification is successful
+            if (!$response->isSuccess()) {
+                $_SESSION['error'] = 'reCAPTCHA verification failed. Please try again.';
                 header('location: login');
                 exit();
             }
-        
-            $_SESSION['captcha'] = time() + (10 * 60); // 10 minutes
-        }
 
-        
+            // Optionally check for low scores (if using score-based verification):
+            $scoreThreshold = 0.5; // Adjust this based on your needs
+            if ($response->getScore() < $scoreThreshold) {
+                $_SESSION['error'] = 'Suspicious activity detected. Please try again.';
+                header('location: login');
+                exit();
+            }
+
+
+
         // Check if account is locked
         $stmt = $conn->prepare("SELECT *, COUNT(*) AS numrows FROM users WHERE email = :email");
         $stmt->bindParam(':email', $email, PDO::PARAM_STR);

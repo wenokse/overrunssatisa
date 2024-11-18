@@ -219,8 +219,9 @@
                 <label for="termsCheck">I agree to the <span class="terms-link" onclick="openTerms()">Terms and Conditions</span></label>
                 <div class="error-message" id="termsError">Please accept the terms and conditions to continue</div>
             </div>
+            <input type="hidden" id="recaptchaToken" name="g-recaptcha-response">
         <div class="form-group has-feedback">
-        <input type="hidden" id="recaptchaToken" name="g-recaptcha-response">
+        
             <button type="submit" class="btn btn-primary btn-block" name="login">
                 <i class="fa fa-sign-in"></i> Sign In
             </button>
@@ -262,19 +263,22 @@
     </div>
     <script src="https://www.google.com/recaptcha/api.js?render=6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf"></script>
 <script>
-    grecaptcha.ready(function() {
-        grecaptcha.execute('6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf', { action: 'login' }).then(function(token) {
-            document.getElementById('recaptchaToken').value = token;
-        });
-        
-        // Refresh token every 2 minutes
-        setInterval(function() {
+    function loadRecaptcha() {
+        grecaptcha.ready(function() {
+            // Generate a token and assign it to the hidden field
             grecaptcha.execute('6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf', { action: 'login' }).then(function(token) {
                 document.getElementById('recaptchaToken').value = token;
             });
-        }, 120000);
-    });
+        });
+    }
+
+    // Refresh token every 2 minutes
+    setInterval(loadRecaptcha, 120000);
+
+    // Initial token generation
+    loadRecaptcha();
 </script>
+
 <style>
  .password-container {
             position: relative;
