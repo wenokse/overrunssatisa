@@ -199,53 +199,39 @@
 
     </style>
     <br><br><br><br><br><br>
-    <div class="container2">
+  	<div class="container2">
     <a href="index" style="color: rgb(0, 51, 102);"><i class="fa fa-arrow-left" style="color: rgb(0, 51, 102);"></i></a>
     <center><h2 class="animate__animated animate__slideInLeft">Welcome Back</h2></center><br><br>
-    <form id="loginForm" action="verify" method="POST">
-    <div class="form-group has-feedback">
-        <input type="email" class="form-control" name="email" placeholder="Email" required>
-        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
-    </div>
-    <div class="form-group has-feedback password-container">
-        <input type="password" class="form-control" name="password" id="passwordField" placeholder="Password" required>
-        <span class="password-toggle" onclick="togglePassword()">
-            <i class="fa fa-eye" id="toggleIcon"></i>
-        </span>
-    </div>
-    <div class="terms-checkbox">
-        <input type="checkbox" id="termsCheck" name="terms" required>
-        <label for="termsCheck">I agree to the <span class="terms-link" onclick="openTerms()">Terms and Conditions</span></label>
-        <div class="error-message" id="termsError">Please accept the terms and conditions to continue</div>
-    </div>
-    <div class="form-group has-feedback">
-    <button type="submit" name="login" class="btn btn-primary btn-block g-recaptcha" 
-        data-sitekey="6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk" 
-        data-callback="onSubmit" 
-        data-action="submit">
-        <i class="fa fa-sign-in"></i> Sign In
-    </button>
-    </div>
-</form>
-<a href="password_forgot">Forgot Password?</a><br>
-<p style="color: rgb(0, 51, 102);">Don't have an account? 
-    <a href="signup" class="text-center">Register</a>
-</p>
-
-<script src="https://www.google.com/recaptcha/api.js?render=6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk"></script>
-<script>
-    function onSubmit(token) {
-        // Set the token as a hidden field in the form
-        const recaptchaInput = document.createElement('input');
-        recaptchaInput.type = 'hidden';
-        recaptchaInput.name = 'g-recaptcha-response';
-        recaptchaInput.value = token;
-        document.getElementById('loginForm').appendChild(recaptchaInput);
-
-        document.getElementById('loginForm').submit();
-    }
-</script>
-
+    <form action="verify" method="POST" id="loginForm">
+        <div class="form-group has-feedback">
+            <input type="email" class="form-control" name="email" placeholder="Email" required>
+            <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+        </div>
+        <div class="form-group has-feedback password-container">
+            <input type="password" class="form-control" name="password" id="passwordField" placeholder="Password" required>
+            <span class="password-toggle" onclick="togglePassword()">
+                <i class="fa fa-eye" id="toggleIcon"></i>
+            </span>
+        </div>
+        
+        <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
+        
+        <div class="terms-checkbox">
+            <input type="checkbox" id="termsCheck" name="terms" required>
+            <label for="termsCheck">I agree to the <span class="terms-link" onclick="openTerms()">Terms and Conditions</span></label>
+            <div class="error-message" id="termsError">Please accept the terms and conditions to continue</div>
+        </div>
+        <div class="form-group has-feedback">
+            <button type="submit" class="btn btn-primary btn-block" name="login">
+                <i class="fa fa-sign-in"></i> Sign In
+            </button>
+        </div>
+    </form>
+    <a href="password_forgot">Forgot Password?</a><br>
+    <p style="color: rgb(0, 51, 102);">Don't have an account? 
+        <a href="signup" class="text-center">Register</a>
+    </p>
+</div>
 <!-- Terms and Conditions Modal -->
 <div id="termsModal" class="modal">
         <div class="modal-content">
@@ -275,50 +261,61 @@
             </div>
         </div>
     </div>
-   
-
+    <script src="https://www.google.com/recaptcha/api.js?render=6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk"></script>
 <script>
-  function openTerms() {
-            document.getElementById("termsModal").style.display = "block";
+    // Existing togglePassword and terms modal functions
+    function togglePassword() {
+        const passwordField = document.getElementById("passwordField");
+        const toggleIcon = document.getElementById("toggleIcon");
+        
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            toggleIcon.classList.remove("fa-eye");
+            toggleIcon.classList.add("fa-eye-slash");
+        } else {
+            passwordField.type = "password";
+            toggleIcon.classList.remove("fa-eye-slash");
+            toggleIcon.classList.add("fa-eye");
         }
-
-        function closeTerms() {
-            document.getElementById("termsModal").style.display = "none";
-        }
-
-        function validateForm() {
-            const termsCheck = document.getElementById("termsCheck");
-            const termsError = document.getElementById("termsError");
-
-            if (!termsCheck.checked) {
-                termsError.style.display = "block";
-                return false;
-            }
-            termsError.style.display = "none";
-            return true;
-        }
-
-        // Close modal when clicking outside of it
-        window.onclick = function(event) {
-            const modal = document.getElementById("termsModal");
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-function togglePassword() {
-    const passwordField = document.getElementById("passwordField");
-    const toggleIcon = document.getElementById("toggleIcon");
-    
-    if (passwordField.type === "password") {
-        passwordField.type = "text";
-        toggleIcon.classList.remove("fa-eye");
-        toggleIcon.classList.add("fa-eye-slash");
-    } else {
-        passwordField.type = "password";
-        toggleIcon.classList.remove("fa-eye-slash");
-        toggleIcon.classList.add("fa-eye");
     }
-}
+
+    function openTerms() {
+        document.getElementById("termsModal").style.display = "block";
+    }
+
+    function closeTerms() {
+        document.getElementById("termsModal").style.display = "none";
+    }
+
+    // reCAPTCHA v3 implementation
+    document.addEventListener('DOMContentLoaded', function() {
+        // Execute reCAPTCHA on page load
+        grecaptcha.ready(function() {
+            grecaptcha.execute('6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk', {action: 'login'}).then(function(token) {
+                document.getElementById('g-recaptcha-response').value = token;
+            });
+        });
+
+        // Intercept form submission
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            grecaptcha.ready(function() {
+                grecaptcha.execute('6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk', {action: 'login'}).then(function(token) {
+                    document.getElementById('g-recaptcha-response').value = token;
+                    event.target.submit();
+                });
+            });
+        });
+    });
+
+    // Existing window click handler for modal
+    window.onclick = function(event) {
+        const modal = document.getElementById("termsModal");
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
 </script>
 	
 <?php include 'includes/scripts.php' ?>

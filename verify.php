@@ -122,31 +122,6 @@ function getUserDevice() {
     return $deviceInfo;
 }
 
-// Function to verify the reCAPTCHA token
-function verifyRecaptcha($token) {
-    $secretKey = '6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf'; // Replace with your reCAPTCHA secret key
-    $url = 'https://www.google.com/recaptcha/api/siteverify';
-
-    $data = [
-        'secret' => $secretKey,
-        'response' => $token
-    ];
-
-    $options = [
-        'http' => [
-            'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-            'method'  => 'POST',
-            'content' => http_build_query($data)
-        ]
-    ];
-
-    $context  = stream_context_create($options);
-    $response = file_get_contents($url, false, $context);
-    $result = json_decode($response, true);
-
-    return $result['success'] ?? false;
-}
-
 function sendLoginNotification($email, $firstname, $lastname) {
     try {
         $mail = new PHPMailer(true);
@@ -252,20 +227,30 @@ try {
     if(isset($_POST['login'])) {
         $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
         $password = $_POST['password'];
-        $recaptchaToken = $_POST['g-recaptcha-response'];
 
-        if (!$email || !$password) {
-            throw new Exception('All fields are required.');
+        if(!$email || !$password) {
+            throw new Exception('Invalid input');
         }
 
-        // Verify reCAPTCHA token
-        if (!verifyRecaptcha($recaptchaToken)) {
-            $_SESSION['error'] = 'Failed reCAPTCHA validation. Please try again.';
-            header('Location: login');
+        // reCAPTCHA v3 verification
+        require('recaptcha/src/autoload.php');
+        $recaptcha = new \ReCaptcha\ReCaptcha('6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf');
+        $resp = $recaptcha->setExpectedAction('login')
+                          ->setScoreThreshold(0.5)
+                          ->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+
+        if (!$resp->isSuccess()) {
+            $errorCodes = $resp->getErrorCodes();
+            $score = $resp->getScore();
+            
+            // Log failed verification or additional checks based on score
+            $_SESSION['error'] = 'Bot detection failed. Please try again.';
+            error_log("reCAPTCHA Verification Failed - Codes: " . implode(', ', $errorCodes) . ", Score: " . $score);
+            header('location: login');
             exit();
         }
 
-        // Check if account is locked
+        // Existing login verification logic remains the same
         $stmt = $conn->prepare("SELECT *, COUNT(*) AS numrows FROM users WHERE email = :email");
         $stmt->bindParam(':email', $email, PDO::PARAM_STR);
         $stmt->execute();
