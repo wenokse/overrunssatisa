@@ -244,7 +244,7 @@ try {
         
             if (!$resp->isSuccess() || $resp->getScore() < 0.5) {
                 $_SESSION['error'] = 'Failed reCAPTCHA verification. Please try again.';
-                header('location: signup');
+                header('location: login');
                 exit();
             } else {
                 $_SESSION['captcha'] = time() + (10 * 60); // 10 minutes
