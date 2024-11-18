@@ -215,7 +215,7 @@
             </span>
         </div>
         <div class="terms-checkbox">
-                <input type="checkbox" id="termsCheck" name="terms">
+        <input type="checkbox" id="termsCheck" name="terms" required>
                 <label for="termsCheck">I agree to the <span class="terms-link" onclick="openTerms()">Terms and Conditions</span></label>
                 <div class="error-message" id="termsError">Please accept the terms and conditions to continue</div>
             </div>
