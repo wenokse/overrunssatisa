@@ -199,11 +199,11 @@
 
     </style>
     <br><br><br><br><br><br>
-  	<div class="container2">
+    <div class="container2">
     <a href="index" style="color: rgb(0, 51, 102);"><i class="fa fa-arrow-left" style="color: rgb(0, 51, 102);"></i></a>
     <center><h2 class="animate__animated animate__slideInLeft">Welcome Back</h2></center><br><br>
 
-    <form action="verify" method="POST">
+    <form id="loginForm" action="verify" method="POST">
         <div class="form-group has-feedback">
             <input type="email" class="form-control" name="email" placeholder="Email" required>
             <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
@@ -214,16 +214,16 @@
                 <i class="fa fa-eye" id="toggleIcon"></i>
             </span>
         </div>
-        <div class="form-group" style="width:100%; text-align: center;">
-        <div class="g-recaptcha" data-sitekey="6LfldVQqAAAAAGfubz5uqnEZDM5SPWNUnkixqvzD"></div>
-        </div>
         <div class="terms-checkbox">
-                <input type="checkbox" id="termsCheck" name="terms" required>
-                <label for="termsCheck">I agree to the <span class="terms-link" onclick="openTerms()">Terms and Conditions</span></label>
-                <div class="error-message" id="termsError">Please accept the terms and conditions to continue</div>
-            </div>
+            <input type="checkbox" id="termsCheck" name="terms" required>
+            <label for="termsCheck">I agree to the <span class="terms-link" onclick="openTerms()">Terms and Conditions</span></label>
+            <div class="error-message" id="termsError">Please accept the terms and conditions to continue</div>
+        </div>
         <div class="form-group has-feedback">
-            <button type="submit" class="btn btn-primary btn-block" name="login">
+            <button type="button" class="btn btn-primary btn-block g-recaptcha" 
+                data-sitekey="6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk" 
+                data-callback="onSubmit" 
+                data-action="submit">
                 <i class="fa fa-sign-in"></i> Sign In
             </button>
         </div>
@@ -233,6 +233,14 @@
         <a href="signup" class="text-center">Register</a>
     </p>
 </div>
+
+<script src="https://www.google.com/recaptcha/api.js?render=6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk"></script>
+<script>
+    function onSubmit(token) {
+        document.getElementById('loginForm').submit();
+    }
+</script>
+
 <!-- Terms and Conditions Modal -->
 <div id="termsModal" class="modal">
         <div class="modal-content">
@@ -262,7 +270,7 @@
             </div>
         </div>
     </div>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+   
 <style>
  .password-container {
             position: relative;
