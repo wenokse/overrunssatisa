@@ -4,7 +4,7 @@
   	<meta charset="utf-8">
   	<meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="
+    <!-- <meta http-equiv="Content-Security-Policy" content="
     default-src 'self'; 
     script-src 'self' https://code.jquery.com https://cdn.jsdelivr.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ 'unsafe-inline'; 
     object-src 'none'; 
@@ -15,7 +15,7 @@
     frame-src https://www.google.com/recaptcha/;
     frame-ancestors 'self'; 
     base-uri 'self'; 
-    form-action 'self';">
+    form-action 'self';"> -->
 
   	<title>Overruns Sa Tisa Online Shop</title>
   
