@@ -22,7 +22,7 @@ if (isset($_POST['signup'])) {
 
     if(!isset($_SESSION['captcha'])){
 			require('recaptcha/src/autoload.php');
-			$recaptcha = new \ReCaptcha\ReCaptcha('6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf', new \ReCaptcha\RequestMethod\SocketPost());
+			$recaptcha = new \ReCaptcha\ReCaptcha('6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk', new \ReCaptcha\RequestMethod\SocketPost());
 			$resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
 
 			if (!$resp->isSuccess()){

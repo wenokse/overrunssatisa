@@ -127,7 +127,7 @@
             <label for="terms">I agree to the <a href="#" id="termsLink">Terms and Conditions</a></label>
         </div>
         <div class="form-group" style="width:100%; text-align: center;">
-            <div class="g-recaptcha" data-sitekey="6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk"></div>
+            <div class="g-recaptcha" data-sitekey="6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf"></div>
         </div>
         <div class="form-group has-feedback">
             <button type="submit" class="btn btn-primary btn-block" name="signup" id="signupButton" disabled><i class="fa fa-pencil"></i> Sign Up</button>
