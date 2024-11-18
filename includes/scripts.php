@@ -134,78 +134,74 @@
   document.addEventListener('DOMContentLoaded', function () {
     getCart();
   });
-</script>
-<script>
-  // Function to require precise GPS location
-  function requireDeviceLocation() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        function (position) {
-          // Accurate GPS coordinates
-          const latitude = position.coords.latitude;
-          const longitude = position.coords.longitude;
-          const accuracy = position.coords.accuracy; // Accuracy in meters
 
-          console.log("Latitude:", latitude);
-          console.log("Longitude:", longitude);
-          console.log("Accuracy:", accuracy, "meters");
+// Add this to the existing JavaScript section or in a separate script
 
-          // Perform client-side actions with the GPS data here if needed
-        },
-        function (error) {
-          // Handle GPS errors
-          if (error.code === error.PERMISSION_DENIED) {
-            swal({
-              title: "GPS Access Required",
-              text: "Please enable GPS on your device to use this website.",
-              icon: "error",
-              button: "Retry"
-            }).then(() => {
-              location.reload(); // Retry loading the page
-            });
-          } else if (error.code === error.POSITION_UNAVAILABLE) {
-            swal({
-              title: "Position Unavailable",
-              text: "We couldn't retrieve your GPS location. Try again.",
-              icon: "warning",
-              button: "OK"
-            });
-          } else if (error.code === error.TIMEOUT) {
-            swal({
-              title: "Request Timed Out",
-              text: "Fetching your location took too long. Please try again.",
-              icon: "error",
-              button: "OK"
-            });
-          } else {
-            swal({
-              title: "Error",
-              text: "An unknown error occurred.",
-              icon: "error",
-              button: "OK"
-            });
-          }
-        },
-        {
-          enableHighAccuracy: true, // Ensure high-accuracy GPS
-          timeout: 10000, // Timeout after 10 seconds
-          maximumAge: 0 // No cached location
+function requestLocationAccess() {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        // Successfully retrieved location
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        const accuracy = position.coords.accuracy;
+
+        swal({
+          title: 'Location Access Granted',
+          text: `Accuracy: ${accuracy} meters`,
+          icon: 'success',
+          button: 'OK'
+        });
+      },
+      function(error) {
+        // Handle location errors
+        let errorMessage = '';
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = "User denied the request for Geolocation.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = "Location information is unavailable.";
+            break;
+          case error.TIMEOUT:
+            errorMessage = "The request to get user location timed out.";
+            break;
+          case error.UNKNOWN_ERROR:
+            errorMessage = "An unknown error occurred.";
+            break;
         }
-      );
-    } else {
-      swal({
-        title: "Geolocation Not Supported",
-        text: "Your device does not support GPS location. Please try on a supported device.",
-        icon: "warning",
-        button: "OK"
-      });
-    }
-  }
 
-  // Call the function on page load
-  document.addEventListener('DOMContentLoaded', function () {
-    requireDeviceLocation();
+        swal({
+          title: 'Location Access',
+          text: errorMessage,
+          icon: 'error',
+          button: 'OK'
+        });
+      },
+      {
+        // Optional configuration
+        enableHighAccuracy: true, // Request most accurate location
+        timeout: 5000,            // 5 seconds to get location
+        maximumAge: 0             // Do not use cached location
+      }
+    );
+  } else {
+    swal({
+      title: 'Geolocation Not Supported',
+      text: 'Your browser does not support geolocation services.',
+      icon: 'warning',
+      button: 'OK'
+    });
+  }
+}
+
+// Add a way to trigger location access, e.g., a button click
+$(function() {
+  $('#location-access-btn').on('click', function() {
+    requestLocationAccess();
   });
+});
+
 </script>
 
 
