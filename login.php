@@ -215,7 +215,7 @@
             </span>
         </div>
         <div class="form-group" style="width:100%; text-align: center;">
-            <div class="g-recaptcha" data-sitekey="6LfmdVQqAAAAAGDAr09cjmfyP3veq9SJe5lN0doF"></div>
+        <div class="g-recaptcha" data-sitekey="6LfldVQqAAAAAGfubz5uqnEZDM5SPWNUnkixqvzD"></div>
         </div>
         <div class="terms-checkbox">
                 <input type="checkbox" id="termsCheck" name="terms" required>
