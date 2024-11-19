@@ -1,10 +1,16 @@
 <?php
 include 'includes/session.php';
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
+// Handle reset code from the URL
 if (isset($_GET['code']) && isset($_GET['email'])) {
     $reset_code = $_GET['code'];
     $email = $_GET['email'];
+    
+    // Debug log
+    error_log("Reset password attempted - Email: $email, Code received: $reset_code");
 
     try {
         $conn = $pdo->open();
@@ -13,16 +19,28 @@ if (isset($_GET['code']) && isset($_GET['email'])) {
             SELECT email, reset_code 
             FROM users 
             WHERE email = :email 
+            AND reset_code IS NOT NULL 
             AND reset_code_expiry > :current_time
         ");
+        
+        $current_time = time();
         $stmt->execute([
             'email' => $email,
-            'current_time' => time()
+            'current_time' => $current_time
         ]);
 
         $row = $stmt->fetch();
         
+        // Debug log
+        if ($row) {
+            error_log("User found - Stored reset_code exists");
+            error_log("Current time: $current_time, Expiry time: " . $row['reset_code_expiry']);
+        } else {
+            error_log("No valid reset code found for email: $email");
+        }
+        
         if ($row && password_verify($reset_code, $row['reset_code'])) {
+            error_log("Reset code verified successfully");
             $_SESSION['reset_email_verified'] = $row['email'];
             
             // Clear reset code after verification
@@ -32,20 +50,24 @@ if (isset($_GET['code']) && isset($_GET['email'])) {
                 WHERE email = :email
             ");
             $update->execute(['email' => $row['email']]);
+            
+            $pdo->close();
+            header('location: reset_password');
+            exit();
         } else {
+            error_log("Reset code verification failed");
             $_SESSION['error'] = 'Invalid or expired reset link.';
+            $pdo->close();
             header('location: password_forgot');
             exit();
         }
     } catch (PDOException $e) {
+        error_log("Database error in reset verification: " . $e->getMessage());
         $_SESSION['error'] = 'Database error: ' . $e->getMessage();
+        $pdo->close();
         header('location: password_forgot');
         exit();
     }
-
-    $pdo->close();
-    header('location: reset_password');
-    exit();
 }
 
 // Keep your existing verification check

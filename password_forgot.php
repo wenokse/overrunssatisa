@@ -304,13 +304,26 @@ function handleEmailLink() {
     }
   
     // Generate a random reset code
-    $plain_reset_code = substr(str_shuffle("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 15);
+    $plain_reset_code = bin2hex(random_bytes(8)); // More secure random generation
     // Hash the reset code before storing
     $hashed_reset_code = password_hash($plain_reset_code, PASSWORD_DEFAULT);
     $expiry = time() + 3600; // 1 hour
   
     try {
         $conn = $pdo->open();
+        
+        // First check if the email exists
+        $check = $conn->prepare("SELECT id FROM users WHERE email = :email");
+        $check->execute(['email' => $email]);
+        
+        if (!$check->fetch()) {
+            $_SESSION['error'] = 'Email not found in our records.';
+            $pdo->close();
+            header('location: password_forgot');
+            exit();
+        }
+        
+        // Update the reset code
         $stmt = $conn->prepare("UPDATE users SET reset_code = :reset_code, reset_code_expiry = :expiry WHERE email = :email");
         $stmt->execute([
             'reset_code' => $hashed_reset_code,
@@ -319,20 +332,26 @@ function handleEmailLink() {
         ]);
   
         if ($stmt->rowCount() > 0) {
-            // Send the plain reset code in the email link
             $reset_link = "https://overrunssatisa.com/reset_password?code=" . urlencode($plain_reset_code) . "&email=" . urlencode($email);
+            
+            // For debugging - log the reset attempt
+            error_log("Reset attempted for email: $email with code: $plain_reset_code");
+            
             sendEmail($email, 'Password Reset Link', "Click the following link to reset your password: <a href='$reset_link'>Reset Password</a><br>This link will expire in 1 hour.");
             $_SESSION['success'] = 'Password reset link has been sent to your email.';
         } else {
-            $_SESSION['error'] = 'Email not found in our records.';
+            $_SESSION['error'] = 'Failed to update reset code.';
+            error_log("Failed to update reset code for email: $email");
         }
     } catch(PDOException $e) {
+        error_log("Database error in handleEmailLink: " . $e->getMessage());
         $_SESSION['error'] = "Database error: " . $e->getMessage();
     }
     $pdo->close();
     header('location: password_forgot');
     exit();
 }
+
 
 function handleSMS() {
     global $pdo;
