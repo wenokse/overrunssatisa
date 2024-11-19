@@ -126,9 +126,7 @@
             <input type="checkbox" id="terms" name="terms" class="form-control-feedback1" required>
             <label for="terms">I agree to the <a href="#" id="termsLink">Terms and Conditions</a></label>
         </div>
-        <div class="form-group" style="width:100%; text-align: center;">
-        <div class="g-recaptcha" data-sitekey="6LfldVQqAAAAAGfubz5uqnEZDM5SPWNUnkixqvzD"></div>
-        </div>
+        <input type="hidden" name="recaptcha_response" id="recaptchaResponse">
         <div class="form-group has-feedback">
             <button type="submit" class="btn btn-primary btn-block" name="signup" id="signupButton" disabled><i class="fa fa-pencil"></i> Sign Up</button>
         </div>
@@ -141,7 +139,15 @@
 </div>
 
 </div>
-
+<script src="https://www.google.com/recaptcha/api.js?render=6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk"></script>
+<script>
+grecaptcha.ready(function() {
+    grecaptcha.execute('6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk', { action: 'register' })
+    .then(function(token) {
+        document.getElementById('recaptchaResponse').value = token;
+    });
+});
+</script>
 <div id="termsModal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>

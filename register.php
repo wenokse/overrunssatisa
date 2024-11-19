@@ -20,21 +20,20 @@ if (isset($_POST['signup'])) {
     $password = $_POST['password'];
     $repassword = $_POST['repassword'];
 
-    if(!isset($_SESSION['captcha'])){
-			require('recaptcha/src/autoload.php');
-			$recaptcha = new \ReCaptcha\ReCaptcha('6LfldVQqAAAAAB196eiIPuYYBmqCed5IYOP3QjKL', new \ReCaptcha\RequestMethod\SocketPost());
-			$resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
-
-			if (!$resp->isSuccess()){
-		  		$_SESSION['error'] = 'Please answer recaptcha correctly';
-		  		header('location: signup');
-		  		exit();	
-		  	}	
-		  	else{
-		  		$_SESSION['captcha'] = time() + (10*60);
-		  	}
-
-		}
+    if (isset($_POST['recaptcha_response'])) {
+        $recaptchaResponse = $_POST['recaptcha_response'];
+        $secretKey = '6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf';
+        
+        $response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$recaptchaResponse}");
+        $responseKeys = json_decode($response, true);
+        
+        if (!$responseKeys['success'] || $responseKeys['score'] < 0.5) {
+            $_SESSION['error'] = 'reCAPTCHA verification failed. Please try again.';
+            header('Location: login');
+            exit();
+        }
+    }
+    
 
     // Input validation
     if (containsSpecialCharacters($firstname) || containsSpecialCharacters($lastname) ||

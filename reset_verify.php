@@ -1,78 +1,112 @@
 <?php
 include 'includes/session.php';
 
-// Check if either email or contact verification is in progress
-if ((!isset($_SESSION['reset_email']) && !isset($_SESSION['reset_contact'])) || !isset($_SESSION['reset_time'])) {
+// Validate if verification session is set
+if ((!isset($_SESSION['reset_email']) && !isset($_SESSION['reset_phone'])) || !isset($_SESSION['reset_time'])) {
+    $_SESSION['error'] = 'Invalid verification attempt. Please start over.';
     header('location: password_forgot');
     exit();
 }
 
-// Get the verification method and contact info
+// Determine verification method and contact information
 $is_email = isset($_SESSION['reset_email']);
-$contact = $is_email ? $_SESSION['reset_email'] : $_SESSION['reset_contact'];
+$contact = $is_email ? $_SESSION['reset_email'] : $_SESSION['reset_phone'];
 $expiry = $_SESSION['reset_time'];
 
+// Check if OTP is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $otp = $_POST['otp'];
-    
-    // Check if OTP has expired
+    $otp = trim($_POST['otp']);
+
+    // Validate OTP format
+    if (!preg_match('/^[0-9]{6}$/', $otp)) {
+        $_SESSION['error'] = 'Invalid OTP format. Please enter 6 digits.';
+        header('location: reset_verify');
+        exit();
+    }
+
+    // Check OTP expiration
     if (time() > $expiry) {
         $_SESSION['error'] = 'OTP has expired. Please request a new one.';
-        header('location: ' . ($is_email ? 'password_forgot' : 'another'));
+        unset($_SESSION['reset_email'], $_SESSION['reset_phone'], $_SESSION['reset_time']);
+        header('location: password_forgot');
         exit();
     }
 
     try {
         $conn = $pdo->open();
-        
-        // Check the OTP against the database
-        $stmt = $conn->prepare("SELECT * FROM users WHERE " . ($is_email ? "email" : "contact_info") . " = :contact");
-        $stmt->execute(['contact' => $contact]);
-        $user = $stmt->fetch();
 
-        if ($user && $user['reset_code'] === $otp) {
-            // Store verified contact info for password reset
-            if ($is_email) {
-                $_SESSION['reset_email_verified'] = $contact;
-                unset($_SESSION['reset_email']);
-            } else {
-                $_SESSION['reset_contact_verified'] = $contact;
-                unset($_SESSION['reset_contact']);
-            }
+        // Define the field to check based on the method
+        $field = $is_email ? "email" : "contact_info";
+        $stmt = $conn->prepare("
+            SELECT id FROM users 
+            WHERE $field = :contact AND reset_code = :otp AND reset_code_expiry > :current_time
+        ");
+        $stmt->execute([
+            'contact' => $contact,
+            'otp' => $otp,
+            'current_time' => time()
+        ]);
+
+        if ($stmt->rowCount() > 0) {
+            // Fetch the user ID and update their reset state
+            $user = $stmt->fetch();
+            $_SESSION['verified_user_id'] = $user['id'];
+
+            $updateStmt = $conn->prepare("
+                UPDATE users 
+                SET reset_code = NULL, reset_code_expiry = NULL 
+                WHERE id = :user_id
+            ");
+            $updateStmt->execute(['user_id' => $user['id']]);
+
+            // Clear temporary session data
+            unset($_SESSION['reset_email'], $_SESSION['reset_phone'], $_SESSION['reset_time']);
             header('location: reset_password');
             exit();
         } else {
-            $_SESSION['error'] = 'Invalid OTP';
+            $_SESSION['error'] = 'Invalid or expired OTP. Please try again.';
         }
-
-        $pdo->close();
-    } catch(PDOException $e) {
-        $_SESSION['error'] = 'Connection error: ' . $e->getMessage();
+    } catch (PDOException $e) {
+        error_log("OTP Verification Error: " . $e->getMessage());
+        $_SESSION['error'] = 'System error occurred. Please try again later.';
     }
+
+    $pdo->close();
+    header('location: reset_verify');
+    exit();
 }
 
-$remaining_time = $expiry - time();
+// Calculate remaining OTP time
+$remaining_time = max(0, $expiry - time());
 ?>
-
 <?php include 'includes/header.php'; ?>
-<script src="js/sweetalert.min.js"></script>
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="js/sweetalert.min.js"></script>
+    <title>Verify OTP - Password Reset</title>
+</head>
 <body>
 <br><br><br><br>
 <div class="container2">
-    <a href="<?php echo $is_email ? 'password_forgot' : 'another'; ?>" style="color: rgb(0, 51, 102);">
+    <a href="password_forgot" style="color: rgb(0, 51, 102);">
         <i class="fa fa-arrow-left" style="color: rgb(0, 51, 102);"></i>
     </a>
+    
     <center><h2>Verify OTP</h2></center>
-    <p>Please enter the OTP sent to:<br>
-    <strong><?php echo htmlspecialchars($contact); ?></strong></p>
-    <p>Time remaining: <span id="countdown"></span></p>
+    
+    <div class="info-box">
+        <p>Please enter the OTP sent to:<br>
+        <strong><?php echo htmlspecialchars($contact); ?></strong></p>
+        <p>Time remaining: <span id="countdown" class="countdown"></span></p>
+    </div>
     
     <?php
     if (isset($_SESSION['error'])) {
         echo "
             <script>
                 swal({
-                    title: '". $_SESSION['error'] ."',
+                    title: '". htmlspecialchars($_SESSION['error']) ."',
                     icon: 'error',
                     button: 'OK'
                 });
@@ -82,57 +116,87 @@ $remaining_time = $expiry - time();
     }
     ?>
     
-    <form action="reset_verify" method="POST">
+    <form action="reset_verify" method="POST" id="otpForm">
         <div class="form-group">
             <label for="otp">Enter OTP:</label>
-            <input type="text" id="otp" name="otp" required 
-                   pattern="[0-9]{6}" maxlength="6" 
+            <input type="text" 
+                   id="otp" 
+                   name="otp" 
+                   required 
+                   pattern="[0-9]{6}" 
+                   maxlength="6" 
                    placeholder="Enter 6-digit OTP" 
-                   title="Please enter 6-digit OTP">
+                   title="Please enter 6-digit OTP"
+                   autocomplete="one-time-code">
         </div>
         <button type="submit" id="verifyButton" class="btn btn-primary btn-block">
             <i class="fa fa-check-square-o"></i> Verify OTP
         </button>
     </form>
     
-    <p class="text-center">
+    <div class="text-center">
         <a href="<?php echo $is_email ? 'another' : 'password_forgot'; ?>" class="button">
             Try using <?php echo $is_email ? 'SMS' : 'email'; ?> instead
         </a>
-    </p>
+    </div>
 </div>
 
 <script>
-    // Initialize countdown timer
-    var timeLeft = <?php echo $remaining_time; ?>;
-    var timerId = setInterval(countdown, 1000);
+// Initialize countdown timer
+const initialTime = <?php echo $remaining_time; ?>;
+let timeLeft = initialTime;
+const timerId = setInterval(countdown, 1000);
 
-    function countdown() {
-        if (timeLeft <= 0) {
-            clearTimeout(timerId);
-            document.getElementById("countdown").innerHTML = "Expired";
-            document.getElementById("verifyButton").disabled = true;
-            swal({
-                title: "OTP Expired",
-                text: "Please request a new OTP",
-                icon: "warning",
-                button: "OK"
-            }).then(function() {
-                window.location.href = "<?php echo $is_email ? 'password_forgot' : 'another'; ?>";
-            });
-        } else {
-            var minutes = Math.floor(timeLeft / 60);
-            var seconds = timeLeft % 60;
-            document.getElementById("countdown").innerHTML = 
-                minutes + "m " + (seconds < 10 ? "0" : "") + seconds + "s";
-            timeLeft--;
-        }
+function countdown() {
+    if (timeLeft <= 0) {
+        clearInterval(timerId);
+        document.getElementById("countdown").innerHTML = "Expired";
+        document.getElementById("verifyButton").disabled = true;
+        document.getElementById("otp").disabled = true;
+        
+        swal({
+            title: "OTP Expired",
+            text: "Please request a new OTP",
+            icon: "warning",
+            button: "OK"
+        }).then(function() {
+            window.location.href = "password_forgot";
+        });
+    } else {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        document.getElementById("countdown").innerHTML = 
+            `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
+        timeLeft--;
     }
+}
 
-    // OTP input validation
-    document.getElementById('otp').addEventListener('input', function(e) {
-        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
-    });
+// OTP input validation and formatting
+const otpInput = document.getElementById('otp');
+otpInput.addEventListener('input', function(e) {
+    // Remove non-numeric characters
+    let value = this.value.replace(/\D/g, '');
+    // Limit to 6 digits
+    value = value.substring(0, 6);
+    this.value = value;
+    
+    // Enable/disable submit button based on input length
+    document.getElementById('verifyButton').disabled = value.length !== 6;
+});
+
+// Form submission validation
+document.getElementById('otpForm').addEventListener('submit', function(e) {
+    const otp = otpInput.value;
+    if (otp.length !== 6 || !/^\d+$/.test(otp)) {
+        e.preventDefault();
+        swal({
+            title: "Invalid OTP",
+            text: "Please enter a 6-digit number",
+            icon: "error",
+            button: "OK"
+        });
+    }
+});
 </script>
 
 <style>
@@ -152,21 +216,34 @@ body {
     background-color: #f9f9f9;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
 }
+.info-box {
+    background-color: #f8f9fa;
+    border-left: 4px solid #512da8;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+}
+.countdown {
+    font-weight: bold;
+    color: #512da8;
+}
 .container2 input {
     background-color: #eee;
     border: none;
     margin: 8px 0;
     padding: 10px 15px;
-    font-size: 13px;
+    font-size: 16px;
     border-radius: 8px;
     width: 100%;
     outline: none;
+    text-align: center;
+    letter-spacing: 2px;
 }
 .container2 button {
     background-color: #512da8;
     color: #fff;
-    font-size: 12px;
-    padding: 10px 45px;
+    font-size: 14px;
+    padding: 12px 45px;
     border: 1px solid transparent;
     border-radius: 20px;
     font-weight: 600;
@@ -174,7 +251,11 @@ body {
     text-transform: uppercase;
     cursor: pointer;
     width: 100%;
-    margin-top: 10px;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+}
+.container2 button:hover {
+    background-color: #4527a0;
 }
 .container2 button:disabled {
     background-color: #ccc;
@@ -182,18 +263,22 @@ body {
 }
 .text-center {
     text-align: center;
-    margin-top: 15px;
+    margin-top: 20px;
 }
 .button {
     color: #512da8;
     text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
 }
 .button:hover {
+    color: #4527a0;
     text-decoration: underline;
 }
 .form-group {
     margin-bottom: 15px;
 }
 </style>
+
 </body>
 </html>
