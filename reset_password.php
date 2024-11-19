@@ -1,8 +1,10 @@
 <?php
 include 'includes/session.php';
-// Handle reset code from the URL
-if (isset($_GET['code'])) {
+
+
+if (isset($_GET['code']) && isset($_GET['email'])) {
     $reset_code = $_GET['code'];
+    $email = $_GET['email'];
 
     try {
         $conn = $pdo->open();
@@ -10,28 +12,27 @@ if (isset($_GET['code'])) {
         $stmt = $conn->prepare("
             SELECT email, reset_code 
             FROM users 
-            WHERE reset_code_expiry > :current_time
+            WHERE email = :email 
+            AND reset_code_expiry > :current_time
         ");
-        $stmt->execute(['current_time' => time()]);
+        $stmt->execute([
+            'email' => $email,
+            'current_time' => time()
+        ]);
 
-        $is_valid = false;
-        while ($row = $stmt->fetch()) {
-            if (password_verify($reset_code, $row['reset_code'])) {
-                $_SESSION['reset_email_verified'] = $row['email'];
-                $is_valid = true;
-
-                // Clear reset code after verification
-                $update = $conn->prepare("
-                    UPDATE users 
-                    SET reset_code = NULL, reset_code_expiry = NULL 
-                    WHERE email = :email
-                ");
-                $update->execute(['email' => $row['email']]);
-                break;
-            }
-        }
-
-        if (!$is_valid) {
+        $row = $stmt->fetch();
+        
+        if ($row && password_verify($reset_code, $row['reset_code'])) {
+            $_SESSION['reset_email_verified'] = $row['email'];
+            
+            // Clear reset code after verification
+            $update = $conn->prepare("
+                UPDATE users 
+                SET reset_code = NULL, reset_code_expiry = NULL 
+                WHERE email = :email
+            ");
+            $update->execute(['email' => $row['email']]);
+        } else {
             $_SESSION['error'] = 'Invalid or expired reset link.';
             header('location: password_forgot');
             exit();
