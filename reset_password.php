@@ -1,50 +1,50 @@
 <?php
 include 'includes/session.php';
-
-if (isset($_GET['code']) && isset($_GET['email'])) {
+// Handle reset code from the URL
+if (isset($_GET['code'])) {
     $reset_code = $_GET['code'];
-    $email = filter_var($_GET['email'], FILTER_SANITIZE_EMAIL);
-    
+
     try {
         $conn = $pdo->open();
-        
-        // Check if the reset code and email combination is valid and not expired
-        $stmt = $conn->prepare("
-            SELECT * FROM users 
-            WHERE email = :email 
-            AND reset_code = :reset_code 
-            AND reset_code_expiry > :current_time
-        ");
-        
-        $stmt->execute([
-            'email' => $email,
-            'reset_code' => $reset_code,
-            'current_time' => time()
-        ]);
 
-        if ($stmt->rowCount() > 0) {
-            // Valid reset code - set session and clear reset code
-            $_SESSION['reset_email_verified'] = $email;
-            
-            // Clear the reset code immediately to prevent reuse
-            $updateStmt = $conn->prepare("
-                UPDATE users 
-                SET reset_code = NULL, 
-                    reset_code_expiry = NULL 
-                WHERE email = :email
-            ");
-            $updateStmt->execute(['email' => $email]);
-        } else {
+        $stmt = $conn->prepare("
+            SELECT email, reset_code 
+            FROM users 
+            WHERE reset_code_expiry > :current_time
+        ");
+        $stmt->execute(['current_time' => time()]);
+
+        $is_valid = false;
+        while ($row = $stmt->fetch()) {
+            if (password_verify($reset_code, $row['reset_code'])) {
+                $_SESSION['reset_email_verified'] = $row['email'];
+                $is_valid = true;
+
+                // Clear reset code after verification
+                $update = $conn->prepare("
+                    UPDATE users 
+                    SET reset_code = NULL, reset_code_expiry = NULL 
+                    WHERE email = :email
+                ");
+                $update->execute(['email' => $row['email']]);
+                break;
+            }
+        }
+
+        if (!$is_valid) {
             $_SESSION['error'] = 'Invalid or expired reset link.';
             header('location: password_forgot');
             exit();
         }
-    } catch(PDOException $e) {
-        $_SESSION['error'] = 'Connection error: ' . $e->getMessage();
+    } catch (PDOException $e) {
+        $_SESSION['error'] = 'Database error: ' . $e->getMessage();
         header('location: password_forgot');
         exit();
     }
+
     $pdo->close();
+    header('location: reset_password');
+    exit();
 }
 
 // Keep your existing verification check
