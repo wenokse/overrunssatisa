@@ -63,9 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <br><br><br><br>
 <div class="container2">
-    <a href="<?php echo $is_email ? 'password_forgot' : 'another'; ?>" style="color: rgb(0, 51, 102);">
-        <i class="fa fa-arrow-left" style="color: rgb(0, 51, 102);"></i>
-    </a>
+<a href="password_forgot" style="color: rgb(0, 51, 102);"><i class="fa fa-arrow-left"></i></a>
     <center><h2>Reset Password</h2></center>
     <p>Resetting password for: <strong><?php echo htmlspecialchars($contact_info); ?></strong></p>
     

@@ -134,8 +134,8 @@
     </form>
     <br>
     
-    <p class="text-center" style="color: rgb(0, 51, 102); ">Already have an account? <a href="login">Login</a></p>
-    <p class="text-center" style="color: rgb(0, 51, 102); ">You have a Store? <a href="vendor_signup">Signup as Vendor</a></p>
+    <p class="text-center" style="color: rgb(0, 51, 102); ">Already have an account? <a href="login" style = "color: white;">Login</a></p>
+    <p class="text-center" style="color: rgb(0, 51, 102); ">You have a Store? <a href="vendor_signup" style = "color: white;">Signup as Vendor</a></p>
 </div>
 
 </div>

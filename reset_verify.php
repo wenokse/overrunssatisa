@@ -185,12 +185,6 @@ $remaining_time = max(0, $expiry - time());
             <i class="fa fa-check-square-o"></i> Verify OTP
         </button>
     </form>
-    
-    <div class="text-center">
-        <a href="<?php echo $is_email ? 'another' : 'password_forgot'; ?>" class="button">
-            Try using <?php echo $is_email ? 'SMS' : 'email'; ?> instead
-        </a>
-    </div>
 </div>
 
 <script>

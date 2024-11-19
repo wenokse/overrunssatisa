@@ -229,9 +229,9 @@
             </button>
         </div>
     </form>
-    <a href="password_forgot">Forgot Password?</a><br>
+    <a href="password_forgot" style = "color: white;">Forgot Password?</a><br>
     <p style="color: rgb(0, 51, 102);">Don't have an account? 
-        <a href="signup" class="text-center">Register</a>
+        <a href="signup" class="text-center" style = "color: white;">Register</a>
     </p>
 </div>
 <script src="https://www.google.com/recaptcha/api.js?render=6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk"></script>

@@ -42,7 +42,7 @@ if (!isset($_SESSION['reset_email_verified']) && !isset($_SESSION['reset_contact
 <body>
 <br><br><br><br>
 <div class="container2">
-    <a href="<?php echo $is_email ? 'password_forgot' : 'another'; ?>" style="color: rgb(0, 51, 102);">
+<a href="password_forgot" style="color: rgb(0, 51, 102);"><i class="fa fa-arrow-left"></i></a>
         <i class="fa fa-arrow-left" style="color: rgb(0, 51, 102);"></i>
     </a>
     <center><h2>Reset Password</h2></center>
