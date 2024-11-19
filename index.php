@@ -133,12 +133,12 @@ img {
         .product-container .product .box-body {
             padding: 15px;
             text-align: center;
-            width: 200px;
+            width: 230px;
         }
 
         .product-container .product .box-body img {
              height: 200px; 
-             width: 200px;
+             width: 400px;
     object-fit: cover; 
         }
 
