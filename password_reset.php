@@ -2,43 +2,33 @@
 include 'includes/session.php';
 
 // Check if we have a token-based reset request
-if (isset($_GET['email']) && isset($_GET['token'])) {
-    $email = filter_var($_GET['email'], FILTER_SANITIZE_EMAIL);
+if (isset($_GET['token']) && isset($_GET['email'])) {
     $token = $_GET['token'];
+    $email = $_GET['email'];
     
     try {
         $conn = $pdo->open();
-        
-        // Get the stored reset code and expiry
-        $stmt = $conn->prepare("SELECT reset_code, reset_code_expiry FROM users WHERE email = :email");
-        $stmt->execute(['email' => $email]);
-        
+        $stmt = $conn->prepare("SELECT * FROM users WHERE email = :email AND reset_code = :token AND reset_code_expiry > :current_time");
+        $stmt->execute([
+            'email' => $email,
+            'token' => $token,
+            'current_time' => time()
+        ]);
+
         if ($stmt->rowCount() > 0) {
-            $user = $stmt->fetch();
-            
-            // Verify token and check expiry
-            if (time() <= $user['reset_code_expiry'] && password_verify($token, $user['reset_code'])) {
-                // Store the verified email in session
-                $_SESSION['reset_email_verified'] = $email;
-            } else {
-                $_SESSION['error'] = 'Invalid or expired reset link.';
-                header('location: password_forgot');
-                exit();
-            }
+            $_SESSION['reset_email_verified'] = $email;
         } else {
-            $_SESSION['error'] = 'Invalid reset link.';
+            $_SESSION['error'] = 'Invalid or expired reset link.';
             header('location: password_forgot');
             exit();
         }
-        
-        $pdo->close();
     } catch(PDOException $e) {
         $_SESSION['error'] = 'Connection error: ' . $e->getMessage();
         header('location: password_forgot');
         exit();
     }
+    $pdo->close();
 }
-
 ?>
 
 <?php include 'includes/header.php'; ?>
