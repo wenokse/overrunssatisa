@@ -3,30 +3,35 @@ include 'includes/session.php';
 
 // Check if we have a token-based reset request
 if (isset($_GET['email']) && isset($_GET['token'])) {
-    $email = filter_var($_GET['email'], FILTER_SANITIZE_EMAIL);
-    $token = $_GET['token'];
-    
     try {
+        $email = base64_decode($_GET['email']);
+        $token = $_GET['token'];
+        
         $conn = $pdo->open();
         
-        // Get the stored reset code and expiry
-        $stmt = $conn->prepare("SELECT reset_code, reset_code_expiry FROM users WHERE email = :email");
+        // Verify token and check expiry
+        $stmt = $conn->prepare("SELECT id, reset_code, reset_code_expiry FROM users WHERE email = :email");
         $stmt->execute(['email' => $email]);
         
         if ($stmt->rowCount() > 0) {
             $user = $stmt->fetch();
             
-            // Verify token and check expiry
-            if (time() <= $user['reset_code_expiry'] && password_verify($token, $user['reset_code'])) {
-                // Store the verified email in session
+            if (time() > $user['reset_code_expiry']) {
+                $_SESSION['error'] = 'Reset link has expired. Please request a new one.';
+                header('location: password_forgot');
+                exit();
+            }
+            
+            if (password_verify($token, $user['reset_code'])) {
+                // Store verified email in session
                 $_SESSION['reset_email_verified'] = $email;
             } else {
-                $_SESSION['error'] = 'Invalid or expired reset link.';
+                $_SESSION['error'] = 'Invalid reset link. Please request a new one.';
                 header('location: password_forgot');
                 exit();
             }
         } else {
-            $_SESSION['error'] = 'Invalid reset link.';
+            $_SESSION['error'] = 'Invalid reset link. Please request a new one.';
             header('location: password_forgot');
             exit();
         }
@@ -37,7 +42,10 @@ if (isset($_GET['email']) && isset($_GET['token'])) {
         header('location: password_forgot');
         exit();
     }
-} else if (!isset($_SESSION['reset_email_verified']) && !isset($_SESSION['reset_contact_verified'])) {
+}
+
+// Check for verified user (either through OTP or email link)
+elseif (!isset($_SESSION['verified_user_id']) && !isset($_SESSION['reset_email_verified'])) {
     header('location: password_forgot');
     exit();
 }
