@@ -132,37 +132,37 @@
                 </div>
                 <div class="col-md-6">
                 <div class="form-group">
-                    <label>Shop Image</label>
+                    <label>Shop Image <span style="color: red;">*</span></label>
                     <input type="file" id="photo" name="photo" accept="image/png, image/jpeg, image/jpg" required>
                     <img id="photo-preview" src="#" alt="Your Image" style="display:none; border-radius: 50%; width: 100px; height: 100px; margin-top: 10px;">
                 </div>
                 
                 <div class="form-group">
-                    <label>BIR Documents</label>
+                    <label>BIR Documents <span style="color: red;">*</span></label>
                     <input type="file" name="bir_doc" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
                     <small class="text-muted">Upload your BIR Certificate of Registration (Form 2303)</small>
                 </div>
 
                 <div class="form-group">
-                    <label>DTI Registration</label>
+                    <label>DTI Registration <span style="color: red;">*</span></label>
                     <input type="file" name="dti_doc" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
                     <small class="text-muted">Upload your DTI Business Registration Certificate</small>
                 </div>
 
                 <div class="form-group">
-                    <label>Mayor's Permit</label>
+                    <label>Mayor's Permit <span style="color: red;">*</span></label>
                     <input type="file" name="mayor_permit" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
                     <small class="text-muted">Upload your valid Mayor's Permit</small>
                 </div>
 
                 <div class="form-group">
-                    <label>Valid Government ID</label>
+                    <label>Valid Government ID <span style="color: red;">*</span></label>
                     <input type="file" name="valid_id" class="form-control" accept="image/png, image/jpeg, image/jpg" required>
                     <small class="text-muted">Upload any valid government ID (e.g., Driver's License, Passport, UMID)</small>
                 </div>
 
                 <div class="form-group">
-                    <label>TIN Number</label>
+                    <label>TIN Number <span style="color: red;">*</span></label>
                     <input type="text" class="form-control" name="tin_number" id="tin_number" placeholder="XXX-XXX-XXX-XXX" pattern="\d{3}-\d{3}-\d{3}-\d{3}" required>
                     <small class="text-muted">Format: XXX-XXX-XXX-XXX</small>
                 </div>
@@ -176,6 +176,7 @@
                     <input type="checkbox" id="terms" name="terms" required>
                     <label for="terms">I agree to the <a href="#" id="termsLink">Terms and Conditions</a></label>
                 </div>
+                <input type="hidden" name="recaptcha_response" id="recaptchaResponse">
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary btn-block" name="signup" id="signupButton" disabled>
                         <i class="fa fa-pencil"></i> Sign Up
@@ -188,7 +189,15 @@
         </div>
     </form>
 </div>
-
+<script src="https://www.google.com/recaptcha/api.js?render=6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk"></script>
+<script>
+grecaptcha.ready(function() {
+    grecaptcha.execute('6Lf-VoIqAAAAAIXG5tzEBzI814o8JbZVs61dfiVk', { action: 'vendor_register' })
+    .then(function(token) {
+        document.getElementById('recaptchaResponse').value = token;
+    });
+});
+</script>
 </div>
 <div id="termsModal" class="modal">
     <div class="modal-content">
@@ -264,8 +273,9 @@
             width: 850px;
             padding: 20px;
             margin: 0 auto 50px;
-            background-color: #f9f9f9;
+            border: 1px solid #ccc;
             border-radius: 20px;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
         }
 

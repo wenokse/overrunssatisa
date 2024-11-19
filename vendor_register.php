@@ -22,6 +22,20 @@ if(isset($_POST['signup'])){
     $repassword = $_POST['repassword'];
     $tin_number = $_POST['tin_number'];
 
+    if (isset($_POST['recaptcha_response'])) {
+        $recaptchaResponse = $_POST['recaptcha_response'];
+        $secretKey = '6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf';
+        
+        $response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$recaptchaResponse}");
+        $responseKeys = json_decode($response, true);
+        
+        if (!$responseKeys['success'] || $responseKeys['score'] < 0.5) {
+            $_SESSION['error'] = 'reCAPTCHA verification failed. Please try again.';
+            header('Location: vendor_signup');
+            exit();
+        }
+    }
+
     // Validate for special characters
     if (containsSpecialCharacters($firstname) || containsSpecialCharacters($lastname) || 
         containsSpecialCharacters($email) || containsSpecialCharacters($password) || 

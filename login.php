@@ -90,7 +90,7 @@
 }
 .container2 { 
     width: 500px;
-    height: 510px;
+    height: 410px;
     margin: 0 auto 50px;
     padding: 20px;
     border: 1px solid #ccc;

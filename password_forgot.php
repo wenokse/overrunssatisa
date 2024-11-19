@@ -107,8 +107,8 @@ if (!isset($_POST['reset_type']) && !isset($_POST['email']) && !isset($_POST['co
         margin: 0 auto 50px;
         padding: 20px;
         border: 1px solid #ccc;
-        border-radius: 10px;
-        background-color: #f9f9f9;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #6e8efb, #a777e3);
         box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
     }
     .reset-methods {

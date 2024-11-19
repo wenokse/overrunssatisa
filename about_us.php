@@ -64,30 +64,19 @@
                 <div class="contact-info animated fadeInUp">
                     <h3>Contact Us</h3>
                     <div class="contact-item">
-                        <i class="fa fa-map-marker"></i>
-                        <span>P.Lozada St Binaobao, Bantayan, Cebu Philippines</span>
-                    </div>
-                    <div class="contact-item">
                         <i class="fa fa-phone"></i>
                         <span>+639565565090</span>
                     </div>
                     <div class="contact-item">
                         <i class="fa fa-envelope"></i>
-                        <a href="mailto:manilynalmohallas.miranda@gmail.com">manilynalmohallas.miranda@gmail.com</a>
+                        <a href="mailto:rowensecuya25@gmail.com">Overruns Developer Team</a>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fa fa-facebook"></i>
+                        <a href="https://web.facebook.com/rowen.ayuces" target="_blank">Follow us on Facebook</a>
                     </div>
                 </div>
 
-                <div class="map-container animated fadeInUp">
-                <iframe 
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3935.187907224754!2d123.7156801!3d11.166587!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33a88903adb82363%3A0x6133fa0a7224a6!2sOverruns%20SA%20Tisa%20and%20Fashion%20Shop!5e0!3m2!1sen!2sph!4v1615687637855!5m2!1sen!2sph" 
-                        width="100%" 
-                        height="400" 
-                        style="border:0;" 
-                        allowfullscreen="" 
-                        loading="lazy" 
-                        referrerpolicy="no-referrer-when-downgrade">
-                    </iframe>
-                </div>
             </div>
             <div class="col-md-4">
                 <?php include 'includes/sidebar.php'; ?>
