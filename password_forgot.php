@@ -304,16 +304,17 @@ function handleEmailLink() {
         exit();
     }
 
-    $token = bin2hex(random_bytes(32));
+    // Generate a 15-character reset code since that's your field length
+    $reset_code = substr(str_shuffle("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 15);
     $expiry = time() + 3600; // 1 hour
 
     try {
         $conn = $pdo->open();
-        $stmt = $conn->prepare("UPDATE users SET reset_code = :token, reset_code_expiry = :expiry WHERE email = :email");
-        $stmt->execute(['token' => $token, 'expiry' => $expiry, 'email' => $email]);
+        $stmt = $conn->prepare("UPDATE users SET reset_code = :reset_code, reset_code_expiry = :expiry WHERE email = :email");
+        $stmt->execute(['reset_code' => $reset_code, 'expiry' => $expiry, 'email' => $email]);
 
         if ($stmt->rowCount() > 0) {
-            $reset_link = "https://overrunssatisa.com/password_reset?token=" . urlencode($token) . "&email=" . urlencode($email);
+            $reset_link = "https://overrunssatisa.com/password_reset?code=" . urlencode($reset_code) . "&email=" . urlencode($email);
             sendEmail($email, 'Password Reset Link', "Click the following link to reset your password: <a href='$reset_link'>Reset Password</a><br>This link will expire in 1 hour.");
             $_SESSION['success'] = 'Password reset link has been sent to your email.';
         } else {

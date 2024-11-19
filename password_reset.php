@@ -1,17 +1,17 @@
 <?php
 include 'includes/session.php';
 
-// Check if we have a token-based reset request
-if (isset($_GET['token']) && isset($_GET['email'])) {
-    $token = $_GET['token'];
+// Check if we have a code-based reset request
+if (isset($_GET['code']) && isset($_GET['email'])) {
+    $reset_code = $_GET['code'];
     $email = $_GET['email'];
     
     try {
         $conn = $pdo->open();
-        $stmt = $conn->prepare("SELECT * FROM users WHERE email = :email AND reset_code = :token AND reset_code_expiry > :current_time");
+        $stmt = $conn->prepare("SELECT * FROM users WHERE email = :email AND reset_code = :reset_code AND reset_code_expiry > :current_time");
         $stmt->execute([
             'email' => $email,
-            'token' => $token,
+            'reset_code' => $reset_code,
             'current_time' => time()
         ]);
 
@@ -28,6 +28,12 @@ if (isset($_GET['token']) && isset($_GET['email'])) {
         exit();
     }
     $pdo->close();
+}
+
+// Check for verified access
+if (!isset($_SESSION['reset_email_verified']) && !isset($_SESSION['reset_contact_verified'])) {
+    header('location: password_forgot');
+    exit();
 }
 ?>
 
