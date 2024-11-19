@@ -264,6 +264,17 @@ function handleEmailOTP() {
 
     try {
         $conn = $pdo->open();
+        // First check if email exists
+        $stmt = $conn->prepare("SELECT id FROM users WHERE email = :email");
+        $stmt->execute(['email' => $email]);
+        
+        if ($stmt->rowCount() == 0) {
+            $_SESSION['error'] = 'Email not found in our records.';
+            header('location: password_forgot');
+            exit();
+        }
+        
+        // Update the reset code
         $stmt = $conn->prepare("UPDATE users SET reset_code = :reset_code, reset_code_expiry = :expiry WHERE email = :email");
         $stmt->execute(['reset_code' => $otp, 'expiry' => $expiry, 'email' => $email]);
 
@@ -272,9 +283,7 @@ function handleEmailOTP() {
             $_SESSION['reset_email'] = $email;
             $_SESSION['reset_time'] = $expiry;
             header('location: reset_verify');
-        } else {
-            $_SESSION['error'] = 'Email not found in our records.';
-            header('location: password_forgot');
+            exit();
         }
     } catch(PDOException $e) {
         $_SESSION['error'] = "Database error: " . $e->getMessage();

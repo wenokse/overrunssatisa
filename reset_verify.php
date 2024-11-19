@@ -95,19 +95,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         ]);
 
         if ($stmt->rowCount() > 0) {
-            // Fetch the user ID and update their reset state
-            $user = $stmt->fetch();
-            $_SESSION['verified_user_id'] = $user['id'];
-
+            // Set the verification flag in session
+            if ($is_email) {
+                $_SESSION['reset_email_verified'] = $contact;
+            } else {
+                $_SESSION['reset_contact_verified'] = $contact;
+            }
+            
+            // Clear temporary session data
+            unset($_SESSION['reset_email'], $_SESSION['reset_phone'], $_SESSION['reset_time']);
+            
+            // Update database to clear the used OTP
             $updateStmt = $conn->prepare("
                 UPDATE users 
                 SET reset_code = NULL, reset_code_expiry = NULL 
-                WHERE id = :user_id
+                WHERE $field = :contact
             ");
-            $updateStmt->execute(['user_id' => $user['id']]);
-
-            // Clear temporary session data
-            unset($_SESSION['reset_email'], $_SESSION['reset_phone'], $_SESSION['reset_time']);
+            $updateStmt->execute(['contact' => $contact]);
+            
             header('location: reset_password');
             exit();
         } else {

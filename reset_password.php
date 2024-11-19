@@ -4,20 +4,13 @@ include 'includes/session.php';
 if (isset($_GET['code']) && isset($_GET['email'])) {
     $reset_code = $_GET['code'];
     $email = $_GET['email'];
-
+    
     try {
         $conn = $pdo->open();
-
-        $stmt = $conn->prepare("
-            SELECT id FROM users 
-            WHERE email = :email 
-            AND reset_code = :reset_code 
-            AND reset_code_expiry > :current_time
-        ");
+        $stmt = $conn->prepare("SELECT *, NOW() as current_time FROM users WHERE email = :email AND reset_code = :reset_code AND reset_code_expiry > UNIX_TIMESTAMP()");
         $stmt->execute([
             'email' => $email,
-            'reset_code' => $reset_code,
-            'current_time' => time()
+            'reset_code' => $reset_code
         ]);
 
         if ($stmt->rowCount() > 0) {
@@ -27,21 +20,20 @@ if (isset($_GET['code']) && isset($_GET['email'])) {
             header('location: password_forgot');
             exit();
         }
-    } catch (PDOException $e) {
-        $_SESSION['error'] = 'Database error: ' . $e->getMessage();
+    } catch(PDOException $e) {
+        $_SESSION['error'] = 'Connection error: ' . $e->getMessage();
         header('location: password_forgot');
         exit();
     }
     $pdo->close();
 }
 
-// Verify email/phone session existence
+// Check for either verified email or phone number
 if (!isset($_SESSION['reset_email_verified']) && !isset($_SESSION['reset_contact_verified'])) {
-    $_SESSION['error'] = 'Session expired or unauthorized access.';
+    $_SESSION['error'] = 'Please verify your identity first.';
     header('location: password_forgot');
     exit();
 }
-
 
 // Get the verified contact info (either email or phone)
 $contact_info = isset($_SESSION['reset_email_verified']) ? 
