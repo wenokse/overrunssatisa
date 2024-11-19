@@ -4,29 +4,42 @@ include 'includes/session.php';
 if (isset($_GET['code']) && isset($_GET['email'])) {
     $reset_code = $_GET['code'];
     $email = $_GET['email'];
-    
+
     try {
         $conn = $pdo->open();
-        $stmt = $conn->prepare("SELECT *, NOW() as current_time FROM users WHERE email = :email AND reset_code = :reset_code AND reset_code_expiry > UNIX_TIMESTAMP()");
-        $stmt->execute([
-            'email' => $email,
-            'reset_code' => $reset_code
-        ]);
+
+        $stmt = $conn->prepare("SELECT email, reset_code FROM users WHERE email = :email AND reset_code_expiry > UNIX_TIMESTAMP()");
+        $stmt->execute(['email' => $email]);
 
         if ($stmt->rowCount() > 0) {
-            $_SESSION['reset_email_verified'] = $email;
+            $user = $stmt->fetch();
+
+            // Verify the reset code
+            if (password_verify($reset_code, $user['reset_code'])) {
+                $_SESSION['reset_email_verified'] = $email;
+
+                // Clear the reset code after successful verification
+                $update = $conn->prepare("UPDATE users SET reset_code = NULL, reset_code_expiry = NULL WHERE email = :email");
+                $update->execute(['email' => $email]);
+            } else {
+                $_SESSION['error'] = 'Invalid or expired reset link.';
+                header('location: password_forgot');
+                exit();
+            }
         } else {
             $_SESSION['error'] = 'Invalid or expired reset link.';
             header('location: password_forgot');
             exit();
         }
-    } catch(PDOException $e) {
-        $_SESSION['error'] = 'Connection error: ' . $e->getMessage();
+    } catch (PDOException $e) {
+        $_SESSION['error'] = 'Database error: ' . $e->getMessage();
         header('location: password_forgot');
         exit();
     }
+
     $pdo->close();
 }
+
 
 // Check for either verified email or phone number
 if (!isset($_SESSION['reset_email_verified']) && !isset($_SESSION['reset_contact_verified'])) {

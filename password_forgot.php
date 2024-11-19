@@ -224,6 +224,7 @@ if (!isset($_POST['reset_type']) && !isset($_POST['email']) && !isset($_POST['co
     </script>
     </body>
     </html>
+
     <?php
     exit();
 }
@@ -295,37 +296,42 @@ function handleEmailOTP() {
 
 function handleEmailLink() {
     global $pdo;
-    
+
     $email = filter_var($_POST["email"], FILTER_SANITIZE_EMAIL);
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $_SESSION['error'] = "Invalid email address.";
         header('location: password_forgot');
         exit();
     }
-  
-    // Generate a 15-character reset code since that's your field length
-    $reset_code = substr(str_shuffle("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 15);
+
+    // Generate a secure reset code
+    $reset_code = bin2hex(random_bytes(15)); // 30-character secure random string
+    $reset_code_hash = password_hash($reset_code, PASSWORD_DEFAULT); // Hash the code
     $expiry = time() + 3600; // 1 hour
-  
+
     try {
         $conn = $pdo->open();
+
+        // Update the database with the hashed reset code
         $stmt = $conn->prepare("UPDATE users SET reset_code = :reset_code, reset_code_expiry = :expiry WHERE email = :email");
-        $stmt->execute(['reset_code' => $reset_code, 'expiry' => $expiry, 'email' => $email]);
-  
+        $stmt->execute(['reset_code' => $reset_code_hash, 'expiry' => $expiry, 'email' => $email]);
+
         if ($stmt->rowCount() > 0) {
-            $reset_link = "https://overrunssatisa.com/reset_password?code=" . urlencode($reset_code) . "&email=" . urlencode($email);
+            $reset_link = "https://overrunssatisa.com/password_reset?code=" . urlencode($reset_code) . "&email=" . urlencode($email);
             sendEmail($email, 'Password Reset Link', "Click the following link to reset your password: <a href='$reset_link'>Reset Password</a><br>This link will expire in 1 hour.");
             $_SESSION['success'] = 'Password reset link has been sent to your email.';
         } else {
             $_SESSION['error'] = 'Email not found in our records.';
         }
-    } catch(PDOException $e) {
+    } catch (PDOException $e) {
         $_SESSION['error'] = "Database error: " . $e->getMessage();
     }
+
     $pdo->close();
     header('location: password_forgot');
     exit();
-  }
+}
+
   
 function handleSMS() {
     global $pdo;
