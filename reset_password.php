@@ -1,56 +1,40 @@
 <?php
 include 'includes/session.php';
 
-// Check if we have a token-based reset request
-if (isset($_GET['email']) && isset($_GET['token'])) {
+// Check if we have a code-based reset request
+if (isset($_GET['code']) && isset($_GET['email'])) {
+    $reset_code = $_GET['code'];
+    $email = $_GET['email'];
+    
     try {
-        $email = base64_decode($_GET['email']);
-        $token = $_GET['token'];
-        
         $conn = $pdo->open();
-        
-        // Verify token and check expiry
-        $stmt = $conn->prepare("SELECT id, reset_code, reset_code_expiry FROM users WHERE email = :email");
-        $stmt->execute(['email' => $email]);
-        
+        $stmt = $conn->prepare("SELECT * FROM users WHERE email = :email AND reset_code = :reset_code AND reset_code_expiry > :current_time");
+        $stmt->execute([
+            'email' => $email,
+            'reset_code' => $reset_code,
+            'current_time' => time()
+        ]);
+
         if ($stmt->rowCount() > 0) {
-            $user = $stmt->fetch();
-            
-            if (time() > $user['reset_code_expiry']) {
-                $_SESSION['error'] = 'Reset link has expired. Please request a new one.';
-                header('location: password_forgot');
-                exit();
-            }
-            
-            if (password_verify($token, $user['reset_code'])) {
-                // Store verified email in session
-                $_SESSION['reset_email_verified'] = $email;
-            } else {
-                $_SESSION['error'] = 'Invalid reset link. Please request a new one.';
-                header('location: password_forgot');
-                exit();
-            }
+            $_SESSION['reset_email_verified'] = $email;
         } else {
-            $_SESSION['error'] = 'Invalid reset link. Please request a new one.';
+            $_SESSION['error'] = 'Invalid or expired reset link.';
             header('location: password_forgot');
             exit();
         }
-        
-        $pdo->close();
     } catch(PDOException $e) {
         $_SESSION['error'] = 'Connection error: ' . $e->getMessage();
         header('location: password_forgot');
         exit();
     }
+    $pdo->close();
 }
 
-// Check for verified user (either through OTP or email link)
-elseif (!isset($_SESSION['verified_user_id']) && !isset($_SESSION['reset_email_verified'])) {
+// Check for verified access
+if (!isset($_SESSION['reset_email_verified']) && !isset($_SESSION['reset_contact_verified'])) {
     header('location: password_forgot');
     exit();
 }
-
-
 // Get the verified contact info (either email or phone)
 $contact_info = isset($_SESSION['reset_email_verified']) ? 
                 $_SESSION['reset_email_verified'] : 
