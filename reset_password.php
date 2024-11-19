@@ -3,18 +3,37 @@ include 'includes/session.php';
 
 if (isset($_GET['code']) && isset($_GET['email'])) {
     $reset_code = $_GET['code'];
-    $email = $_GET['email'];
+    $email = filter_var($_GET['email'], FILTER_SANITIZE_EMAIL);
     
     try {
         $conn = $pdo->open();
-        $stmt = $conn->prepare("SELECT *, NOW() as current_time FROM users WHERE email = :email AND reset_code = :reset_code AND reset_code_expiry > UNIX_TIMESTAMP()");
+        
+        // Check if the reset code and email combination is valid and not expired
+        $stmt = $conn->prepare("
+            SELECT * FROM users 
+            WHERE email = :email 
+            AND reset_code = :reset_code 
+            AND reset_code_expiry > :current_time
+        ");
+        
         $stmt->execute([
             'email' => $email,
-            'reset_code' => $reset_code
+            'reset_code' => $reset_code,
+            'current_time' => time()
         ]);
 
         if ($stmt->rowCount() > 0) {
+            // Valid reset code - set session and clear reset code
             $_SESSION['reset_email_verified'] = $email;
+            
+            // Clear the reset code immediately to prevent reuse
+            $updateStmt = $conn->prepare("
+                UPDATE users 
+                SET reset_code = NULL, 
+                    reset_code_expiry = NULL 
+                WHERE email = :email
+            ");
+            $updateStmt->execute(['email' => $email]);
         } else {
             $_SESSION['error'] = 'Invalid or expired reset link.';
             header('location: password_forgot');
@@ -28,7 +47,7 @@ if (isset($_GET['code']) && isset($_GET['email'])) {
     $pdo->close();
 }
 
-// Check for either verified email or phone number
+// Keep your existing verification check
 if (!isset($_SESSION['reset_email_verified']) && !isset($_SESSION['reset_contact_verified'])) {
     $_SESSION['error'] = 'Please verify your identity first.';
     header('location: password_forgot');
