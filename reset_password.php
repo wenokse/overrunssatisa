@@ -42,6 +42,7 @@ if (!isset($_SESSION['reset_email_verified']) && !isset($_SESSION['reset_contact
     exit();
 }
 
+
 // Get the verified contact info (either email or phone)
 $contact_info = isset($_SESSION['reset_email_verified']) ? 
                 $_SESSION['reset_email_verified'] : 
