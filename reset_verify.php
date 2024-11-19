@@ -1,57 +1,90 @@
 <?php
 include 'includes/session.php';
 
-// Validate if verification session is set
-if ((!isset($_SESSION['reset_email']) && !isset($_SESSION['reset_phone'])) || !isset($_SESSION['reset_time'])) {
-    $_SESSION['error'] = 'Invalid verification attempt. Please start over.';
-    header('location: password_forgot');
-    exit();
-}
+try {
+    $conn = $pdo->open();
 
-// Determine verification method and contact information
-$is_email = isset($_SESSION['reset_email']);
-$contact = $is_email ? $_SESSION['reset_email'] : $_SESSION['reset_phone'];
-$expiry = $_SESSION['reset_time'];
+    // Handle reset link verification (email link)
+    if (isset($_GET['code'])) {
+        $reset_code = $_GET['code'];
 
-// Check if OTP is submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $otp = trim($_POST['otp']);
+        $stmt = $conn->prepare("
+            SELECT email, reset_code 
+            FROM users 
+            WHERE reset_code_expiry > :current_time
+              AND reset_code IS NOT NULL
+        ");
+        $stmt->execute(['current_time' => time()]);
 
-    // Validate OTP format
-    if (!preg_match('/^[0-9]{6}$/', $otp)) {
-        $_SESSION['error'] = 'Invalid OTP format. Please enter 6 digits.';
-        header('location: reset_verify');
+        $is_valid = false;
+        while ($row = $stmt->fetch()) {
+            if (password_verify($reset_code, $row['reset_code'])) {
+                $_SESSION['reset_email_verified'] = $row['email'];
+                $is_valid = true;
+
+                // Clear the reset code after successful verification
+                $update = $conn->prepare("
+                    UPDATE users 
+                    SET reset_code = NULL, reset_code_expiry = NULL 
+                    WHERE email = :email
+                ");
+                $update->execute(['email' => $row['email']]);
+                break;
+            }
+        }
+
+        if (!$is_valid) {
+            $_SESSION['error'] = 'Invalid or expired reset link.';
+            header('location: password_forgot');
+            exit();
+        }
+
+        // Redirect to password reset page
+        header('location: reset_password');
         exit();
     }
 
-    // Check OTP expiration
-    if (time() > $expiry) {
-        $_SESSION['error'] = 'OTP has expired. Please request a new one.';
-        unset($_SESSION['reset_email'], $_SESSION['reset_phone'], $_SESSION['reset_time']);
-        header('location: password_forgot');
-        exit();
-    }
+    // Handle OTP verification (email or SMS)
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $otp = trim($_POST['otp']);
 
-    try {
-        $conn = $pdo->open();
+        if (!preg_match('/^[0-9]{6}$/', $otp)) {
+            $_SESSION['error'] = 'Invalid OTP format. Please enter 6 digits.';
+            header('location: reset_verify');
+            exit();
+        }
 
-        // Define the field to check based on the method
+        // Determine verification method
+        $is_email = isset($_SESSION['reset_email']);
+        $contact = $is_email ? $_SESSION['reset_email'] : $_SESSION['reset_phone'];
+        $expiry = $_SESSION['reset_time'] ?? 0;
+
+        if (time() > $expiry) {
+            $_SESSION['error'] = 'OTP has expired. Please request a new one.';
+            unset($_SESSION['reset_email'], $_SESSION['reset_phone'], $_SESSION['reset_time']);
+            header('location: password_forgot');
+            exit();
+        }
+
         $field = $is_email ? "email" : "contact_info";
         $stmt = $conn->prepare("
-            SELECT id FROM users 
-            WHERE $field = :contact AND reset_code = :otp AND reset_code_expiry > :current_time
+            SELECT id 
+            FROM users 
+            WHERE $field = :contact 
+              AND reset_code = :otp 
+              AND reset_code_expiry > :current_time
         ");
         $stmt->execute([
             'contact' => $contact,
             'otp' => $otp,
-            'current_time' => time()
+            'current_time' => time(),
         ]);
 
         if ($stmt->rowCount() > 0) {
-            // Fetch the user ID and update their reset state
             $user = $stmt->fetch();
             $_SESSION['verified_user_id'] = $user['id'];
 
+            // Clear the reset code after successful verification
             $updateStmt = $conn->prepare("
                 UPDATE users 
                 SET reset_code = NULL, reset_code_expiry = NULL 
@@ -59,26 +92,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ");
             $updateStmt->execute(['user_id' => $user['id']]);
 
-            // Clear temporary session data
             unset($_SESSION['reset_email'], $_SESSION['reset_phone'], $_SESSION['reset_time']);
             header('location: reset_password');
             exit();
         } else {
             $_SESSION['error'] = 'Invalid or expired OTP. Please try again.';
         }
-    } catch (PDOException $e) {
-        error_log("OTP Verification Error: " . $e->getMessage());
-        $_SESSION['error'] = 'System error occurred. Please try again later.';
     }
 
     $pdo->close();
-    header('location: reset_verify');
+} catch (PDOException $e) {
+    $_SESSION['error'] = 'Database error: ' . $e->getMessage();
+    header('location: password_forgot');
     exit();
 }
 
-// Calculate remaining OTP time
-$remaining_time = max(0, $expiry - time());
+// Calculate remaining OTP time for countdown display
+$remaining_time = max(0, ($_SESSION['reset_time'] ?? 0) - time());
 ?>
+
 <?php include 'includes/header.php'; ?>
 <!DOCTYPE html>
 <html>
