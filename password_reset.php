@@ -8,38 +8,43 @@ if (isset($_GET['code']) && isset($_GET['email'])) {
     try {
         $conn = $pdo->open();
 
-        $stmt = $conn->prepare("SELECT email, reset_code FROM users WHERE email = :email AND reset_code_expiry > UNIX_TIMESTAMP()");
+        // Retrieve the hashed reset code and expiry time from the database
+        $stmt = $conn->prepare("SELECT email, reset_code, reset_code_expiry FROM users WHERE email = :email");
         $stmt->execute(['email' => $email]);
 
         if ($stmt->rowCount() > 0) {
             $user = $stmt->fetch();
 
-            // Verify the reset code
-            if (password_verify($reset_code, $user['reset_code'])) {
-                $_SESSION['reset_email_verified'] = $email;
+            // Check if the reset link is still valid
+            if ($user['reset_code_expiry'] > time()) {
+                // Verify the reset code
+                if (password_verify($reset_code, $user['reset_code'])) {
+                    $_SESSION['reset_email_verified'] = $email;
 
-                // Clear the reset code after successful verification
-                $update = $conn->prepare("UPDATE users SET reset_code = NULL, reset_code_expiry = NULL WHERE email = :email");
-                $update->execute(['email' => $email]);
+                    // Clear the reset code and expiry after successful verification
+                    $update = $conn->prepare("UPDATE users SET reset_code = NULL, reset_code_expiry = NULL WHERE email = :email");
+                    $update->execute(['email' => $email]);
+
+                    $_SESSION['success'] = "Reset link verified. You can now reset your password.";
+                } else {
+                    $_SESSION['error'] = "Invalid or expired reset link.";
+                }
             } else {
-                $_SESSION['error'] = 'Invalid or expired reset link.';
-                header('location: password_forgot');
-                exit();
+                $_SESSION['error'] = "The reset link has expired.";
             }
         } else {
-            $_SESSION['error'] = 'Invalid or expired reset link.';
-            header('location: password_forgot');
-            exit();
+            $_SESSION['error'] = "Invalid or expired reset link.";
         }
     } catch (PDOException $e) {
-        $_SESSION['error'] = 'Database error: ' . $e->getMessage();
-        header('location: password_forgot');
-        exit();
+        $_SESSION['error'] = "Database error: " . $e->getMessage();
     }
 
     $pdo->close();
+    header('location: password_forgot');
+    exit();
 }
 ?>
+
 <?php include 'includes/header.php'; ?>
 <script src="js/sweetalert.min.js"></script>
 <body>

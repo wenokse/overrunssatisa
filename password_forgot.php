@@ -305,20 +305,20 @@ function handleEmailLink() {
     }
 
     // Generate a secure reset code
-    $reset_code = bin2hex(random_bytes(15)); // 30-character secure random string
-    $reset_code_hash = password_hash($reset_code, PASSWORD_DEFAULT); // Hash the code
-    $expiry = time() + 3600; // 1 hour
+    $reset_code = bin2hex(random_bytes(15)); // Random string
+    $reset_code_hash = password_hash($reset_code, PASSWORD_DEFAULT); // Hashed reset code
+    $expiry = time() + 3600; // 1-hour expiry
 
     try {
         $conn = $pdo->open();
 
-        // Update the database with the hashed reset code
+        // Update the hashed reset code and expiry time in the database
         $stmt = $conn->prepare("UPDATE users SET reset_code = :reset_code, reset_code_expiry = :expiry WHERE email = :email");
         $stmt->execute(['reset_code' => $reset_code_hash, 'expiry' => $expiry, 'email' => $email]);
 
         if ($stmt->rowCount() > 0) {
             $reset_link = "https://overrunssatisa.com/password_reset?code=" . urlencode($reset_code) . "&email=" . urlencode($email);
-            sendEmail($email, 'Password Reset Link', "Click the following link to reset your password: <a href='$reset_link'>Reset Password</a><br>This link will expire in 1 hour.");
+            sendEmail($email, 'Password Reset Link', "Click this link to reset your password: <a href='$reset_link'>Reset Password</a><br>This link will expire in 1 hour.");
             $_SESSION['success'] = 'Password reset link has been sent to your email.';
         } else {
             $_SESSION['error'] = 'Email not found in our records.';
