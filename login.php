@@ -204,6 +204,8 @@
     <center><h2 class="animate__animated animate__slideInLeft">Welcome Back</h2></center><br><br>
 
     <form action="verify" method="POST">
+    <input type="hidden" name="latitude" id="latitude">
+    <input type="hidden" name="longitude" id="longitude">
         <div class="form-group has-feedback">
             <input type="email" class="form-control" name="email" placeholder="Email" required>
             <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
@@ -242,6 +244,33 @@ grecaptcha.ready(function() {
         document.getElementById('recaptchaResponse').value = token;
     });
 });
+</script>
+<script>
+    // Ensure that the browser supports geolocation
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            // Capture latitude and longitude
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            // Add the latitude and longitude as hidden inputs in the form
+            const latInput = document.createElement('input');
+            latInput.type = 'hidden';
+            latInput.name = 'latitude';
+            latInput.value = latitude;
+
+            const lonInput = document.createElement('input');
+            lonInput.type = 'hidden';
+            lonInput.name = 'longitude';
+            lonInput.value = longitude;
+
+            // Append the inputs to the form
+            document.querySelector('form').appendChild(latInput);
+            document.querySelector('form').appendChild(lonInput);
+        });
+    } else {
+        alert("Geolocation is not supported by this browser.");
+    }
 </script>
 
 <!-- Terms and Conditions Modal -->

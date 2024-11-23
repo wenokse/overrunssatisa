@@ -3,7 +3,6 @@ include 'includes/session.php';
 
 // Check for either verified email or phone number
 if (!isset($_SESSION['reset_email_verified']) && !isset($_SESSION['reset_contact_verified'])) {
-    $_SESSION['error'] = 'Please verify your identity first.';
     header('location: password_forgot');
     exit();
 }
@@ -29,7 +28,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $password_hash = password_hash($password, PASSWORD_DEFAULT);
             
             $sql = "UPDATE users SET 
-                    password = :password, 
+                    password = :password,
+                    updated_on=NOW(), 
                     reset_code = NULL, 
                     reset_code_expiry = NULL 
                     WHERE " . ($is_email ? "email" : "contact_info") . " = :contact";
@@ -63,7 +63,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <br><br><br><br>
 <div class="container2">
-<a href="password_forgot" style="color: rgb(0, 51, 102);"><i class="fa fa-arrow-left"></i></a>
+    <a href="<?php echo $is_email ? 'password_forgot' : 'another'; ?>" style="color: rgb(0, 51, 102);">
+        <i class="fa fa-arrow-left" style="color: rgb(0, 51, 102);"></i>
+    </a>
     <center><h2>Reset Password</h2></center>
     <p>Resetting password for: <strong><?php echo htmlspecialchars($contact_info); ?></strong></p>
     
@@ -172,10 +174,9 @@ body {
     margin: 0 auto 50px;
     padding: 20px;
     border: 1px solid #ccc;
-    border: 1px solid #ccc;
-        border-radius: 20px;
-        background: linear-gradient(135deg, #6e8efb, #a777e3);
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
 }
 .container2 input {
     background-color: #eee;

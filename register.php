@@ -166,6 +166,7 @@ if (isset($_POST['signup'])) {
                 'contact_info' => $contact_info,
                 'email' => $email,
                 'password' => $password,
+                'status' => 2,
                 'email_code' => $email_code,
                 'sms_code' => $sms_code,
                 'code_time' => $code_expiry,

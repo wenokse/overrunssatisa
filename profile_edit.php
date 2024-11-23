@@ -113,7 +113,7 @@ if(isset($_POST['edit'])){
         
 
         try{
-            $stmt = $conn->prepare("UPDATE users SET email=:email, password=:password, firstname=:firstname, lastname=:lastname, contact_info=:contact_info, address=:address, address2=:address2, photo=:photo WHERE id=:id");
+            $stmt = $conn->prepare("UPDATE users SET email=:email, password=:password, firstname=:firstname, lastname=:lastname, contact_info=:contact_info, address=:address, address2=:address2, photo=:photo, updated_on=NOW() WHERE id=:id");
             $stmt->execute([
                 'email'=>$email, 
                 'password'=>$password, 

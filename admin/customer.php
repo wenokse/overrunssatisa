@@ -60,8 +60,8 @@
                   <th>Email</th>
                   <th>Name</th>
                   <th>Contact</th>
+                  <th>Login Attempts</th>
                   <th>Address</th>
-                  <th>Purok</th>
                   <th>Status</th>
                   <th>Date Added</th>
                   <th>Action</th>
@@ -121,8 +121,11 @@
                             <td>".$row['email']."</td>
                             <td>".$row['firstname'].' '.$row['lastname']."</td>
                             <td>".$row['contact_info']."</td>
-                            <td>".$row['address']."</td>
-                            <td>".$row['address2']."</td>
+                            <td>".$row['login_attempts']."</td>
+                            <td>
+                            <button class='btn btn-info btn-sm view btn-flat' style='color: #fff; border-radius: 8px;' 
+                            data-id='".$row['id']."'><i class='fa fa-eye'></i> View</button>
+                            </td>
                             <td>
                               ".$status."
                               ".$active."
@@ -189,6 +192,26 @@ $(function(){
 
 });
 
+function fetchAddress(lat, lng) {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`;
+
+    // Show loading text while fetching
+    $('#fetched_address').text('Fetching...');
+
+    $.getJSON(url, function(data) {
+        if (data && data.display_name) {
+            // Update the new fetched address field
+            $('#fetched_address').text(data.display_name);
+        } else {
+            $('#fetched_address').text('Unable to fetch address');
+        }
+    }).fail(function() {
+        $('#fetched_address').text('Error retrieving address');
+    });
+}
+
+
+
 function getRow(id){
   $.ajax({
     type: 'POST',
@@ -204,9 +227,78 @@ function getRow(id){
       $('#edit_address').val(response.address);
       $('#edit_contact').val(response.contact_info);
       $('.fullname').html(response.firstname+' '+response.lastname);
+      
+      // New code for view modal
+      $.ajax({
+        type: 'POST',
+        url: 'users_location',  // You'll need to create this endpoint
+        data: {id:id},
+        dataType: 'json',
+        success: function(locationData){
+          // Update view modal with additional details
+          $('#view_photo').attr('src', '../images/' + (response.photo || 'profile.jpg'));
+          $('#view_fullname').text(response.firstname + ' ' + response.lastname);
+          $('#view_email').text(response.email);
+          $('#view_contact').text(response.contact_info);
+          $('#view_address').text(response.address);
+          $('#view_address2').text(response.address2 || 'N/A');
+          
+          if (locationData.latitude && locationData.longitude) {
+    $('#view_latitude').text(locationData.latitude);
+    $('#view_longitude').text(locationData.longitude);
+    $('#location_trace_btn').show();
+
+    // Fetch and display the fetched address
+    fetchAddress(locationData.latitude, locationData.longitude);
+
+    // Store location data for tracing
+    window.currentUserLocation = {
+        latitude: locationData.latitude,
+        longitude: locationData.longitude
+    };
+} else {
+    $('#view_latitude').text('N/A');
+    $('#view_longitude').text('N/A');
+    $('#fetched_address').text('N/A');
+    $('#location_trace_btn').hide();
+    window.currentUserLocation = null;
+}
+
+        },
+        error: function() {
+          $('#view_latitude').text('N/A');
+          $('#view_longitude').text('N/A');
+          $('#location_trace_btn').hide();
+          window.currentUserLocation = null;
+        }
+      });
     }
   });
 }
+
+// Add function to trace user location
+function traceUserLocation() {
+  if (window.currentUserLocation) {
+    // Open Google Maps with the location
+    var url = `https://www.google.com/maps?q=${window.currentUserLocation.latitude},${window.currentUserLocation.longitude}`;
+    window.open(url, '_blank');
+  } else {
+    swal({
+      title: 'Location Unavailable',
+      text: 'No location data found for this user.',
+      icon: 'warning',
+      button: 'OK'
+    });
+  }
+}
+
+// Add a click event for the view button
+$(document).on('click', '.view', function(e){
+  e.preventDefault();
+  $('#view').modal('show');
+  var id = $(this).data('id');
+  getRow(id);
+});
 </script>
 </body>
 </html>

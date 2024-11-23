@@ -163,7 +163,11 @@ $is_expired = $remaining_time == 0;
     ?>
     <form action="verify_email" method="POST">
         <label for="verification_code">Enter Verification Code:</label>
-        <input type="text" name="verification_code" required>
+        <input type="text" name="verification_code" required pattern="[0-9]{6}" 
+                   maxlength="6" 
+                   placeholder="Enter 6-digit OTP" 
+                   title="Please enter 6-digit OTP"
+                   autocomplete="one-time-code">
         <button type="submit" name="verify" id="verifyButton">Verify</button>
     </form>
     <form action="verify_email" method="POST">
@@ -178,47 +182,85 @@ $is_expired = $remaining_time == 0;
         }
 
 
-  body{
+    
+body {
     background: rgb(0, 51, 102);
     background-size: cover;
     background-repeat: no-repeat;
-  }
-  .container2 { 
+}
+.container2 { 
     width: 500px;
-    height: 300px;
+    height: auto;
+    min-height: 300px;
     margin: 0 auto 50px;
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 10px;
     background-color: #f9f9f9;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-    align: center;
-    
-  }
-  .container2 input{
+}
+.info-box {
+    background-color: #f8f9fa;
+    border-left: 4px solid #512da8;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+}
+.countdown {
+    font-weight: bold;
+    color: #512da8;
+}
+.container2 input {
     background-color: #eee;
     border: none;
     margin: 8px 0;
     padding: 10px 15px;
-    font-size: 13px;
+    font-size: 16px;
     border-radius: 8px;
     width: 100%;
     outline: none;
+    text-align: center;
+    letter-spacing: 2px;
 }
-.container2 button{
+.container2 button {
     background-color: #512da8;
     color: #fff;
-    font-size: 12px;
-    padding: 10px 45px;
+    font-size: 14px;
+    padding: 12px 45px;
     border: 1px solid transparent;
     border-radius: 20px;
     font-weight: 600;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-   
     cursor: pointer;
+    width: 100%;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
 }
+.container2 button:hover {
+    background-color: #4527a0;
+}
+.container2 button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+.text-center {
+    text-align: center;
+    margin-top: 20px;
+}
+.button {
+    color: #512da8;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+.button:hover {
+    color: #4527a0;
+    text-decoration: underline;
+}
+.form-group {
+    margin-bottom: 15px;
+}
+</style>
 
-  
-  </style>
 </body>

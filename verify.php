@@ -81,55 +81,70 @@ function getUserDevice() {
     $deviceInfo = [
         'device' => 'Unknown',
         'os' => 'Unknown',
-        'browser' => 'Unknown'
+        'browser' => 'Unknown',
+        'model' => 'Unknown' // Added model detection
     ];
-    
+
     // Device detection
-    if(strpos($userAgent, 'Android') !== false) {
+    if (strpos($userAgent, 'Android') !== false) {
         $deviceInfo['device'] = 'Android Device';
         preg_match('/Android\s([0-9\.]*)/i', $userAgent, $matches);
         $deviceInfo['os'] = 'Android ' . ($matches[1] ?? '');
-    } elseif(strpos($userAgent, 'iPhone') !== false) {
+
+        // Extract phone model for Android
+        if (preg_match('/Build\/([a-zA-Z0-9_\-]+)/', $userAgent, $modelMatches)) {
+            $deviceInfo['model'] = $modelMatches[1];
+        }
+    } elseif (strpos($userAgent, 'iPhone') !== false) {
         $deviceInfo['device'] = 'iPhone';
         $deviceInfo['os'] = 'iOS';
-    } elseif(strpos($userAgent, 'iPad') !== false) {
+
+        // Attempt to infer iPhone model from the user agent
+        if (preg_match('/iPhone.*?OS\s([\d_]+)/', $userAgent, $modelMatches)) {
+            $deviceInfo['model'] = 'iPhone (iOS ' . str_replace('_', '.', $modelMatches[1]) . ')';
+        }
+    } elseif (strpos($userAgent, 'iPad') !== false) {
         $deviceInfo['device'] = 'iPad';
         $deviceInfo['os'] = 'iOS';
-    } elseif(strpos($userAgent, 'Windows') !== false) {
+
+        // Attempt to infer iPad model from the user agent
+        if (preg_match('/iPad.*?OS\s([\d_]+)/', $userAgent, $modelMatches)) {
+            $deviceInfo['model'] = 'iPad (iOS ' . str_replace('_', '.', $modelMatches[1]) . ')';
+        }
+    } elseif (strpos($userAgent, 'Windows') !== false) {
         $deviceInfo['device'] = 'Windows PC';
         $deviceInfo['os'] = 'Windows';
-    } elseif(strpos($userAgent, 'Macintosh') !== false) {
+    } elseif (strpos($userAgent, 'Macintosh') !== false) {
         $deviceInfo['device'] = 'Mac';
         $deviceInfo['os'] = 'macOS';
-    } elseif(strpos($userAgent, 'Linux') !== false) {
+    } elseif (strpos($userAgent, 'Linux') !== false) {
         $deviceInfo['device'] = 'Linux';
         $deviceInfo['os'] = 'Linux';
     }
-    
+
     // Browser detection
-    if(strpos($userAgent, 'Chrome') !== false) {
+    if (strpos($userAgent, 'Chrome') !== false) {
         $deviceInfo['browser'] = 'Chrome';
-    } elseif(strpos($userAgent, 'Firefox') !== false) {
+    } elseif (strpos($userAgent, 'Firefox') !== false) {
         $deviceInfo['browser'] = 'Firefox';
-    } elseif(strpos($userAgent, 'Safari') !== false) {
+    } elseif (strpos($userAgent, 'Safari') !== false) {
         $deviceInfo['browser'] = 'Safari';
-    } elseif(strpos($userAgent, 'Edge') !== false) {
+    } elseif (strpos($userAgent, 'Edge') !== false) {
         $deviceInfo['browser'] = 'Edge';
-    } elseif(strpos($userAgent, 'MSIE') !== false || strpos($userAgent, 'Trident/') !== false) {
+    } elseif (strpos($userAgent, 'MSIE') !== false || strpos($userAgent, 'Trident/') !== false) {
         $deviceInfo['browser'] = 'Internet Explorer';
     }
-    
+
     return $deviceInfo;
 }
 
-function sendLoginNotification($email, $firstname, $lastname) {
+
+function sendLoginNotification($email, $firstname, $lastname, $location, $latitude, $longitude) {
     try {
         $mail = new PHPMailer(true);
-        $location = getUserLocation();
-        $deviceInfo = getUserDevice();
         $loginTime = date('Y-m-d H:i:s');
         $ipAddress = getClientIP();
-        $macAddress = getMACAddress($ipAddress);
+        $deviceDetails = getUserDevice(); // Fetch device details
         
         // Server settings
         $mail->SMTPDebug = SMTP::DEBUG_OFF;
@@ -155,60 +170,47 @@ function sendLoginNotification($email, $firstname, $lastname) {
         $mail->setFrom('overrunssatisa@gmail.com', 'Overruns Sa Tisa Online Shop');
         $mail->addAddress($email, $firstname . ' ' . $lastname);
 
-        // Content
         $mail->isHTML(true);
         $mail->Subject = 'New Login to Your Account';
-        $mail->Body = "
-            <h2 style='color: #003366;'>New Login Detected</h2>
-            <p>Hello {$firstname} {$lastname},</p>
-            <p>We detected a new login to your Overruns Sa Tisa Online Shop account.</p>
-            
-            <div style='background-color: #f5f5f5; padding: 15px; border-radius: 5px;'>
-                <h3 style='color: #003366;'>Login Details:</h3>
-                <table style='width: 100%; border-collapse: collapse;'>
-                    <tr>
-                        <td style='padding: 8px; border-bottom: 1px solid #ddd;'><strong>Date and Time:</strong></td>
-                        <td style='padding: 8px; border-bottom: 1px solid #ddd;'>{$loginTime}</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 8px; border-bottom: 1px solid #ddd;'><strong>IP Address:</strong></td>
-                        <td style='padding: 8px; border-bottom: 1px solid #ddd;'>{$ipAddress}</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 8px; border-bottom: 1px solid #ddd;'><strong>MAC Address:</strong></td>
-                        <td style='padding: 8px; border-bottom: 1px solid #ddd;'>{$macAddress}</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 8px; border-bottom: 1px solid #ddd;'><strong>Device:</strong></td>
-                        <td style='padding: 8px; border-bottom: 1px solid #ddd;'>{$deviceInfo['device']}</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 8px; border-bottom: 1px solid #ddd;'><strong>Operating System:</strong></td>
-                        <td style='padding: 8px; border-bottom: 1px solid #ddd;'>{$deviceInfo['os']}</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 8px; border-bottom: 1px solid #ddd;'><strong>Browser:</strong></td>
-                        <td style='padding: 8px; border-bottom: 1px solid #ddd;'>{$deviceInfo['browser']}</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 8px; border-bottom: 1px solid #ddd;'><strong>Location:</strong></td>
-                        <td style='padding: 8px; border-bottom: 1px solid #ddd;'>{$location['city']}, {$location['region']}, {$location['country']}</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 8px; border-bottom: 1px solid #ddd;'><strong>Internet Provider:</strong></td>
-                        <td style='padding: 8px; border-bottom: 1px solid #ddd;'>{$location['isp']}</td>
-                    </tr>
-                </table>
-            </div>
 
-            <p style='color: #ff0000; margin-top: 20px;'>If this wasn't you, please contact us immediately!</p>
-            
-            <p style='margin-top: 20px;'>Best regards,<br>Overruns Sa Tisa Online Shop Team</p>
-            
-            <div style='font-size: 12px; color: #666; margin-top: 20px;'>
-                This is an automated security notification. Please do not reply to this email.
-            </div>
-        ";
+        // Construct email body with device details
+        $mail->Body = "
+        <h2 style='color: #003366;'>New Login Detected</h2>
+        <p>Hello {$firstname} {$lastname},</p>
+        <p>We detected a new login to your Overruns Sa Tisa Online Shop account.</p>
+        
+        <div style='background-color: #f5f5f5; padding: 15px; border-radius: 5px;'>
+            <h3 style='color: #003366;'>Login Details:</h3>
+            <table style='width: 100%; border-collapse: collapse;'>
+                <tr>
+                    <td style='padding: 8px; border-bottom: 1px solid #ddd;'><strong>Date and Time:</strong></td>
+                    <td style='padding: 8px; border-bottom: 1px solid #ddd;'>{$loginTime}</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border-bottom: 1px solid #ddd;'><strong>Location:</strong></td>
+                    <td style='padding: 8px; border-bottom: 1px solid #ddd;'>
+                        <a href='https://www.google.com/maps?q={$latitude},{$longitude}' target='_blank'>View on Google Maps</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border-bottom: 1px solid #ddd;'><strong>IP Address:</strong></td>
+                    <td style='padding: 8px; border-bottom: 1px solid #ddd;'>{$ipAddress}</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border-bottom: 1px solid #ddd;'><strong>Device:</strong></td>
+                    <td style='padding: 8px; border-bottom: 1px solid #ddd;'>
+                        {$deviceDetails['device']} ({$deviceDetails['model']})<br>
+                        OS: {$deviceDetails['os']}<br>
+                        Browser: {$deviceDetails['browser']}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    
+        <p style='color: #ff0000; margin-top: 20px;'>If this wasn't you, please contact us immediately!</p>
+        
+        <p style='margin-top: 20px;'>Best regards,<br>Overruns Sa Tisa Online Shop Team</p>
+    ";
 
         $mail->send();
         return true;
@@ -220,7 +222,6 @@ function sendLoginNotification($email, $firstname, $lastname) {
 
 $conn = null;
 $stmt = null;
-
 try {
     $conn = $pdo->open();
 
@@ -232,34 +233,51 @@ try {
             throw new Exception('Invalid input');
         }
 
-        if (isset($_POST['recaptcha_response'])) {
-            $recaptchaResponse = $_POST['recaptcha_response'];
-            $secretKey = '6Lf-VoIqAAAAALGiTwK15qjAKTRD6Kv8al322Apf';
-            
-            $response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$recaptchaResponse}");
-            $responseKeys = json_decode($response, true);
-            
-            if (!$responseKeys['success'] || $responseKeys['score'] < 0.5) {
-                $_SESSION['error'] = 'reCAPTCHA verification failed. Please try again.';
-                header('Location: login');
-                exit();
-            }
-        }
-        
-
-        // Check if account is locked
         $stmt = $conn->prepare("SELECT *, COUNT(*) AS numrows FROM users WHERE email = :email");
         $stmt->bindParam(':email', $email, PDO::PARAM_STR);
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if($row && $row['numrows'] > 0) {
-            if($row['lockout_time'] > time()) {
-                $remainingTime = ceil(($row['lockout_time'] - time()) / 60);
-                $_SESSION['error'] = "Account is locked. Please try again in {$remainingTime} minute(s).";
+            $currentTime = time();
+            $lockoutExpired = ($row['lockout_time'] > 0 && $currentTime > $row['lockout_time']);
+
+            if ($lockoutExpired && $row['login_attempts'] >= 10) {
+                // Reset login attempts and lockout time if 12 hours have passed
+                $resetAttempts = $conn->prepare("UPDATE users SET 
+                    login_attempts = 0, 
+                    lockout_time = 0 
+                WHERE email = :email");
+                $resetAttempts->bindParam(':email', $email, PDO::PARAM_STR);
+                $resetAttempts->execute();
+
+                // Refresh the row data after reset
+                $stmt = $conn->prepare("SELECT *, COUNT(*) AS numrows FROM users WHERE email = :email");
+                $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+                $stmt->execute();
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            }
+
+            // Check if account is currently locked
+            if ($row['lockout_time'] > $currentTime) {
+                $remainingSeconds = $row['lockout_time'] - $currentTime;
+                $hours = floor($remainingSeconds / 3600);
+                $minutes = floor(($remainingSeconds % 3600) / 60);
+                $seconds = $remainingSeconds % 60;
+
+                // Format the message to show precise remaining time
+                $timeMessage = [];
+                if ($hours > 0) $timeMessage[] = "$hours hour" . ($hours != 1 ? 's' : '');
+                if ($minutes > 0) $timeMessage[] = "$minutes minute" . ($minutes != 1 ? 's' : '');
+                if ($seconds > 0) $timeMessage[] = "$seconds second" . ($seconds != 1 ? 's' : '');
+
+                $remainingTimeString = implode(' ', $timeMessage);
+
+                $_SESSION['error'] = "Account is locked. Please try again in {$remainingTimeString}.";
                 header('Location: login');
                 exit();
             }
+
 
             if($row['status'] == 1) {
                 if(password_verify($password, $row['password'])) {
@@ -268,8 +286,23 @@ try {
                     $resetAttempts->bindParam(':email', $email, PDO::PARAM_STR);
                     $resetAttempts->execute();
 
+                        // Get latitude and longitude from POST data
+                        $latitude = $_POST['latitude'] ?? null;
+                        $longitude = $_POST['longitude'] ?? null;
+                        
+                        // Save the location data
+                        if ($latitude && $longitude) {
+                            $stmt = $conn->prepare("INSERT INTO user_locations (user_id, latitude, longitude, first_login, last_login) 
+                                                    VALUES (:user_id, :latitude, :longitude, NOW(), NOW()) 
+                                                    ON DUPLICATE KEY UPDATE latitude = :latitude, longitude = :longitude, last_login = NOW()");
+                            $stmt->bindParam(':user_id', $row['id'], PDO::PARAM_INT);
+                            $stmt->bindParam(':latitude', $latitude, PDO::PARAM_STR);
+                            $stmt->bindParam(':longitude', $longitude, PDO::PARAM_STR);
+                            $stmt->execute();
+                        }
+
                     // Send login notification email
-                    sendLoginNotification($email, $row['firstname'], $row['lastname']);
+                    sendLoginNotification($email, $row['firstname'], $row['lastname'], $location, $latitude, $longitude);
 
                     setSessionVariables($row);
                     $redirect = $row['type'] ? 'admin/home' : 'profile';
@@ -303,7 +336,7 @@ try {
 
                     $_SESSION['error'] = $message;
                 }
-            } elseif($row['status'] == 0) {
+            } elseif($row['status'] == 2) {
                 $_SESSION['error'] = 'Please verify your email address before logging in.';
             } elseif($row['status'] == 5) {
                 $_SESSION['error'] = 'Sorry your account has been declined. Check your email for the reason.';

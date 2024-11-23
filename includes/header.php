@@ -2,30 +2,32 @@
 <html>
 <head>
 <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta charset="utf-8">
+  	<meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self'; 
-        script-src 'self' https://code.jquery.com https://cdn.jsdelivr.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ 'unsafe-inline'; 
-        object-src 'none'; 
-        connect-src 'self'; 
-        style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; 
-        font-src 'self' https://fonts.gstatic.com; 
-        img-src 'self' data:; 
-        frame-src https://www.google.com/recaptcha/;
-        frame-ancestors 'self'; 
-        base-uri 'self'; 
-        form-action 'self';">
-    <title>Overruns Sa Tisa Online Shop</title>
-    <link rel="icon" href="images/logo1.png" type="image/x-icon"/>
-    <!-- CSS Libraries -->
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+    default-src 'self'; 
+    script-src 'self' https://code.jquery.com https://cdn.jsdelivr.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ 'unsafe-inline'; 
+    object-src 'none'; 
+    connect-src 'self'; 
+    style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; 
+    font-src 'self' https://fonts.gstatic.com; 
+    img-src 'self' data: https://*.googleapis.com https://*.ggpht.com; 
+    frame-src https://www.google.com/recaptcha/ https://www.google.com/maps/embed/; 
+    frame-ancestors 'self'; 
+    base-uri 'self'; 
+    form-action 'self';">
+  	<title>Overruns Sa Tisa Online Shop</title>
+  	<link rel="icon" href="images/logo1.png" type="image/x-icon"/>
+  	<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
-    <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="dist/css/AdminLTE.min.css">
-    <link rel="stylesheet" href="dist/css/skins/_all-skins.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-    <link rel="stylesheet" href="js/sweetalert2.min.css">
+  	<link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
+  	<link rel="stylesheet" href="dist/css/AdminLTE.min.css">
+  	<link rel="stylesheet" href="dist/css/skins/_all-skins.min.css">
+  	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+   <link rel="stylesheet" href="js/sweetalert2.min.css">
     <link rel="stylesheet" href="js/sweetalert.min.css">
 
   
