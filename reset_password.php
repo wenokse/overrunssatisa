@@ -229,6 +229,47 @@ body {
 .password-toggle:hover {
     color: #512da8;
 }
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container2 {
+        width: 90%;
+        margin: 20px auto;
+        padding: 15px;
+    }
+
+    .reset-option i {
+        font-size: 20px;
+    }
+
+    .reset-form input {
+        padding: 8px;
+    }
+
+    .submit-btn, .back-btn {
+        padding: 8px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container2 {
+        width: 95%;
+        padding: 10px;
+    }
+
+    .reset-option i {
+        font-size: 18px;
+    }
+
+    .reset-form input {
+        padding: 6px;
+    }
+
+    .submit-btn, .back-btn {
+        padding: 6px;
+        font-size: 12px;
+    }
+}
 </style>
 </body>
 </html>
