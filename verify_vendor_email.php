@@ -244,7 +244,11 @@ $is_expired = $remaining_time == 0;
         ?>
         <form action="verify_vendor_email" method="POST">
             <label for="verification_code">Enter Verification Code:</label>
-            <input type="text" name="verification_code" required>
+            <input type="text" name="verification_code" required pattern="[0-9]{6}" 
+                   maxlength="6" 
+                   placeholder="Enter 6-digit OTP" 
+                   title="Please enter 6-digit OTP"
+                   autocomplete="one-time-code">
             <button type="submit" name="verify" id="verifyButton">Verify</button>
         </form>
         <form action="verify_vendor_email" method="POST">
@@ -253,55 +257,112 @@ $is_expired = $remaining_time == 0;
     </div>
     <script src="js/sweetalert.min.js"></script>
     <style>
-        .resend-button {
-            background-color: #4CAF50;
-            margin-top: 10px;
-        }
+/* General Body Styling */
+body {
+    background: rgb(0, 51, 102);
+    background-size: cover;
+    background-repeat: no-repeat;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
 
-        body {
-            background: rgb(0, 51, 102);
-            background-size: cover;
-            background-repeat: no-repeat;
-        }
-        .container2 { 
-            width: 500px;
-            height: 300px;
-            margin: 0 auto 50px;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            background-color: #f9f9f9;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-        }
-        .container2 input {
-            background-color: #eee;
-            border: none;
-            margin: 8px 0;
-            padding: 10px 15px;
-            font-size: 13px;
-            border-radius: 8px;
-            width: 100%;
-            outline: none;
-        }
-        .container2 button {
-            background-color: #512da8;
-            color: #fff;
-            font-size: 12px;
-            padding: 10px 45px;
-            border: 1px solid transparent;
-            border-radius: 20px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            cursor: pointer;
-        }
-        .success {
-            color: green;
-            margin-bottom: 10px;
-        }
-        .error {
-            color: red;
-            margin-bottom: 10px;
-        }
-    </style>
+/* Container Styling */
+.container2 {
+    width: 90%;
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Button Styling */
+.container2 button {
+    background-color: #512da8;
+    color: #fff;
+    font-size: 14px;
+    padding: 12px;
+    border: none;
+    border-radius: 20px;
+    text-transform: uppercase;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+}
+.container2 button:hover {
+    background-color: #4527a0;
+}
+.container2 button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Input Styling */
+.container2 input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    background-color: #eee;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+/* Success and Error Messages */
+.success {
+    color: green;
+    margin-bottom: 10px;
+}
+.error {
+    color: red;
+    margin-bottom: 10px;
+}
+
+/* Back Button Styling */
+.back-button {
+    display: inline-block;
+    color: rgb(0, 51, 102);
+    font-size: 18px;
+    margin-bottom: 10px;
+    text-decoration: none;
+}
+.back-button i {
+    font-size: 18px;
+}
+
+/* Responsive Styling */
+@media only screen and (max-width: 768px) {
+    .container2 {
+        padding: 15px;
+        box-shadow: none;
+    }
+    .container2 button {
+        font-size: 14px;
+        padding: 10px;
+    }
+    .container2 input {
+        font-size: 14px;
+        padding: 8px;
+    }
+    .login-box-msg {
+        font-size: 18px;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .container2 {
+        margin: 20px auto;
+        padding: 10px;
+    }
+    .back-button i {
+        font-size: 16px;
+    }
+}
+</style>
 </body>

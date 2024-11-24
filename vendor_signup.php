@@ -423,6 +423,84 @@ grecaptcha.ready(function() {
     .modal-body {
         margin-top: 20px;
     }
+    /* General Mobile Styling */
+@media only screen and (max-width: 768px) {
+    body {
+        background: rgb(0, 51, 102);
+        font-size: 14px;
+        padding: 0;
+        margin: 0;
+    }
+
+    .container {
+        width: 95%;
+        padding: 10px;
+        margin: 20px auto;
+        border-radius: 10px;
+        box-shadow: none;
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+    }
+
+    .form-control {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    /* Adjust button size for mobile */
+    .btn-primary {
+        padding: 10px 20px;
+        font-size: 16px;
+        width: 100%;
+        border-radius: 20px;
+    }
+
+    /* Adjust checkbox and label */
+    .terms-wrapper {
+        flex-direction: column;
+        gap: 5px;
+        text-align: center;
+    }
+
+    /* Style file upload previews */
+    #photo-preview {
+        width: 80px;
+        height: 80px;
+    }
+
+    /* Modal adjustments */
+    .modal-content {
+        width: 90%;
+        max-width: 400px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal-content h1 {
+        font-size: 20px;
+    }
+}
+
+/* For very small devices (like iPhone SE or similar) */
+@media only screen and (max-width: 480px) {
+    .btn-primary {
+        font-size: 14px;
+        padding: 8px 15px;
+    }
+
+    .form-control {
+        padding: 8px;
+        font-size: 13px;
+    }
+
+    .container {
+        padding: 5px;
+        border-radius: 5px;
+    }
+}
+
 </style>
 <script>
 // Add this to your existing JavaScript

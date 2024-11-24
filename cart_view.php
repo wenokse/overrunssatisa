@@ -54,6 +54,166 @@ include 'includes/session.php';
             display: block;
             opacity: 1;
         }
+        /* Mobile Cart Styles */
+@media screen and (max-width: 768px) {
+    .container2 {
+        margin: 0;
+        padding: 10px;
+    }
+
+    /* Make table responsive */
+    .table-responsive {
+        border: none;
+    }
+
+    /* Hide table headers on mobile */
+    .table thead {
+        display: none;
+    }
+
+    /* Convert table rows to cards */
+    .table tbody tr {
+        display: block;
+        background: #fff;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Style table cells */
+    .table tbody td {
+        display: flex;
+        padding: 0.5rem 0;
+        border: none;
+        align-items: center;
+    }
+
+    /* Checkbox and delete button container */
+    .table tbody td:nth-child(1),
+    .table tbody td:nth-child(2) {
+        display: inline-block;
+        width: auto;
+        padding-right: 1rem;
+    }
+
+    /* Product image styling */
+    .table tbody td img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        margin-right: 1rem;
+    }
+
+    /* Product info layout */
+    .table tbody td:nth-child(4) {
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    /* Size and Color info */
+    .table tbody td:nth-child(5),
+    .table tbody td:nth-child(6) {
+        display: inline-block;
+        width: auto;
+        padding-right: 1rem;
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    /* Price styling */
+    .table tbody td:nth-child(7) {
+        color: #ff4d4f;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    /* Quantity input group */
+    .table tbody td.input-group {
+        width: 120px;
+        margin: 0.5rem 0;
+    }
+
+    /* Subtotal styling */
+    .table tbody td:last-child {
+        font-weight: bold;
+        color: #ff4d4f;
+        font-size: 1.2rem;
+    }
+
+    /* Sticky bottom bar for total and checkout */
+    .box.box-solid:last-of-type {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 1rem;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+    }
+
+    /* Adjust main content padding to account for sticky bottom bar */
+    .content-wrapper {
+        padding-bottom: 140px;
+    }
+
+    /* Style the delivery address box */
+    .delivery-address-display {
+        background: #fff;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .address-details {
+        margin: 1rem 0;
+    }
+
+    .address-details p {
+        margin: 0.5rem 0;
+        font-size: 0.95rem;
+    }
+
+    /* Style buttons */
+    .btn {
+        border-radius: 4px;
+        padding: 0.5rem 1rem;
+    }
+
+    .checkout-btn {
+        width: 100%;
+        margin-top: 1rem;
+        padding: 0.8rem;
+        font-size: 1.1rem;
+    }
+
+    /* Shipping info styling */
+    #cod_shipping {
+        background: #fff8f8;
+        padding: 0.8rem;
+        border-radius: 4px;
+        margin: 1rem 0;
+    }
+
+    /* Terms checkbox styling */
+    .form-group.has-feedback {
+        margin: 1rem 0;
+        padding: 0.5rem;
+        background: #f8f8f8;
+        border-radius: 4px;
+    }
+}
+
+/* Loading spinner adjustments for mobile */
+@media screen and (max-width: 768px) {
+    .loader {
+        width: 60px;
+        height: 60px;
+        border-width: 8px;
+    }
+}
     </style>
     <script>
         window.addEventListener('load', function() {
