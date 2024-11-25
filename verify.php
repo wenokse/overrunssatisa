@@ -280,6 +280,23 @@ try {
 
 
             if($row['status'] == 1) {
+
+                function checkExistingLocation($conn, $userId, $latitude, $longitude) {
+                    $stmt = $conn->prepare("
+                        SELECT * FROM user_locations 
+                        WHERE user_id = :user_id 
+                        AND latitude = :latitude 
+                        AND longitude = :longitude
+                    ");
+                    
+                    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+                    $stmt->bindParam(':latitude', $latitude, PDO::PARAM_STR);
+                    $stmt->bindParam(':longitude', $longitude, PDO::PARAM_STR);
+                    $stmt->execute();
+                    
+                    return $stmt->fetch(PDO::FETCH_ASSOC);
+                }
+
                 if(password_verify($password, $row['password'])) {
                     // Reset login attempts on successful login
                     $resetAttempts = $conn->prepare("UPDATE users SET login_attempts = 0, lockout_time = 0 WHERE email = :email");
@@ -289,36 +306,53 @@ try {
                         // Get latitude and longitude from POST data
                         $latitude = $_POST['latitude'] ?? null;
                         $longitude = $_POST['longitude'] ?? null;
-                        $deviceDetails = getUserDevice();
-                        $deviceSignature = json_encode($deviceDetails);
                         
-                        // Check existing location and device
-                        $locStmt = $conn->prepare("SELECT * FROM user_locations WHERE user_id = :user_id");
-                        $locStmt->bindParam(':user_id', $row['id'], PDO::PARAM_INT);
-                        $locStmt->execute();
-                        $locRow = $locStmt->fetch(PDO::FETCH_ASSOC);
-
-                        $sameDevice = $locRow && $locRow['device'] === $deviceSignature;
-                        $sameLocation = $locRow && $locRow['latitude'] == $latitude && $locRow['longitude'] == $longitude;
-
-                        if (!$sameDevice || !$sameLocation) {
-                            sendLoginNotification($email, $row['firstname'], $row['lastname'], 'Location', $latitude, $longitude);
-                        }
-
-                        // Update or Insert user location
-                        $stmt = $conn->prepare("INSERT INTO user_locations (user_id, latitude, longitude, device, last_login)
-                                                VALUES (:user_id, :latitude, :longitude, :device, NOW())
-                                                ON DUPLICATE KEY UPDATE 
-                                                latitude = :latitude, longitude = :longitude, device = :device, last_login = NOW()");
-                        $stmt->bindParam(':user_id', $row['id'], PDO::PARAM_INT);
-                        $stmt->bindParam(':latitude', $latitude);
-                        $stmt->bindParam(':longitude', $longitude);
-                        $stmt->bindParam(':device', $deviceSignature);
-                        $stmt->execute();
-
+                        if ($latitude && $longitude) {
+                            // Check if this location exists
+                            $existingLocation = checkExistingLocation($conn, $row['id'], $latitude, $longitude);
+                            
+                            if ($existingLocation) {
+                                // Update last_login for existing location
+                                $updateStmt = $conn->prepare("
+                                    UPDATE user_locations 
+                                    SET last_login = NOW() 
+                                    WHERE user_id = :user_id 
+                                    AND latitude = :latitude 
+                                    AND longitude = :longitude
+                                ");
+                                $updateStmt->bindParam(':user_id', $row['id'], PDO::PARAM_INT);
+                                $updateStmt->bindParam(':latitude', $latitude, PDO::PARAM_STR);
+                                $updateStmt->bindParam(':longitude', $longitude, PDO::PARAM_STR);
+                                $updateStmt->execute();
+                                
+                                // Don't send notification email for known location
+                            } else {
+                                // Insert new location record
+                                $insertStmt = $conn->prepare("
+                                    INSERT INTO user_locations (
+                                        user_id, 
+                                        latitude, 
+                                        longitude, 
+                                        first_login, 
+                                        last_login
+                                    ) VALUES (
+                                        :user_id, 
+                                        :latitude, 
+                                        :longitude, 
+                                        NOW(), 
+                                        NOW()
+                                    )
+                                ");
+                                
+                                $insertStmt->bindParam(':user_id', $row['id'], PDO::PARAM_INT);
+                                $insertStmt->bindParam(':latitude', $latitude, PDO::PARAM_STR);
+                                $insertStmt->bindParam(':longitude', $longitude, PDO::PARAM_STR);
+                                $insertStmt->execute();
+                                
                     // Send login notification email
                     sendLoginNotification($email, $row['firstname'], $row['lastname'], $location, $latitude, $longitude);
-
+                            }
+                        }
                     setSessionVariables($row);
                     $redirect = $row['type'] ? 'admin/home' : 'profile';
                     $_SESSION['success'] = 'Login successful';
