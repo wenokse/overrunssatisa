@@ -341,9 +341,12 @@
                 <div class="row">
                     <div class="col-md-12">
                         <h4>Location Details</h4>
-                        <p><strong>Address:</strong> <span id="fetched_address">Fetching...</span></p>
+                        <p><strong>Current Address:</strong> <span id="fetched_address">Fetching...</span></p>
                         <p><strong>Latitude:</strong> <span id="view_latitude">N/A</span></p>
                         <p><strong>Longitude:</strong> <span id="view_longitude">N/A</span></p>
+                        <!-- Added Login Time Information -->
+                        <p><strong>Last Login:</strong> <span id="view_last_login">N/A</span></p>
+                        <p><strong>First Login from this location:</strong> <span id="view_first_login">N/A</span></p>
                         <div id="location_trace_btn" class="text-center mt-3" style="display:none;">
                             <button class="btn btn-primary" onclick="traceUserLocation()">
                                 <i class="fa fa-map-marker"></i> Trace Location

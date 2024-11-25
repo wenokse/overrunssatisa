@@ -228,14 +228,12 @@ function getRow(id){
       $('#edit_contact').val(response.contact_info);
       $('.fullname').html(response.firstname+' '+response.lastname);
       
-      // New code for view modal
       $.ajax({
         type: 'POST',
-        url: 'users_location',  // You'll need to create this endpoint
+        url: 'users_location',
         data: {id:id},
         dataType: 'json',
         success: function(locationData){
-          // Update view modal with additional details
           $('#view_photo').attr('src', '../images/' + (response.photo || 'profile.jpg'));
           $('#view_fullname').text(response.firstname + ' ' + response.lastname);
           $('#view_email').text(response.email);
@@ -244,30 +242,35 @@ function getRow(id){
           $('#view_address2').text(response.address2 || 'N/A');
           
           if (locationData.latitude && locationData.longitude) {
-    $('#view_latitude').text(locationData.latitude);
-    $('#view_longitude').text(locationData.longitude);
-    $('#location_trace_btn').show();
+            $('#view_latitude').text(locationData.latitude);
+            $('#view_longitude').text(locationData.longitude);
+            $('#view_last_login').text('Last Login: ' + locationData.last_login);
+            $('#view_first_login').text('First Login: ' + locationData.first_login);
+            $('#location_trace_btn').show();
 
-    // Fetch and display the fetched address
-    fetchAddress(locationData.latitude, locationData.longitude);
+            // Fetch and display the fetched address
+            fetchAddress(locationData.latitude, locationData.longitude);
 
-    // Store location data for tracing
-    window.currentUserLocation = {
-        latitude: locationData.latitude,
-        longitude: locationData.longitude
-    };
-} else {
-    $('#view_latitude').text('N/A');
-    $('#view_longitude').text('N/A');
-    $('#fetched_address').text('N/A');
-    $('#location_trace_btn').hide();
-    window.currentUserLocation = null;
-}
-
+            // Store location data for tracing
+            window.currentUserLocation = {
+                latitude: locationData.latitude,
+                longitude: locationData.longitude
+            };
+          } else {
+            $('#view_latitude').text('N/A');
+            $('#view_longitude').text('N/A');
+            $('#view_last_login').text('Last Login: N/A');
+            $('#view_first_login').text('First Login: N/A');
+            $('#fetched_address').text('N/A');
+            $('#location_trace_btn').hide();
+            window.currentUserLocation = null;
+          }
         },
         error: function() {
           $('#view_latitude').text('N/A');
           $('#view_longitude').text('N/A');
+          $('#view_last_login').text('Last Login: N/A');
+          $('#view_first_login').text('First Login: N/A');
           $('#location_trace_btn').hide();
           window.currentUserLocation = null;
         }
