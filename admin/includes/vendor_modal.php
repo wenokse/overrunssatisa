@@ -1,3 +1,55 @@
+<!-- View Modal -->
+<div class="modal fade" id="view">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title"><b>Vendor Details</b></h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <img id="view_photo" src="" class="img-responsive center-block" style="max-width: 200px; max-height: 200px;">
+                    </div>
+                    <div class="col-md-6">
+                        <h3 id="view_fullname"></h3>
+                        <p><strong>Email:</strong> <span id="view_email"></span></p>
+                        <p><strong>Contact:</strong> <span id="view_contact"></span>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h4>Address Information</h4>
+                        <p><strong>Primary Address:</strong> <span id="view_address"></span></p>
+                        <p><strong>Secondary Address:</strong> <span id="view_address2"></span></p>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h4>Login Location Details</h4>
+                        <p><strong>Address:</strong> <span id="fetched_address">Fetching...</span></p>
+                        <p><strong>Latitude:</strong> <span id="view_latitude">N/A</span></p>
+                        <p><strong>Longitude:</strong> <span id="view_longitude">N/A</span></p>
+                        <div id="location_trace_btn" class="text-center mt-3" style="display:none;">
+                            <button class="btn btn-primary" onclick="traceUserLocation()">
+                                <i class="fa fa-map-marker"></i> Trace Location
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <!-- Add -->
 <div class="modal fade" id="addnewvendor">
     <div class="modal-dialog">
