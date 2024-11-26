@@ -34,16 +34,6 @@
 
 
 <?php
-  function detect_wapiti() {
-    if (isset($_SERVER['HTTP_USER_AGENT'])) {
-        $user_agent = strtolower($_SERVER['HTTP_USER_AGENT']);
-        if (strpos($user_agent, 'wapiti') !== false) {
-            die('Access Denied: Potential Security Threat Detected.');
-        }
-    }
-  }
-
-  detect_wapiti(); 
   
   if (isset($_SESSION['error']) || isset($_SESSION['success'])) {
     $message = isset($_SESSION['error']) ? $_SESSION['error'] : $_SESSION['success'];
