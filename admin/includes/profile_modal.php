@@ -13,7 +13,7 @@
                 <?php endif; ?></b></h4>
             </div>
             <div class="modal-body">
-                <form class="form-horizontal" method="POST" action="profile_update?return=<?php echo basename($_SERVER['PHP_SELF']); ?>" enctype="multipart/form-data">
+                <form class="form-horizontal" method="POST" action="profile_update" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="email" class="col-sm-3 control-label">Email</label>
                         <div class="col-sm-9">
