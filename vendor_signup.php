@@ -71,7 +71,7 @@ if($ipBlockStatus['blocked']) {
 <?php include 'includes/header.php'; ?>
 
 <!-- Include SweetAlert -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="js/sweetalert.min.js"></script>
 <div id="preloader">
         <div class="loader"></div>
@@ -103,6 +103,26 @@ if($ipBlockStatus['blocked']) {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+</style>
+<style>
+    /* Add basic styles for the toggle button */
+    .password-toggle {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2em;
+        color: #333;
+    }
+    .password-toggle:focus {
+        outline: none;
+    }
+    .form-group {
+        position: relative;
+    }
 </style>
 <script>
     window.addEventListener('load', function() {
@@ -325,6 +345,153 @@ grecaptcha.ready(function() {
         };
         reader.readAsDataURL(event.target.files[0]);
     };
+</script>
+
+<script>
+// Add this to your existing JavaScript
+document.getElementById('tin_number').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 12) {
+        value = value.slice(0, 12);
+    }
+    
+    // Format as XXX-XXX-XXX-XXX
+    if (value.length >= 3) {
+        value = value.slice(0,3) + "-" + value.slice(3);
+    }
+    if (value.length >= 7) {
+        value = value.slice(0,7) + "-" + value.slice(7);
+    }
+    if (value.length >= 11) {
+        value = value.slice(0,11) + "-" + value.slice(11);
+    }
+    
+    e.target.value = value;
+});
+
+// Add file size validation
+const maxFileSize = 5 * 1024 * 1024; // 5MB
+const fileInputs = document.querySelectorAll('input[type="file"]');
+
+fileInputs.forEach(input => {
+    input.addEventListener('change', function() {
+        if (this.files[0] && this.files[0].size > maxFileSize) {
+            swal({
+                title: 'File too large',
+                text: 'Please upload a file smaller than 5MB',
+                icon: 'warning',
+                button: 'OK'
+            });
+            this.value = '';
+        }
+    });
+});
+</script>
+
+<script>
+    // Modal script
+ var modal = document.getElementById("termsModal");
+    var link = document.getElementById("termsLink");
+    var span = document.getElementsByClassName("close")[0];
+
+    link.onclick = function(e) {
+        e.preventDefault();
+        modal.style.display = "block";
+    }
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+    document.getElementById('terms').addEventListener('change', function() {
+        var signupButton = document.getElementById('signupButton');
+        signupButton.disabled = !this.checked; // Enable button only if terms checkbox is checked
+    });
+
+    var input = document.getElementById('contact_info');
+    input.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+
+    function validatePhoneNumber() {
+        var phoneNumber = document.getElementById('contact_info').value;
+        if (phoneNumber.length !== 11) {
+            swal({
+                title: 'Phone number must be exactly 11 digits long.',
+                icon: 'warning',
+                button: 'OK'
+            });
+            return false;
+        }
+        return true;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const passwordFields = document.querySelectorAll('input[type="password"]');
+    
+    passwordFields.forEach(field => {
+        const toggleBtn = document.createElement('span');
+        toggleBtn.innerHTML = '👁️';
+        toggleBtn.style.cssText = `
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            z-index: 10;
+        `;
+        
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'relative';
+        field.parentNode.insertBefore(wrapper, field);
+        wrapper.appendChild(field);
+        wrapper.appendChild(toggleBtn);
+        
+        toggleBtn.addEventListener('click', function() {
+            field.type = field.type === 'password' ? 'text' : 'password';
+            toggleBtn.innerHTML = field.type === 'password' ? '👁️' : '👁️‍🗨️';
+        });
+    });
+});
+
+
+
+        const barangays = {
+        'Bantayan': ['Atop-atop', 'Baigad', 'Bantigue', 'Baod', 'Binaobao', 'Guiwanon', 'Kabac', 'Kabangbang', 'Kampingganon', 'Kangkaibe', 'Mojon', 'Obo-ob', 'Patao', 'Putian', 'Sillon', 'Suba', 'Sulangan', 'Sungko', 'Tamiao', 'Ticad'],
+        'Madridejos': ['Bunakan', 'Kangwayan', 'Kaongkod', 'Kodia', 'Maalat', 'Malbago', 'Mancilang', 'Pili', 'Poblacion', 'San Agustin', 'Talangnan', 'Tarong', 'Tugas', 'Tabagak'],
+        'Santa Fe': ['Balidbid', 'Hagdan', 'Langub', 'Maricaban', 'Okoy', 'Poblacion', 'Talisay']
+    };
+
+    const municipalitySelect = document.getElementById('municipality');
+    const barangaySelect = document.getElementById('barangay');
+    const addressInput = document.getElementById('address');
+
+    municipalitySelect.addEventListener('change', function() {
+        const selectedMunicipality = this.value;
+        barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+        
+        if (barangays[selectedMunicipality]) {
+            barangays[selectedMunicipality].forEach(function(barangay) {
+                const option = document.createElement('option');
+                option.value = barangay;
+                option.textContent = barangay;
+                barangaySelect.appendChild(option);
+            });
+        }
+    });
+
+    barangaySelect.addEventListener('change', function() {
+        const selectedMunicipality = municipalitySelect.value;
+        const selectedBarangay = this.value;
+        addressInput.value = selectedMunicipality + ', ' + selectedBarangay;
+    });
+
+
 </script>
 <style>
    body {
@@ -566,148 +733,6 @@ grecaptcha.ready(function() {
 }
 
 </style>
-<script>
-// Add this to your existing JavaScript
-document.getElementById('tin_number').addEventListener('input', function(e) {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 12) {
-        value = value.slice(0, 12);
-    }
-    
-    // Format as XXX-XXX-XXX-XXX
-    if (value.length >= 3) {
-        value = value.slice(0,3) + "-" + value.slice(3);
-    }
-    if (value.length >= 7) {
-        value = value.slice(0,7) + "-" + value.slice(7);
-    }
-    if (value.length >= 11) {
-        value = value.slice(0,11) + "-" + value.slice(11);
-    }
-    
-    e.target.value = value;
-});
-
-// Add file size validation
-const maxFileSize = 5 * 1024 * 1024; // 5MB
-const fileInputs = document.querySelectorAll('input[type="file"]');
-
-fileInputs.forEach(input => {
-    input.addEventListener('change', function() {
-        if (this.files[0] && this.files[0].size > maxFileSize) {
-            swal({
-                title: 'File too large',
-                text: 'Please upload a file smaller than 5MB',
-                icon: 'warning',
-                button: 'OK'
-            });
-            this.value = '';
-        }
-    });
-});
-</script>
-
-<script>
-    // Modal script
- var modal = document.getElementById("termsModal");
-    var link = document.getElementById("termsLink");
-    var span = document.getElementsByClassName("close")[0];
-
-    link.onclick = function(e) {
-        e.preventDefault();
-        modal.style.display = "block";
-    }
-
-    span.onclick = function() {
-        modal.style.display = "none";
-    }
-
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
-    document.getElementById('terms').addEventListener('change', function() {
-        var signupButton = document.getElementById('signupButton');
-        signupButton.disabled = !this.checked; // Enable button only if terms checkbox is checked
-    });
-
-    var input = document.getElementById('contact_info');
-    input.addEventListener('input', function() {
-        this.value = this.value.replace(/[^0-9]/g, '');
-    });
-
-    function validatePhoneNumber() {
-        var phoneNumber = document.getElementById('contact_info').value;
-        if (phoneNumber.length !== 11) {
-            swal({
-                title: 'Phone number must be exactly 11 digits long.',
-                icon: 'warning',
-                button: 'OK'
-            });
-            return false;
-        }
-        return true;
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-            const passwordFields = document.querySelectorAll('input[type="password"]');
-            
-            passwordFields.forEach(field => {
-                // Create toggle button
-                const toggleBtn = document.createElement('button');
-                toggleBtn.type = 'button';
-                toggleBtn.className = 'password-toggle';
-                toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
-                
-                // Insert toggle button after password field
-                field.parentNode.appendChild(toggleBtn);
-                
-                // Toggle password visibility
-                toggleBtn.addEventListener('click', function() {
-                    const type = field.type === 'password' ? 'text' : 'password';
-                    field.type = type;
-                    this.innerHTML = type === 'password' ? 
-                        '<i class="fas fa-eye"></i>' : 
-                        '<i class="fas fa-eye-slash"></i>';
-                });
-            });
-        });
-
-
-        const barangays = {
-        'Bantayan': ['Atop-atop', 'Baigad', 'Bantigue', 'Baod', 'Binaobao', 'Guiwanon', 'Kabac', 'Kabangbang', 'Kampingganon', 'Kangkaibe', 'Mojon', 'Obo-ob', 'Patao', 'Putian', 'Sillon', 'Suba', 'Sulangan', 'Sungko', 'Tamiao', 'Ticad'],
-        'Madridejos': ['Bunakan', 'Kangwayan', 'Kaongkod', 'Kodia', 'Maalat', 'Malbago', 'Mancilang', 'Pili', 'Poblacion', 'San Agustin', 'Talangnan', 'Tarong', 'Tugas', 'Tabagak'],
-        'Santa Fe': ['Balidbid', 'Hagdan', 'Langub', 'Maricaban', 'Okoy', 'Poblacion', 'Talisay']
-    };
-
-    const municipalitySelect = document.getElementById('municipality');
-    const barangaySelect = document.getElementById('barangay');
-    const addressInput = document.getElementById('address');
-
-    municipalitySelect.addEventListener('change', function() {
-        const selectedMunicipality = this.value;
-        barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
-        
-        if (barangays[selectedMunicipality]) {
-            barangays[selectedMunicipality].forEach(function(barangay) {
-                const option = document.createElement('option');
-                option.value = barangay;
-                option.textContent = barangay;
-                barangaySelect.appendChild(option);
-            });
-        }
-    });
-
-    barangaySelect.addEventListener('change', function() {
-        const selectedMunicipality = municipalitySelect.value;
-        const selectedBarangay = this.value;
-        addressInput.value = selectedMunicipality + ', ' + selectedBarangay;
-    });
-
-
-</script>
-
 </body>
 
 </html>

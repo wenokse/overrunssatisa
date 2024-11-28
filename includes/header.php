@@ -12,9 +12,9 @@
     script-src 'self' https://code.jquery.com https://cdn.jsdelivr.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ 'unsafe-inline'; 
     object-src 'none'; 
     connect-src 'self'; 
-    style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; 
-    font-src 'self' https://fonts.gstatic.com; 
-    img-src 'self' data: https://*.googleapis.com https://*.ggpht.com; 
+    style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com 'unsafe-inline'; 
+    font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; 
+    img-src 'self' data: https://*.googleapis.com https://*.ggpht.com https://cdnjs.cloudflare.com; 
     frame-src https://www.google.com/recaptcha/ https://www.google.com/maps/embed/; 
     frame-ancestors 'self'; 
     base-uri 'self'; 
