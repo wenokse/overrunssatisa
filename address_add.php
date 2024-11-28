@@ -5,11 +5,20 @@ header('Content-Type: application/json');
 $response = ['error' => false];
 
 if (isset($_POST['recipient_name'])) {
-    $recipient_name = $_POST['recipient_name'];
-    $phone = $_POST['phone'];
-    $address = $_POST['address'];
-    $address2 = $_POST['address2'];
-    $address3 = $_POST['address3'];
+    // Sanitize and validate inputs
+    $recipient_name = preg_replace("/[^A-Za-z\s]/", '', $_POST['recipient_name']);
+    $phone = preg_replace("/[^0-9]/", '', $_POST['phone']);
+    $address = preg_replace("/[^A-Za-z0-9\s]/", '', $_POST['address']);
+    $address2 = preg_replace("/[^A-Za-z0-9\s]/", '', $_POST['address2']);
+    $address3 = preg_replace("/[^A-Za-z0-9\s]/", '', $_POST['address3']);
+
+    // Additional validation checks
+    if (empty($recipient_name) || !preg_match("/^[A-Za-z\s]+$/", $recipient_name)) {
+        $response['error'] = true;
+        $response['message'] = 'Invalid recipient name. Only letters and spaces are allowed.';
+        echo json_encode($response);
+        exit();
+    }
 
     // Validate the phone number
     if (!preg_match('/^\d{11}$/', $phone)) {
@@ -19,6 +28,33 @@ if (isset($_POST['recipient_name'])) {
         exit();
     }
 
+    // Validate address fields
+    if (empty($address) || !preg_match("/^[A-Za-z0-9\s]+$/", $address)) {
+        $response['error'] = true;
+        $response['message'] = 'Invalid address format. Only letters, numbers, and spaces are allowed.';
+        echo json_encode($response);
+        exit();
+    }
+
+    if (empty($address2) || !preg_match("/^[A-Za-z0-9\s]+$/", $address2)) {
+        $response['error'] = true;
+        $response['message'] = 'Invalid Purok format. Only letters, numbers, and spaces are allowed.';
+        echo json_encode($response);
+        exit();
+    }
+
+    if (empty($address3) || !preg_match("/^[A-Za-z0-9\s]+$/", $address3)) {
+        $response['error'] = true;
+        $response['message'] = 'Invalid Address2 format. Only letters, numbers, and spaces are allowed.';
+        echo json_encode($response);
+        exit();
+    }
+    if (empty(trim($recipient_name)) || !preg_match("/^(?=.*[A-Za-z])[A-Za-z\s]+$/", $recipient_name)) {
+        $response['error'] = true;
+        $response['message'] = 'Must contain letter.';
+        echo json_encode($response);
+        exit();
+    }
     $conn = $pdo->open();
 
     try {

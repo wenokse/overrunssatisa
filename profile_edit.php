@@ -1,3 +1,4 @@
+<?php include 'includes/firewall.php'; ?>
 <?php
 include 'includes/session.php';
 

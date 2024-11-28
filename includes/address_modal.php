@@ -12,27 +12,46 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="recipient_name">Recipient Name</label>
-                        <input type="text" class="form-control" id="recipient_name" name="recipient_name" required>
+                        <input type="text" class="form-control" id="recipient_name" name="recipient_name" 
+                               required 
+                               pattern="[A-Za-z\s]+" 
+                               title="Only letters and spaces are allowed"
+                               oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '');">
                     </div>
                     <div class="form-group">
-    <label for="phone">Phone Number</label>
-    <input type="tel" class="form-control" id="phone" name="phone" required pattern="\d{11}" maxlength="11" oninput="this.value=this.value.replace(/[^0-9]/g,'');">
-    <small class="form-text text-muted">Please enter exactly 11 digits (e.g., 09123456789)</small>
-</div>
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" class="form-control" id="phone" name="phone" 
+                               required 
+                               pattern="\d{11}" 
+                               maxlength="11" 
+                               oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+                        <small class="form-text text-muted">Please enter exactly 11 digits (e.g., 09123456789)</small>
+                    </div>
 
                     <div class="form-group">
                         <label for="address">Municipal, Barangay</label>
-                        <input type="text" class="form-control" id="address" name="address" required>
+                        <input type="text" class="form-control" id="address" name="address" 
+                               required 
+                               pattern="[A-Za-z0-9\s]+" 
+                               title="Only letters, numbers, and spaces are allowed"
+                               oninput="this.value = this.value.replace(/[^A-Za-z0-9\s]/g, '');">
                     </div>
                     <div class="form-group">
                         <label for="address2">Purok</label>
-                        <input type="text" class="form-control" id="address2" name="address2" required>
+                        <input type="text" class="form-control" id="address2" name="address2" 
+                               required 
+                               pattern="[A-Za-z0-9\s]+" 
+                               title="Only letters, numbers, and spaces are allowed"
+                               oninput="this.value = this.value.replace(/[^A-Za-z0-9\s]/g, '');">
                     </div>
                     <div class="form-group">
                         <label for="address3">Address2</label>
-                        <input type="text" class="form-control" id="address3" name="address3" required>
+                        <input type="text" class="form-control" id="address3" name="address3" 
+                               required 
+                               pattern="[A-Za-z0-9\s]+" 
+                               title="Only letters, numbers, and spaces are allowed"
+                               oninput="this.value = this.value.replace(/[^A-Za-z0-9\s]/g, '');">
                     </div>
-                    
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
