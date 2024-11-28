@@ -231,3 +231,77 @@
     </style>
 
 </head>
+<?php
+// Function to get the real IP address
+function getRealIP() {
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        return $_SERVER['HTTP_CLIENT_IP'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        return explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
+    } else {
+        return $_SERVER['REMOTE_ADDR'];
+    }
+}
+
+// Path to the file that stores blocked IPs
+define('BLOCKED_IP_FILE', __DIR__ . '/blocked_ips.json');
+
+// Time to block (24 hours in seconds)
+define('BLOCK_TIME', 24 * 60 * 60);
+
+// Function to check if an IP is blocked
+function isIPBlocked($ip) {
+    if (!file_exists(BLOCKED_IP_FILE)) {
+        return false;
+    }
+
+    $blockedIPs = json_decode(file_get_contents(BLOCKED_IP_FILE), true);
+    if (isset($blockedIPs[$ip]) && $blockedIPs[$ip] > time()) {
+        return true; // Still blocked
+    }
+
+    // Remove expired IPs
+    if (isset($blockedIPs[$ip]) && $blockedIPs[$ip] <= time()) {
+        unset($blockedIPs[$ip]);
+        file_put_contents(BLOCKED_IP_FILE, json_encode($blockedIPs));
+    }
+
+    return false;
+}
+
+// Function to block an IP
+function blockIP($ip) {
+    $blockedIPs = file_exists(BLOCKED_IP_FILE) ? json_decode(file_get_contents(BLOCKED_IP_FILE), true) : [];
+    $blockedIPs[$ip] = time() + BLOCK_TIME;
+    file_put_contents(BLOCKED_IP_FILE, json_encode($blockedIPs));
+}
+
+// Function to detect malicious activity
+function detectMaliciousActivity($ip) {
+    // Example: A simple rule to detect multiple requests
+   
+    if (!isset($_SESSION['request_count'])) {
+        $_SESSION['request_count'] = 0;
+    }
+
+    $_SESSION['request_count']++;
+    if ($_SESSION['request_count'] > 100) { // More than 100 requests in a session
+        blockIP($ip);
+        return true;
+    }
+
+    return false;
+}
+
+// Main logic
+$ip = getRealIP();
+if (isIPBlocked($ip)) {
+    header('HTTP/1.1 403 Forbidden');
+    exit('Your IP has been temporarily blocked due to suspicious activity.');
+}
+
+if (detectMaliciousActivity($ip)) {
+    header('HTTP/1.1 403 Forbidden');
+    exit('Suspicious activity detected. Your IP has been blocked.');
+}
+?>
