@@ -173,8 +173,7 @@ if(isset($_POST['edit'])){
             exit();
         }
 
-        // Perform malware scan
-        if(!scanFile($file_tmp)){
+        if(!scanFile($file_tmp, $allowed_types)) {
             $_SESSION['error'] = 'File appears to be malicious or invalid';
             header('location: profile');
             exit();
