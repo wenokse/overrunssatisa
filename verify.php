@@ -1,74 +1,27 @@
 <?php
-
-
-function isIPBlocked($ipAddress) {
-    $blockedIPsFile = __DIR__ . '/blocked_ips.json';
-    
-    if (!file_exists($blockedIPsFile)) {
-        return false;
-    }
-    
-    $blockedIPs = json_decode(file_get_contents($blockedIPsFile), true);
-    
-    // Check if IP is blocked and block is still valid
-    if (isset($blockedIPs[$ipAddress])) {
-        $blockTime = $blockedIPs[$ipAddress];
-        $currentTime = time();
-        
-        // Calculate remaining block time
-        $remainingBlockTime = 86400 - ($currentTime - $blockTime);
-        
-        if ($remainingBlockTime > 0) {
-            // Calculate hours and minutes remaining
-            $hoursRemaining = floor($remainingBlockTime / 3600);
-            $minutesRemaining = floor(($remainingBlockTime % 3600) / 60);
-            
-            return [
-                'blocked' => true,
-                'hours' => $hoursRemaining,
-                'minutes' => $minutesRemaining
-            ];
-        }
-    }
-    
-    return ['blocked' => false];
-}
-
-// Get client IP address
-$clientIP = $_SERVER['REMOTE_ADDR'];
-
-// Check IP block status before login attempt
-$ipBlockStatus = isIPBlocked($clientIP);
-
-if($ipBlockStatus['blocked']) {
-    // Set error message with remaining block time
-    echo "
-    <script src='https://unpkg.com/sweetalert/dist/sweetalert.min.js'></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            swal({
-                title: 'IP Blocked',
-                text: 'Your IP is temporarily blocked. Access will be restored in " . 
-                    $ipBlockStatus['hours'] . " hours and " . 
-                    $ipBlockStatus['minutes'] . " minutes.',
-                icon: 'warning',
-                button: 'OK'
-            }).then(() => {
-                window.location = 'login';
-            });
-        });
-    </script>";
-    exit();
-}
-
-
-
 include 'includes/session.php';
+
+
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 require 'vendor/autoload.php';
+
+function generateSecureOTP($length = 6) {
+    // Cryptographically secure random OTP generation
+    $characters = '0123456789';
+    $otp = '';
+    $max = strlen($characters) - 1;
+    
+    for ($i = 0; $i < $length; $i++) {
+        $otp .= $characters[random_int(0, $max)];
+    }
+    
+    return $otp;
+}
+
 
 function getClientIP() {
     $ipAddress = '';
@@ -284,6 +237,78 @@ function sendLoginNotification($email, $firstname, $lastname, $location, $latitu
     }
 }
 
+function sendAdminLoginOTP($contact_info, $firstname) {
+    $otp = generateSecureOTP();
+    $expiry = time() + (10 * 60); // 10 minutes expiry
+
+    try {
+        $_SESSION['otp'] = [
+            'contact_info' => $contact_info,
+            'otp' => $otp, 
+            'expiry' => $expiry
+        ];
+
+        $international_format = '+63' . substr($contact_info, 1);
+        $base_url = 'https://69y84d.api.infobip.com';
+        $api_key = 'f8e95ad451e731b7d04c6c087427a1a5-bbc9cd9a-f53a-4c3c-be91-9ce46618dd72';
+        $payload = [
+            'messages' => [
+                [
+                    'from' => 'OverrunsSaTisa',
+                    'destinations' => [
+                        ['to' => $international_format]
+                    ],
+                    'text' => "Hello {$firstname}, Your Admin Login OTP is: {$otp}. This code expires in 10 minutes.",
+                    'flash' => false,
+                    'validityPeriod' => 600
+                ]
+            ]
+        ];
+
+        // Send SMS via cURL
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $base_url . '/sms/2/text/advanced',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'Authorization: App ' . $api_key
+            ],
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_TIMEOUT => 30
+        ]);
+
+        $response = curl_exec($curl);
+        $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $curl_error = curl_error($curl);
+        curl_close($curl);
+
+        // Detailed error logging
+        if ($response === false) {
+            error_log("SMS sending failed. cURL Error: " . $curl_error);
+            return false;
+        }
+
+        $response_data = json_decode($response, true);
+
+        // More detailed logging and error checking
+        if (!($http_code === 200 && 
+              isset($response_data['messages'][0]['status']['groupId']) && 
+              $response_data['messages'][0]['status']['groupId'] === 1)) {
+            error_log("SMS sending failed. Response: " . print_r($response_data, true));
+            return false;
+        }
+
+        return true;
+
+    } catch (Exception $e) {
+        error_log("Error sending admin login OTP: " . $e->getMessage());
+        return false;
+    }
+}
+
+
 $conn = null;
 $stmt = null;
 try {
@@ -344,23 +369,6 @@ try {
 
 
             if($row['status'] == 1) {
-
-                function checkExistingLocation($conn, $userId, $latitude, $longitude) {
-                    $stmt = $conn->prepare("
-                        SELECT * FROM user_locations 
-                        WHERE user_id = :user_id 
-                        AND latitude = :latitude 
-                        AND longitude = :longitude
-                    ");
-                    
-                    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
-                    $stmt->bindParam(':latitude', $latitude, PDO::PARAM_STR);
-                    $stmt->bindParam(':longitude', $longitude, PDO::PARAM_STR);
-                    $stmt->execute();
-                    
-                    return $stmt->fetch(PDO::FETCH_ASSOC);
-                }
-
                 if(password_verify($password, $row['password'])) {
                     // Reset login attempts on successful login
                     $resetAttempts = $conn->prepare("UPDATE users SET login_attempts = 0, lockout_time = 0 WHERE email = :email");
@@ -371,57 +379,51 @@ try {
                         $latitude = $_POST['latitude'] ?? null;
                         $longitude = $_POST['longitude'] ?? null;
                         
+                        // Save the location data
                         if ($latitude && $longitude) {
-                            // Check if this location exists
-                            $existingLocation = checkExistingLocation($conn, $row['id'], $latitude, $longitude);
-                            
-                            if ($existingLocation) {
-                                // Update last_login for existing location
-                                $updateStmt = $conn->prepare("
-                                    UPDATE user_locations 
-                                    SET last_login = NOW() 
-                                    WHERE user_id = :user_id 
-                                    AND latitude = :latitude 
-                                    AND longitude = :longitude
-                                ");
-                                $updateStmt->bindParam(':user_id', $row['id'], PDO::PARAM_INT);
-                                $updateStmt->bindParam(':latitude', $latitude, PDO::PARAM_STR);
-                                $updateStmt->bindParam(':longitude', $longitude, PDO::PARAM_STR);
-                                $updateStmt->execute();
-                                
-                                // Don't send notification email for known location
-                            } else {
-                                // Insert new location record
-                                $insertStmt = $conn->prepare("
-                                    INSERT INTO user_locations (
-                                        user_id, 
-                                        latitude, 
-                                        longitude, 
-                                        first_login, 
-                                        last_login
-                                    ) VALUES (
-                                        :user_id, 
-                                        :latitude, 
-                                        :longitude, 
-                                        NOW(), 
-                                        NOW()
-                                    )
-                                ");
-                                
-                                $insertStmt->bindParam(':user_id', $row['id'], PDO::PARAM_INT);
-                                $insertStmt->bindParam(':latitude', $latitude, PDO::PARAM_STR);
-                                $insertStmt->bindParam(':longitude', $longitude, PDO::PARAM_STR);
-                                $insertStmt->execute();
-                                
+                            $stmt = $conn->prepare("INSERT INTO user_locations (user_id, latitude, longitude, first_login, last_login) 
+                                                    VALUES (:user_id, :latitude, :longitude, NOW(), NOW()) 
+                                                    ON DUPLICATE KEY UPDATE latitude = :latitude, longitude = :longitude, last_login = NOW()");
+                            $stmt->bindParam(':user_id', $row['id'], PDO::PARAM_INT);
+                            $stmt->bindParam(':latitude', $latitude, PDO::PARAM_STR);
+                            $stmt->bindParam(':longitude', $longitude, PDO::PARAM_STR);
+                            $stmt->execute();
+                        }
+
                     // Send login notification email
                     sendLoginNotification($email, $row['firstname'], $row['lastname'], $location, $latitude, $longitude);
-                            }
+
+                    if($row['type'] == 1 || $row['type'] == 2) { // Admin user
+                        // Check if contact info is available
+                        if (empty($row['contact_info'])) {
+                            $_SESSION['error'] = 'Admin contact information not found. Please contact support.';
+                            header('Location: login');
+                            exit();
                         }
-                    setSessionVariables($row);
-                    $redirect = $row['type'] ? 'admin/home' : 'profile';
-                    $_SESSION['success'] = 'Login successful';
-                    header("Location: $redirect");
-                    exit();
+                    
+                        // Send OTP via SMS
+                        $otp_sent = sendAdminLoginOTP($row['contact_info'], $row['firstname']);
+                        
+                        if ($otp_sent) {
+                            // Store temporary session data for OTP verification
+                            $_SESSION['admin_login_email'] = $email;
+                            $_SESSION['admin_login_contact'] = $row['contact_info'];
+                            header('Location: admin_otp_verify');
+                            exit();
+                        } else {
+                            $_SESSION['error'] = 'Failed to send SMS verification. Please try again.';
+                            header('Location: login');
+                            exit();
+                        }
+                    
+                    } else {
+                        // Regular user login process remains the same
+                        setSessionVariables($row);
+                        $redirect = 'profile';
+                        $_SESSION['success'] = 'Login successful';
+                        header("Location: $redirect");
+                        exit();
+                    }
                 } else {
                     // Increment login attempts
                     $attempts = $row['login_attempts'] + 1;

@@ -1,76 +1,5 @@
-<?php include 'includes/firewall.php'; ?>
 <?php
 include 'includes/session.php';
-
-// IP Blocking Functions
-function blockIPAddress($ipAddress, $blockDuration = 86400) { // 86400 seconds = 24 hours
-    $blockedIPsFile = __DIR__ . '/blocked_ips.json';
-    
-    // Read existing blocked IPs
-    $blockedIPs = file_exists($blockedIPsFile) 
-        ? json_decode(file_get_contents($blockedIPsFile), true) 
-        : [];
-    
-    // Remove expired blocks
-    $currentTime = time();
-    $blockedIPs = array_filter($blockedIPs, function($blockTime) use ($currentTime) {
-        return $currentTime - $blockTime < 86400;
-    }, ARRAY_FILTER_USE_KEY);
-    
-    // Add new block
-    $blockedIPs[$ipAddress] = time();
-    
-    // Save updated blocked IPs
-    file_put_contents($blockedIPsFile, json_encode($blockedIPs));
-}
-
-function isIPBlocked($ipAddress) {
-    $blockedIPsFile = __DIR__ . '/blocked_ips.json';
-    
-    if (!file_exists($blockedIPsFile)) {
-        return false;
-    }
-    
-    $blockedIPs = json_decode(file_get_contents($blockedIPsFile), true);
-    
-    // Check if IP is blocked and block is still valid
-    if (isset($blockedIPs[$ipAddress])) {
-        $blockTime = $blockedIPs[$ipAddress];
-        $currentTime = time();
-        
-        // If block is less than 24 hours old, it's still active
-        if ($currentTime - $blockTime < 86400) {
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-function logMaliciousAttempt($reason, $ipAddress) {
-    $logFile = __DIR__ . '/security_log.txt';
-    $logEntry = date('Y-m-d H:i:s') . " | IP: $ipAddress | Reason: $reason\n";
-    file_put_contents($logFile, $logEntry, FILE_APPEND);
-    
-    // Block the IP
-    blockIPAddress($ipAddress);
-}
-
-// Get client IP address
-$clientIP = $_SERVER['REMOTE_ADDR'];
-
-// Check if IP is blocked before processing
-if (isIPBlocked($clientIP)) {
-    // Destroy all sessions and logout
-    session_unset();
-    session_destroy();
-    
-    $_SESSION['error'] = 'Access denied. Your IP is temporarily blocked due to security concerns.';
-    header('location: login');
-    exit();
-}
-
-
 
 $conn = $pdo->open();
 
@@ -93,6 +22,7 @@ if(isset($_POST['edit'])){
         exit();
     }
 
+    // Validate file upload
     if(!empty($photo)){
         $file_size = $_FILES['photo']['size'];
         $file_tmp = $_FILES['photo']['tmp_name'];
@@ -100,24 +30,23 @@ if(isset($_POST['edit'])){
         
         // Check file size - 5MB limit
         if($file_size > 5242880){
-            logMaliciousAttempt("Oversized file upload", $clientIP);
             $_SESSION['error'] = 'File size must not exceed 5MB';
             header('location: profile');
             exit();
         }
 
-        // Allowed file types with strict validation
+        // Check file type
         $allowed_types = array('image/jpeg', 'image/png', 'image/gif');
         if(!in_array($file_type, $allowed_types)){
-            logMaliciousAttempt("Invalid file type upload", $clientIP);
             $_SESSION['error'] = 'Only JPG, PNG & GIF files are allowed';
             header('location: profile');
             exit();
         }
 
-        // Enhanced malware scan function
-        function scanFile($file, $allowed_types){
-            // Advanced malware detection
+        // Basic malware scan
+        function scanFile($file){
+            // Check for PHP code in the file
+            $content = file_get_contents($file);
             $suspicious_patterns = array(
                 '<?php',
                 '<?=',
@@ -127,53 +56,25 @@ if(isset($_POST['edit'])){
                 'system(',
                 'shell_exec(',
                 'base64_decode(',
-                'gzinflate(',
-                'chr(',
-                'assert(',
-                'create_function(',
-                'preg_replace('
+                'gzinflate('
             );
 
-            // Read file contents
-            $content = file_get_contents($file);
-
-            // Check for suspicious PHP patterns
             foreach($suspicious_patterns as $pattern){
                 if(stripos($content, $pattern) !== false){
                     return false;
                 }
             }
 
-            // Advanced MIME type checking
+            // Check file headers
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $mime_type = finfo_file($finfo, $file);
             finfo_close($finfo);
 
-            // Validate MIME type matches file extension
-            $valid_mime = in_array($mime_type, $allowed_types);
-            
-            // Additional checks
-            $file_extension = strtolower(pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION));
-            $valid_extension = in_array($file_extension, ['jpg', 'jpeg', 'png', 'gif']);
-
-            return $valid_mime && $valid_extension;
+            return in_array($mime_type, $allowed_types);
         }
 
-        // Perform enhanced malware scan
-        if(!scanFile($file_tmp, $allowed_types)){
-            // Log malicious attempt and block IP
-            logMaliciousAttempt("Potential malware in file upload", $clientIP);
-            
-            // Destroy all sessions and logout
-            session_unset();
-            session_destroy();
-            
-            $_SESSION['error'] = 'Malicious file detected. Your account has been temporarily locked.';
-            header('location: login');
-            exit();
-        }
-
-        if(!scanFile($file_tmp, $allowed_types)) {
+        // Perform malware scan
+        if(!scanFile($file_tmp)){
             $_SESSION['error'] = 'File appears to be malicious or invalid';
             header('location: profile');
             exit();

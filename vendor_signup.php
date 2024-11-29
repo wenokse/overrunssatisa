@@ -1,68 +1,5 @@
 <?php include 'includes/firewall.php'; ?>
-<?php include 'includes/session.php'; 
-
-
-function isIPBlocked($ipAddress) {
-    $blockedIPsFile = __DIR__ . '/blocked_ips.json';
-    
-    if (!file_exists($blockedIPsFile)) {
-        return false;
-    }
-    
-    $blockedIPs = json_decode(file_get_contents($blockedIPsFile), true);
-    
-    // Check if IP is blocked and block is still valid
-    if (isset($blockedIPs[$ipAddress])) {
-        $blockTime = $blockedIPs[$ipAddress];
-        $currentTime = time();
-        
-        // Calculate remaining block time
-        $remainingBlockTime = 86400 - ($currentTime - $blockTime);
-        
-        if ($remainingBlockTime > 0) {
-            // Calculate hours and minutes remaining
-            $hoursRemaining = floor($remainingBlockTime / 3600);
-            $minutesRemaining = floor(($remainingBlockTime % 3600) / 60);
-            
-            return [
-                'blocked' => true,
-                'hours' => $hoursRemaining,
-                'minutes' => $minutesRemaining
-            ];
-        }
-    }
-    
-    return ['blocked' => false];
-}
-
-// Get client IP address
-$clientIP = $_SERVER['REMOTE_ADDR'];
-
-// Check IP block status before login attempt
-$ipBlockStatus = isIPBlocked($clientIP);
-
-if($ipBlockStatus['blocked']) {
-    // Set error message with remaining block time
-    echo "
-    <script src='https://unpkg.com/sweetalert/dist/sweetalert.min.js'></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            swal({
-                title: 'IP Blocked',
-                text: 'Your IP is temporarily blocked. Access will be restored in " . 
-                    $ipBlockStatus['hours'] . " hours and " . 
-                    $ipBlockStatus['minutes'] . " minutes.',
-                icon: 'warning',
-                button: 'OK'
-            }).then(() => {
-                window.location = 'index';
-            });
-        });
-    </script>";
-    exit();
-}
-
-?>
+<?php include 'includes/session.php'; ?>
 <?php
   if(isset($_SESSION['user'])){
     header('location: cart_view');
@@ -222,20 +159,20 @@ if($ipBlockStatus['blocked']) {
                 </div>
                 
                 <div class="form-group">
-                    <label>BIR Documents <span style="color: red;">*</span></label>
-                    <input type="file" name="bir_doc" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                    <label>BIR Documents <span style="color: red;"> PDF ONLY *</span></label>
+                    <input type="file" name="bir_doc" class="form-control" accept="pdf" required>
                     <small class="text-muted">Upload your BIR Certificate of Registration (Form 2303)</small>
                 </div>
 
                 <div class="form-group">
-                    <label>DTI Registration <span style="color: red;">*</span></label>
-                    <input type="file" name="dti_doc" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                    <label>DTI Registration <span style="color: red;"> PDF ONLY *</span></label>
+                    <input type="file" name="dti_doc" class="form-control" accept="pdf" required>
                     <small class="text-muted">Upload your DTI Business Registration Certificate</small>
                 </div>
 
                 <div class="form-group">
-                    <label>Mayor's Permit <span style="color: red;">*</span></label>
-                    <input type="file" name="mayor_permit" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                    <label>Mayor's Permit <span style="color: red;"> PDF ONLY *</span></label>
+                    <input type="file" name="mayor_permit" class="form-control" accept="pdf" required>
                     <small class="text-muted">Upload your valid Mayor's Permit</small>
                 </div>
 

@@ -244,11 +244,7 @@ $is_expired = $remaining_time == 0;
         ?>
         <form action="verify_vendor_email" method="POST">
             <label for="verification_code">Enter Verification Code:</label>
-            <input type="text" name="verification_code" required pattern="[0-9]{6}" 
-                   maxlength="6" 
-                   placeholder="Enter 6-digit OTP" 
-                   title="Please enter 6-digit OTP"
-                   autocomplete="one-time-code">
+            <input type="text" name="verification_code" required>
             <button type="submit" name="verify" id="verifyButton">Verify</button>
         </form>
         <form action="verify_vendor_email" method="POST">
