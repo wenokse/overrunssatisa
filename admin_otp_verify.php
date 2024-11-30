@@ -27,11 +27,26 @@ function verifyAdminLoginOTP($contact_info, $input_otp) {
     return false;
 }
 
+// Calculate time remaining for OTP
+$is_expired = false;
+$remaining_minutes = 0;
+$remaining_seconds = 0;
+
+if (isset($_SESSION['otp'])) {
+    $time_left = $_SESSION['otp']['expiry'] - time();
+    if ($time_left > 0) {
+        $remaining_minutes = floor($time_left / 60);
+        $remaining_seconds = $time_left % 60;
+    } else {
+        $is_expired = true;
+    }
+}
+
 // Handle OTP verification
 if (isset($_POST['verify_admin_otp'])) {
     // Sanitize and validate OTP input
     $contact_info = filter_var($_SESSION['admin_login_contact'], FILTER_SANITIZE_STRING);
-    $user_otp = filter_input(INPUT_POST, 'otp', FILTER_SANITIZE_NUMBER_INT);
+    $user_otp = filter_input(INPUT_POST, 'verification_code', FILTER_SANITIZE_NUMBER_INT);
 
     // Additional validation
     if (!$contact_info || !$user_otp || !preg_match('/^\d{6}$/', $user_otp)) {
@@ -78,167 +93,173 @@ if (isset($_POST['verify_admin_otp'])) {
         $pdo->close();
     }
 }
-?>
 
-<?php include 'includes/header.php'; ?>
+// Handle OTP resend (you'll need to implement the actual resend logic)
+if (isset($_POST['resend'])) {
+    // Implement OTP resend logic here
+    // This might involve generating a new OTP and sending it to the user
+    $_SESSION['error'] = 'OTP resend functionality not implemented yet.';
+    header('Location: admin_otp_verify');
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
+<?php include 'includes/header.php'; ?>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-        .otp-verify-box {
-            max-width: 400px;
+        /* General Body Styling */
+        body {
+            background: rgb(0, 51, 102);
+            background-size: cover;
+            background-repeat: no-repeat;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Container Styling */
+        .container2 {
+            width: 90%;
+            max-width: 500px;
             margin: 50px auto;
             padding: 20px;
-            border: 1px solid #ddd;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Button Styling */
+        .container2 button {
+            background-color: #512da8;
+            color: #fff;
+            font-size: 16px;
+            padding: 12px;
+            border: none;
+            border-radius: 20px;
+            text-transform: uppercase;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            transition: background-color 0.3s ease;
+        }
+        .container2 button:hover {
+            background-color: #4527a0;
+        }
+        .container2 button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Input Styling */
+        .container2 input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background-color: #eee;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        /* Back Button Styling */
+        .back-button {
+            display: inline-block;
+            color: rgb(0, 51, 102);
+            font-size: 18px;
+            margin-bottom: 10px;
+            text-decoration: none;
+        }
+        .back-button i {
+            font-size: 18px;
+        }
+
+        /* Error Styling */
+        .error {
+            background-color: #ffebee;
+            color: #d32f2f;
+            padding: 10px;
             border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .alert-danger {
-            color: red;
             margin-bottom: 15px;
+            text-align: center;
         }
-        body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f6f9;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
 
-.container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
+        /* Responsive Styling */
+        @media only screen and (max-width: 768px) {
+            .container2 {
+                padding: 15px;
+                box-shadow: none;
+            }
+            .container2 button {
+                font-size: 14px;
+                padding: 10px;
+            }
+            .container2 input {
+                font-size: 14px;
+                padding: 8px;
+            }
+            .login-box-msg {
+                font-size: 18px;
+            }
+        }
 
-.otp-verify-box {
-    background-color: #ffffff;
-    max-width: 450px;
-    width: 100%;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-h2 {
-    color: #333;
-    margin-bottom: 20px;
-    font-weight: 600;
-}
-
-.alert-danger {
-    background-color: #ffebee;
-    color: #d32f2f;
-    padding: 10px;
-    border-radius: 4px;
-    margin-bottom: 20px;
-    font-size: 14px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-    text-align: left;
-}
-
-label {
-    display: block;
-    margin-bottom: 8px;
-    color: #555;
-    font-weight: 500;
-}
-
-input[type="text"] {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-    transition: border-color 0.3s ease;
-}
-
-input[type="text"]:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-}
-
-.btn {
-    width: 100%;
-    padding: 12px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-}
-
-.btn:hover {
-    background-color: #0056b3;
-}
-
-.text-muted {
-    color: #6c757d;
-    text-decoration: none;
-    font-size: 14px;
-    transition: color 0.3s ease;
-}
-
-.text-muted:hover {
-    color: #007bff;
-    text-decoration: underline;
-}
-
-@media (max-width: 480px) {
-    .otp-verify-box {
-        margin: 20px;
-        padding: 20px;
-    }
-}
+        @media only screen and (max-width: 480px) {
+            .container2 {
+                margin: 20px auto;
+                padding: 10px;
+            }
+            .back-button i {
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="otp-verify-box">
-            <h2 class="text-center">Admin Login Verification</h2>
-            
-            <?php
-            if(isset($_SESSION['error'])){
-                echo "
-                <div class='alert alert-danger text-center'>
+    <br><br><br><br>
+    <div class="container2">
+        <a href="login" class="back-button">
+            <i class="fa fa-arrow-left"></i>
+        </a>
+        <h2 class="login-box-msg">Enter Admin Verification Code</h2>
+        <b>
+            <p>Time remaining: 
+                <span id="countdown">
+                    <?php echo $is_expired ? "Expired" : $remaining_minutes . "m " . $remaining_seconds . "s"; ?>
+                </span>
+            </p>
+        </b>
+        
+        <?php
+        if(isset($_SESSION['error'])){
+            echo "
+                <div class='error'>
                     ".$_SESSION['error']."
                 </div>
-                ";
-                unset($_SESSION['error']);
-            }
-            ?>
-            
-            <form method="POST" action="admin_otp_verify">
-                <div class="form-group">
-                    <label for="otp">Enter OTP sent to your registered mobile number</label>
-                    <input type="text" name="otp" id="otp" class="form-control" 
-                           placeholder="Enter 6-digit OTP" 
-                           required 
-                           pattern="\d{6}" 
-                           maxlength="6"
-                           title="6-digit OTP">
-                </div>
-                
-                <button type="submit" name="verify_admin_otp" class="btn btn-primary btn-block mt-3">
-                    Verify OTP
-                </button>
-            </form>
-            
-            <div class="text-center mt-3">
-                <a href="resend_admin_otp" class="text-muted">Didn't receive OTP? Resend</a>
-            </div>
-        </div>
+            ";
+            unset($_SESSION['error']);
+        }
+        ?>
+        
+        <form action="admin_otp_verify" method="POST">
+            <label for="verification_code">Enter Verification Code:</label>
+            <input type="text" name="verification_code" required 
+                   pattern="[0-9]{6}" 
+                   maxlength="6" 
+                   placeholder="Enter 6-digit OTP" 
+                   title="Please enter 6-digit OTP"
+                   autocomplete="one-time-code">
+            <button type="submit" name="verify_admin_otp" id="verifyButton">Verify</button>
+        </form>
+        <form action="admin_otp_verify" method="POST">
+            <button type="submit" name="resend" id="resendButton" class="resend-button" 
+                    <?php echo !$is_expired ? 'style="display:none;"' : ''; ?>>Resend Code</button>
+        </form>
     </div>
+
+    <script src="js/sweetalert.min.js"></script>
 </body>
 </html>

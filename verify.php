@@ -401,7 +401,7 @@ try {
                             exit();
                         }
                     
-                        // Send OTP via SMS
+                        // Send OTP via SMS to the contact number
                         $otp_sent = sendAdminLoginOTP($row['contact_info'], $row['firstname']);
                         
                         if ($otp_sent) {
@@ -415,7 +415,6 @@ try {
                             header('Location: login');
                             exit();
                         }
-                    
                     } else {
                         // Regular user login process remains the same
                         setSessionVariables($row);
