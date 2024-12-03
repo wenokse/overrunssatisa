@@ -254,10 +254,10 @@ if (isset($_POST['resend'])) {
                    autocomplete="one-time-code">
             <button type="submit" name="verify_admin_otp" id="verifyButton">Verify</button>
         </form>
-        <form action="admin_otp_verify" method="POST">
+        <!-- <form action="admin_otp_verify" method="POST">
             <button type="submit" name="resend" id="resendButton" class="resend-button" 
                     <?php echo !$is_expired ? 'style="display:none;"' : ''; ?>>Resend Code</button>
-        </form>
+        </form> -->
     </div>
 
     <script src="js/sweetalert.min.js"></script>
