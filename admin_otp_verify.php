@@ -261,5 +261,26 @@ if (isset($_POST['resend'])) {
     </div>
 
     <script src="js/sweetalert.min.js"></script>
+    <script>
+        // Set the countdown timer if not expired
+        var countdownElement = document.getElementById("countdown");
+        var timeLeft = <?php echo json_encode($time_left); ?>;
+
+        function updateCountdown() {
+            if (timeLeft > 0) {
+                var minutes = Math.floor(timeLeft / 60);
+                var seconds = timeLeft % 60;
+                countdownElement.textContent = minutes + "m " + seconds + "s";
+                timeLeft--;
+                setTimeout(updateCountdown, 1000);
+            } else {
+                countdownElement.textContent = "Expired";
+            }
+        }
+
+        if (timeLeft > 0) {
+            updateCountdown();
+        }
+    </script>
 </body>
 </html>
