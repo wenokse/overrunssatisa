@@ -236,6 +236,12 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label for="edit_contact" class="col-sm-3 control-label">Contact</label>
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control" id="edit_contact"  maxlength="11" name="contact" required>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label for="edit_store" class="col-sm-3 control-label">Name of Store</label>
                     <div class="col-sm-9">
                       <input type="text" class="form-control" id="edit_store" name="store" required>
