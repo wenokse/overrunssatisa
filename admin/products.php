@@ -296,6 +296,49 @@ $(function(){
 
 });
 
+function addColorField(color = '', photo = '') {
+    let colorCount = $('#edit_color-fields .color-field').length + 1;
+    let newColorField = `
+      <div class="form-group color-field">
+        <label for="color${colorCount}" class="col-sm-1 control-label">Color</label>
+        <div class="col-sm-5">
+          <input type="text" class="form-control" name="edit_colors[]" value="${color}">
+        </div>
+        <label for="color_photo${colorCount}" class="col-sm-1 control-label">Photo</label>
+        <div class="col-sm-5">
+          <input type="file" name="edit_color_photos[]">
+          ${photo ? `<p>Current: ${photo}</p>` : ''}
+          <input type="hidden" name="current_color_photos[]" value="${photo}">
+        </div>
+        ${colorCount > 1 ? `
+        <button type="button" class="btn btn-danger btn-sm remove-color" title="Remove">
+          <i class="fa fa-minus"></i>
+        </button>` : ''}
+      </div>
+    `;
+    $('#edit_color-fields').append(newColorField);
+}
+
+function addSizeField(size = '') {
+    let sizeCount = $('#edit_size-fields .size-field').length + 1;
+    let newSizeField = `
+      <div class="form-group size-field">
+        <label for="size${sizeCount}" class="col-sm-1 control-label">Size</label>
+        <div class="col-sm-5">
+          <input type="text" class="form-control" name="edit_sizes[]" value="${size}">
+        </div>
+        ${sizeCount > 1 ? `
+        <div class="col-sm-1">
+          <button type="button" class="btn btn-danger btn-sm remove-size" title="Remove">
+            <i class="fa fa-minus"></i>
+          </button>
+        </div>` : ''}
+      </div>
+    `;
+    $('#edit_size-fields').append(newSizeField);
+}
+
+
 function getRow(id){
   $.ajax({
     type: 'POST',
