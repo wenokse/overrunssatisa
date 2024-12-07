@@ -21,13 +21,13 @@ if(isset($_POST['add'])){
     $row = $stmt->fetch();
 
     if($row['numrows'] > 0){
-        $_SESSION['error'] = 'Product already exists';
+        $_SESSION['error'] = 'Product already exist';
     }
     else{
         if(!empty($filename)){
             $ext = pathinfo($filename, PATHINFO_EXTENSION);
             $new_filename = $slug.'.'.$ext;
-            move_uploaded_file($_FILES['photo']['tmp_name'], '../images/'.$new_filename);    
+            move_uploaded_file($_FILES['photo']['tmp_name'], '../images/'.$new_filename);	
         }
         else{
             $new_filename = '';
@@ -43,8 +43,9 @@ if(isset($_POST['add'])){
             if(isset($_POST['colors']) && isset($_FILES['color_photos'])) {
                 $colors = $_POST['colors'];
                 $color_photos = $_FILES['color_photos'];
-
+                
                 for($i = 0; $i < count($colors); $i++) {
+
                     if(!empty($colors[$i])) {
                         // Check for color conflicts only within the same product
                         $stmt = $conn->prepare("SELECT COUNT(*) AS count FROM product_colors WHERE product_id = :product_id AND color = :color");
@@ -58,30 +59,29 @@ if(isset($_POST['add'])){
                             exit();
                         }
 
-                        if(!empty($color_photos['name'][$i])) {
-                            $color_filename = $color_photos['name'][$i];
-                            $color_tmp = $color_photos['tmp_name'][$i];
-                            $color_ext = pathinfo($color_filename, PATHINFO_EXTENSION);
-                            $new_color_filename = $slug . '_color_' . ($i + 1) . '.' . $color_ext;
-
-                            if(!is_dir('../images/colors')) {
-                                mkdir('../images/colors', 0777, true);
-                            }
-
-                            move_uploaded_file($color_tmp, '../images/colors/' . $new_color_filename);
-
-                            $stmt = $conn->prepare("INSERT INTO product_colors (product_id, color, photo) 
-                                                 VALUES (:product_id, :color, :photo)");
-                            $stmt->execute([
-                                'product_id' => $product_id,
-                                'color' => $colors[$i],
-                                'photo' => $new_color_filename
-                            ]);
+                    if(!empty($color_photos['name'][$i])) {
+                        $color_filename = $color_photos['name'][$i];
+                        $color_tmp = $color_photos['tmp_name'][$i];
+                        $color_ext = pathinfo($color_filename, PATHINFO_EXTENSION);
+                        $new_color_filename = $slug . '_color_' . ($i + 1) . '.' . $color_ext;
+                        
+                        if(!is_dir('../images/colors')) {
+                            mkdir('../images/colors', 0777, true);
                         }
+                        
+                        move_uploaded_file($color_tmp, '../images/colors/' . $new_color_filename);
+                        
+                        $stmt = $conn->prepare("INSERT INTO product_colors (product_id, color, photo) 
+                                             VALUES (:product_id, :color, :photo)");
+                        $stmt->execute([
+                            'product_id' => $product_id,
+                            'color' => $colors[$i],
+                            'photo' => $new_color_filename
+                        ]);
+                    }
                     }
                 }
             }
-
             if(isset($_POST['sizes'])) {
                 $sizes = $_POST['sizes'];
                 
@@ -96,6 +96,7 @@ if(isset($_POST['add'])){
                     }
                 }
             }
+
 
             $conn->commit();
             $_SESSION['success'] = 'Product added successfully';
