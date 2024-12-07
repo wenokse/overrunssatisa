@@ -160,19 +160,19 @@
                 
                 <div class="form-group">
                     <label>BIR Documents <span style="color: red;"> PDF ONLY *</span></label>
-                    <input type="file" name="bir_doc" class="form-control" accept="pdf" required>
+                    <input type="file" name="bir_doc" class="form-control" accept="application/pdf" required>
                     <small class="text-muted">Upload your BIR Certificate of Registration (Form 2303)</small>
                 </div>
 
                 <div class="form-group">
                     <label>DTI Registration <span style="color: red;"> PDF ONLY *</span></label>
-                    <input type="file" name="dti_doc" class="form-control" accept="pdf" required>
+                    <input type="file" name="dti_doc" class="form-control" accept="application/pdf" required>
                     <small class="text-muted">Upload your DTI Business Registration Certificate</small>
                 </div>
 
                 <div class="form-group">
                     <label>Mayor's Permit <span style="color: red;"> PDF ONLY *</span></label>
-                    <input type="file" name="mayor_permit" class="form-control" accept="pdf" required>
+                    <input type="file" name="mayor_permit" class="form-control" accept="application/pdf" required>
                     <small class="text-muted">Upload your valid Mayor's Permit</small>
                 </div>
 

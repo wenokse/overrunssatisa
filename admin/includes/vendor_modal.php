@@ -421,22 +421,6 @@
             </thead>
             <tbody>
               <tr>
-                <td>Business Permit</td>
-                <td>
-                  <!-- <button type="button" class="btn btn-info btn-sm btn-flat view-doc" data-type="business_permit">
-                    <i class="fa fa-eye"></i> View
-                  </button> -->
-                  <a href="#" class="btn btn-primary btn-sm btn-flat download-doc" data-type="business_permit">
-                    <i class="fa fa-download"></i> Download
-                  </a>
-                </td>
-                <td>
-                  <div class="doc-preview" id="preview_business_permit">
-                    <span class="text-muted">Loading...</span>
-                  </div>
-                </td>
-              </tr>
-              <tr>
                 <td>BIR Document</td>
                 <td>
                   <!-- <button type="button" class="btn btn-info btn-sm btn-flat view-doc" data-type="bir_doc">
