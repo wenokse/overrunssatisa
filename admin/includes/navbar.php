@@ -17,48 +17,83 @@
       <ul class="nav navbar-nav">
         <!-- Notifications Menu -->
         <li class="dropdown notifications-menu">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            <i class="fa fa-bell-o"></i>
-            <?php
-            $admin_id = $_SESSION['admin'] ?? null;
-            if ($admin_id) {
-              $conn = $pdo->open();
-              try {
-                if ($admin['type'] == 1) {
-                  $stmt = $conn->prepare("SELECT COUNT(*) AS pending_count FROM sales WHERE status = 0");
-                } else {
-                  $stmt = $conn->prepare("SELECT COUNT(*) AS pending_count FROM sales WHERE status = 0 AND admin_id = :admin_id");
-                  $stmt->bindParam(':admin_id', $admin_id, PDO::PARAM_INT);
-                }
-                $stmt->execute();
-                $row = $stmt->fetch();
-                $pending_count = $row['pending_count'] ?? 0;
-              } catch (PDOException $e) {
-                $pending_count = 0;
-                error_log($e->getMessage());
-              }
-              $pdo->close();
-            }
-            
-            if (!empty($pending_count)):
-            ?>
-            <span class="label label-danger"><?php echo $pending_count; ?></span>
-            <?php endif; ?>
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+    <i class="fa fa-bell-o"></i>
+    <?php
+    $admin_id = $_SESSION['admin'] ?? null;
+    $pending_count = 0;
+    $vendor_status_count = 0;
+
+    if ($admin_id) {
+      $conn = $pdo->open();
+      try {
+        // Check for pending orders
+        if ($admin['type'] == 1) {
+          $stmt = $conn->prepare("SELECT COUNT(*) AS pending_count FROM sales WHERE status = 0");
+        } else {
+          $stmt = $conn->prepare("SELECT COUNT(*) AS pending_count FROM sales WHERE status = 0 AND admin_id = :admin_id");
+          $stmt->bindParam(':admin_id', $admin_id, PDO::PARAM_INT);
+        }
+        $stmt->execute();
+        $row = $stmt->fetch();
+        $pending_count = $row['pending_count'] ?? 0;
+
+        // Check for new vendor status notifications (type 2 and status 3)
+        $stmt = $conn->prepare("SELECT COUNT(*) AS vendor_status_count FROM users WHERE type = 2 AND status = 3");
+        $stmt->execute();
+        $row = $stmt->fetch();
+        $vendor_status_count = $row['vendor_status_count'] ?? 0;
+      } catch (PDOException $e) {
+        $pending_count = 0;
+        $vendor_status_count = 0;
+        error_log($e->getMessage());
+      }
+      $pdo->close();
+    }
+
+    if (!empty($pending_count) || !empty($vendor_status_count)):
+    ?>
+    <span class="label label-danger">
+      <?php echo $pending_count + $vendor_status_count; ?>
+    </span>
+    <?php endif; ?>
+  </a>
+  <ul class="dropdown-menu">
+    <li class="header">
+      <?php
+      if ($pending_count > 0) {
+        echo "You have $pending_count pending orders";
+      }
+      if ($vendor_status_count > 0) {
+        if ($pending_count > 0) {
+          echo " and ";
+        }
+        echo "You have $vendor_status_count new vendor registrations awaiting approval";
+      }
+      ?>
+    </li>
+    <li>
+      <ul class="menu">
+        <?php if ($pending_count > 0): ?>
+        <li>
+          <a href="sales">
+            <i class="fa fa-shopping-cart text-yellow"></i> <?php echo $pending_count; ?> new orders
           </a>
-          <ul class="dropdown-menu">
-            <li class="header">You have <?php echo $pending_count; ?> pending orders</li>
-            <li>
-              <ul class="menu">
-                <li>
-                  <a href="sales">
-                    <i class="fa fa-shopping-cart text-yellow"></i> <?php echo $pending_count; ?> new orders
-                  </a>
-                </li>
-              </ul>
-            </li>
-            <li class="footer"><a href="sales">View all</a></li>
-          </ul>
         </li>
+        <?php endif; ?>
+        <?php if ($vendor_status_count > 0): ?>
+        <li>
+          <a href="vendor">
+            <i class="fa fa-user text-blue"></i> <?php echo $vendor_status_count; ?> new vendor registrations
+          </a>
+        </li>
+        <?php endif; ?>
+      </ul>
+    </li>
+    <li class="footer"><a href="sales">View all</a></li>
+  </ul>
+</li>
+
 
         <!-- Messages Menu -->
         <li class="dropdown messages-menu">
