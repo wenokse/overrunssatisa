@@ -141,7 +141,6 @@ $pdo->close();
                                             <?php endforeach; ?>
                                         </div>
                                     </div>
-
                                     <br>
                                     <form class="form-inline" id="productForm" method="post" action="cart_add">
                                         <div class="input-group col-sm-6">
