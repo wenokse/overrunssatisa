@@ -194,107 +194,106 @@
 
 <?php include 'includes/scripts.php'; ?>
 <script>
+
+
 $(document).ready(function() {
     let colorCount = 1;
     let sizeCount = 1;
-
     // Add new color field
-    $('#add-edit-color').click(function() {
+    $('#add-color').click(function() {
       colorCount++;
       const newColorField = `
         <div class="form-group color-field">
           <label for="color${colorCount}" class="col-sm-1 control-label">Color</label>
           <div class="col-sm-5">
-            <input type="text" class="form-control" name="edit_colors[]" required>
+            <input type="text" class="form-control" name="colors[]" required>
           </div>
           <label for="color_photo${colorCount}" class="col-sm-1 control-label">Photo</label>
           <div class="col-sm-4">
-            <input type="file" name="edit_color_photos[]" required>
+            <input type="file" name="color_photos[]" required>
           </div>
           <button type="button" class="btn btn-danger btn-sm remove-color" title="Remove"><i class="fa fa-minus"></i></button>
         </div>
       `;
-      $('#edit_color-fields').append(newColorField);
+      $('#color-fields').append(newColorField);
     });
 
-    // Remove color field (except the first one)
+    // Remove color field
     $(document).on('click', '.remove-color', function() {
-      if ($('#edit_color-fields .color-field').length > 1) {
-        $(this).closest('.color-field').remove();
-      }
+      $(this).closest('.color-field').remove();
     });
 
     // Add new size field
-    $('#add-edit-size').click(function() {
-      sizeCount++;
+    $('#add-size').click(function(){
       const newSizeField = `
         <div class="form-group size-field">
-          <label for="size${sizeCount}" class="col-sm-1 control-label">Size</label>
+          <label for="size${$('.size-field').length + 1}" class="col-sm-1 control-label">Size</label>
           <div class="col-sm-5">
-            <input type="text" class="form-control" name="edit_sizes[]" placeholder="Enter size (e.g. S, M, L, 42, 44)" required>
+            <input type="text" class="form-control" name="sizes[]" placeholder="Enter size (e.g. S, M, L, 42, 44)" required>
           </div>
           <button type="button" class="btn btn-danger btn-sm remove-size" title="Remove"><i class="fa fa-minus"></i></button>
         </div>
       `;
-      $('#edit_size-fields').append(newSizeField);
+      $('#size-fields').append(newSizeField);
     });
 
-    // Remove size field (except the first one)
+    // Remove size field
     $(document).on('click', '.remove-size', function() {
-      if ($('#edit_size-fields .size-field').length > 1) {
-        $(this).closest('.size-field').remove();
-      }
+      $(this).closest('.size-field').remove();
     });
-});
+  });
 
-$(function() {
-  $(document).on('click', '.edit', function(e) {
+$(function(){
+  $(document).on('click', '.edit', function(e){
     e.preventDefault();
     $('#edit').modal('show');
     var id = $(this).data('id');
     getRow(id);
   });
 
-  $(document).on('click', '.delete', function(e) {
+  $(document).on('click', '.delete', function(e){
     e.preventDefault();
     $('#delete').modal('show');
     var id = $(this).data('id');
     getRow(id);
   });
 
-  $(document).on('click', '.photo', function(e) {
+  $(document).on('click', '.photo', function(e){
     e.preventDefault();
     var id = $(this).data('id');
     getRow(id);
   });
 
-  $(document).on('click', '.desc', function(e) {
+  $(document).on('click', '.desc', function(e){
     e.preventDefault();
     var id = $(this).data('id');
     getRow(id);
   });
 
-  $('#select_category').change(function() {
+  $('#select_category').change(function(){
     var val = $(this).val();
-    if (val == 0) {
+    if(val == 0){
       window.location = 'products';
-    } else {
-      window.location = 'products?category=' + val;
+    }
+    else{
+      window.location = 'products?category='+val;
     }
   });
 
-  $('#addproduct').click(function(e) {
+  $('#addproduct').click(function(e){
     e.preventDefault();
     getCategory();
   });
 
-  $("#addnew").on("hidden.bs.modal", function() {
-    $('.append_items').remove();
+  $("#addnew").on("hidden.bs.modal", function () {
+      $('.append_items').remove();
+  });
+  
+
+  $("#edit").on("hidden.bs.modal", function () {
+      $('.append_items').remove();
   });
 
-  $("#edit").on("hidden.bs.modal", function() {
-    $('.append_items').remove();
-  });
 });
 
 function addColorField(color = '', photo = '') {
@@ -339,13 +338,14 @@ function addSizeField(size = '') {
     $('#edit_size-fields').append(newSizeField);
 }
 
-function getRow(id) {
+
+function getRow(id){
   $.ajax({
     type: 'POST',
     url: 'products_row',
-    data: {id: id},
+    data: {id:id},
     dataType: 'json',
-    success: function(response) {
+    success: function(response){
       $('.prodid').val(response.prodid);
       $('#desc').html(response.description);
       $('.name').html(response.prodname);
@@ -355,90 +355,109 @@ function getRow(id) {
       $('#edit_price').val(response.price);
       $('#edit_stock').val(response.stock);
       CKEDITOR.instances["editor2"].setData(response.description);
-
+      
       // Clear existing color fields
       $('#edit_color-fields').empty();
       $('#edit_size-fields').empty();
-
+      
       // Add existing sizes
-      if (response.sizes && response.sizes.length > 0) {
-        response.sizes.forEach(function(size) {
+      if(response.sizes && response.sizes.length > 0){
+        response.sizes.forEach(function(size){
           addSizeField(size.size);
         });
       } else {
         addSizeField();
       }
-
       // Add existing colors
-      if (response.colors && response.colors.length > 0) {
-        response.colors.forEach(function(color, index) {
+      if(response.colors && response.colors.length > 0){
+        response.colors.forEach(function(color, index){
           addColorField(color.color, color.photo);
         });
       } else {
         addColorField();
       }
-
+      
       getCategory();
     }
   });
 }
 
-$('#add-edit-size').click(function() {
-  const newSizeField = `
-    <div class="form-group size-field">
-      <label for="size${$('#edit_size-fields .size-field').length + 1}" class="col-sm-1 control-label">Size</label>
-      <div class="col-sm-5">
-        <input type="text" class="form-control" name="edit_sizes[]" placeholder="Enter size (e.g. S, M, L, 42, 44)">
+function addSizeField(size = ''){
+    let sizeCount = $('#edit_size-fields .size-field').length + 1;
+    let newSizeField = `
+      <div class="form-group size-field">
+        <label for="size${sizeCount}" class="col-sm-1 control-label">Size</label>
+        <div class="col-sm-5">
+          <input type="text" class="form-control" name="edit_sizes[]" value="${size}" placeholder="Enter size (e.g. S, M, L, 42, 44)">
+        </div>
       </div>
-      <div class="col-sm-1">
-        <button type="button" class="btn btn-danger btn-sm remove-size" title="Remove"><i class="fa fa-minus"></i></button>
-      </div>
-    </div>
-  `;
-  $('#edit_size-fields').append(newSizeField);
-});
-
-// Remove size field
-$(document).on('click', '.remove-size', function() {
-  $(this).closest('.size-field').remove();
-});
-
-function addColorField(color = '', photo = '') {
-  let colorCount = $('#edit_color-fields .color-field').length + 1;
-  let newColorField = `
-    <div class="form-group color-field">
-      <label for="color${colorCount}" class="col-sm-1 control-label">Color</label>
-      <div class="col-sm-5">
-        <input type="text" class="form-control" name="edit_colors[]" value="${color}">
-      </div>
-      <label for="color_photo${colorCount}" class="col-sm-1 control-label">Photo</label>
-      <div class="col-sm-5">
-        <input type="file" name="edit_color_photos[]">
-        ${photo ? `<p>Current: ${photo}</p>` : ''}
-        <input type="hidden" name="current_color_photos[]" value="${photo}">
-      </div>
-    </div>
-  `;
-  $('#edit_color-fields').append(newColorField);
+    `;
+    $('#edit_size-fields').append(newSizeField);
 }
 
-$(document).on('click', '#add-edit-color', function(e) {
-  e.preventDefault();
-  addColorField();
-});
+$('#add-edit-size').click(function() {
+      const newSizeField = `
+        <div class="form-group size-field">
+          <label for="size${$('#edit_size-fields .size-field').length + 1}" class="col-sm-1 control-label">Size</label>
+          <div class="col-sm-5">
+            <input type="text" class="form-control" name="edit_sizes[]" placeholder="Enter size (e.g. S, M, L, 42, 44)">
+          </div>
+          <div class="col-sm-1">
+            <button type="button" class="btn btn-danger btn-sm remove-size" title="Remove"><i class="fa fa-minus"></i></button>
+          </div>
+        </div>
+      `;
+      $('#edit_size-fields').append(newSizeField);
+    });
 
-function getCategory() {
+    // Remove size field
+    $(document).on('click', '.remove-size', function() {
+      $(this).closest('.size-field').remove();
+    });
+
+
+function addColorField(color = '', photo = ''){
+    let colorCount = $('#edit_color-fields .color-field').length + 1;
+    let newColorField = `
+      <div class="form-group color-field">
+        <label for="color${colorCount}" class="col-sm-1 control-label">Color</label>
+        <div class="col-sm-5">
+          <input type="text" class="form-control" name="edit_colors[]" value="${color}">
+        </div>
+        <label for="color_photo${colorCount}" class="col-sm-1 control-label">Photo</label>
+        <div class="col-sm-5">
+          <input type="file" name="edit_color_photos[]">
+          ${photo ? `<p>Current: ${photo}</p>` : ''}
+          <input type="hidden" name="current_color_photos[]" value="${photo}">
+          ${colorCount > 1 ? `
+              <button type="button" class="btn btn-danger btn-sm remove-color" title="Remove">
+                <i class="fa fa-minus"></i>
+              </button>` : ''}
+        </div>
+         
+        
+      </div>
+    `;
+    $('#edit_color-fields').append(newColorField);
+  }
+
+  // Add event listener for the "Add Color" button
+  $(document).on('click', '#add-edit-color', function(e) {
+    e.preventDefault();
+    addColorField();
+  });
+
+function getCategory(){
   $.ajax({
     type: 'POST',
     url: 'category_fetch',
     dataType: 'json',
-    success: function(response) {
+    success:function(response){
       $('#category').append(response);
       $('#edit_category').append(response);
     }
   });
 }
 </script>
-
 </body>
 </html>
