@@ -128,7 +128,7 @@ $pdo->close();
                                             <button type="button" 
                                                 class="btn btn-default color-btn active"
                                                 data-photo="<?php echo $product['photo']; ?>"
-                                                data-color="random">
+                                                data-color="default">
                                                 Random
                                             </button>
                                             <?php foreach ($color_options as $color): ?>
