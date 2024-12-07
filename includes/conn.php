@@ -2,7 +2,7 @@
 
 class Database {
  
-    private $server = "mysql:host=127.0.0.1;port=3306;dbname=u510162695_ostosdb";
+    private $server = "mysql:host=127.0.0.1;port=3306;dbname=u510162695_ecomm";
     private $username = "u510162695_root";
     private $password = "1RootEcomm";
     private $options  = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC);
