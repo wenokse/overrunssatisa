@@ -10,6 +10,39 @@ function containsSpecialCharacters($str) {
     return preg_match('/[<>:\/\$\;\,\?\!]/', $str);
 }
 
+$allowed_image_extensions = ['jpg', 'jpeg', 'png'];
+$allowed_document_extensions = ['pdf', 'jpg', 'jpeg', 'png'];
+$max_file_size = 5 * 1024 * 1024; // 5MB
+
+$files_to_validate = [
+    'photo' => $allowed_image_extensions,
+    'bir_doc' => $allowed_document_extensions,
+    'dti_doc' => $allowed_document_extensions,
+    'mayor_permit' => $allowed_document_extensions,
+    'valid_id' => $allowed_image_extensions
+];
+
+foreach ($files_to_validate as $file_name => $allowed_extensions) {
+    if (!isset($_FILES[$file_name]) || $_FILES[$file_name]['error'] !== UPLOAD_ERR_OK) {
+        throw new Exception(ucfirst(str_replace('_', ' ', $file_name)) . " is required.");
+    }
+
+    $file = $_FILES[$file_name];
+    $file_size = $file['size'];
+    $file_ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+    // Check file size
+    if ($file_size > $max_file_size) {
+        throw new Exception(ucfirst(str_replace('_', ' ', $file_name)) . " exceeds the maximum size of 5MB.");
+    }
+
+    // Check file extension
+    if (!in_array($file_ext, $allowed_extensions)) {
+        throw new Exception(ucfirst(str_replace('_', ' ', $file_name)) . " has an invalid file type. Allowed types: " . implode(', ', $allowed_extensions) . ".");
+    }
+}
+
+
 function handleFileUpload($file_data, $upload_path, $allowed_extensions, $max_file_size) {
     // Validate file existence
     if (!isset($file_data['temp_path']) || !file_exists($file_data['temp_path'])) {
@@ -86,7 +119,7 @@ function handleFileUpload($file_data, $upload_path, $allowed_extensions, $max_fi
     }
 
     // Determine if file is an image based on extensions
-    $is_image = in_array($file_ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp']);
+    $is_image = in_array($file_ext, ['jpg', 'jpeg', 'png']);
 
     // Perform security scan
     if(!scanFile($file_data['temp_path'], $allowed_extensions, $is_image)){
@@ -137,11 +170,12 @@ if(isset($_POST['signup'])){
         $response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$recaptchaResponse}");
         $responseKeys = json_decode($response, true);
         
-        if (!$responseKeys['success'] || $responseKeys['score'] < 0.5) {
+        if (empty($responseKeys['success']) || $responseKeys['score'] < 0.5) {
             $_SESSION['error'] = 'reCAPTCHA verification failed. Please try again.';
             header('Location: vendor_signup');
             exit();
         }
+        
     }
 
     // Validate for special characters

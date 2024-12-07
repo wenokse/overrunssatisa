@@ -153,34 +153,34 @@
                 </div>
                 <div class="col-md-6">
                 <div class="form-group">
-                    <label>Shop Image <span style="color: red;">*</span></label>
-                    <input type="file" id="photo" name="photo" accept="image/png, image/jpeg, image/jpg" required>
-                    <img id="photo-preview" src="#" alt="Your Image" style="display:none; border-radius: 50%; width: 100px; height: 100px; margin-top: 10px;">
-                </div>
-                
-                <div class="form-group">
-                    <label>BIR Documents <span style="color: red;"> PDF ONLY *</span></label>
-                    <input type="file" name="bir_doc" class="form-control" accept="application/pdf" required>
-                    <small class="text-muted">Upload your BIR Certificate of Registration (Form 2303)</small>
-                </div>
+                        <label>Shop Image <span style="color: red;">*</span></label>
+                        <input type="file" id="photo" name="photo" accept="image/png, image/jpeg, image/jpg" required>
+                        <small class="text-danger" id="photo-error" style="display:none;">Invalid file type. Only JPG, JPEG, and PNG are allowed.</small>
+                    </div>
 
-                <div class="form-group">
-                    <label>DTI Registration <span style="color: red;"> PDF ONLY *</span></label>
-                    <input type="file" name="dti_doc" class="form-control" accept="application/pdf" required>
-                    <small class="text-muted">Upload your DTI Business Registration Certificate</small>
-                </div>
+                    <div class="form-group">
+                        <label>BIR Documents <span style="color: red;">*</span></label>
+                        <input type="file" name="bir_doc" class="form-control" accept="application/pdf, image/png, image/jpeg, image/jpg" required>
+                        <small class="text-danger" id="bir-doc-error" style="display:none;">Invalid file type. Only PDF, JPG, JPEG, and PNG are allowed.</small>
+                    </div>
 
-                <div class="form-group">
-                    <label>Mayor's Permit <span style="color: red;"> PDF ONLY *</span></label>
-                    <input type="file" name="mayor_permit" class="form-control" accept="application/pdf" required>
-                    <small class="text-muted">Upload your valid Mayor's Permit</small>
-                </div>
+                    <div class="form-group">
+                        <label>DTI Registration <span style="color: red;">*</span></label>
+                        <input type="file" name="dti_doc" class="form-control" accept="application/pdf, image/png, image/jpeg, image/jpg" required>
+                        <small class="text-danger" id="dti-doc-error" style="display:none;">Invalid file type. Only PDF, JPG, JPEG, and PNG are allowed.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mayor's Permit <span style="color: red;">*</span></label>
+                        <input type="file" name="mayor_permit" class="form-control" accept="application/pdf, image/png, image/jpeg, image/jpg" required>
+                        <small class="text-danger" id="mayor-permit-error" style="display:none;">Invalid file type. Only PDF, JPG, JPEG, and PNG are allowed.</small>
+                    </div>
 
                 <div class="form-group">
                     <label>Valid Government ID <span style="color: red;">*</span></label>
                     <input type="file" name="valid_id" class="form-control" accept="image/png, image/jpeg, image/jpg" required>
-                    <small class="text-muted">Upload any valid government ID (e.g., Driver's License, Passport, UMID)</small>
-                </div>
+                    <small class="text-danger" id="valid_id-permit-error" style="display:none;">Invalid file type. Only JPG, JPEG, and PNG are allowed.</small>
+                    </div>
 
                 <div class="form-group">
                     <label>TIN Number <span style="color: red;">*</span></label>
@@ -218,6 +218,26 @@ grecaptcha.ready(function() {
         document.getElementById('recaptchaResponse').value = token;
     });
 });
+
+
+document.querySelectorAll('input[type="file"]').forEach(input => {
+    input.addEventListener('change', function () {
+        const allowedTypes = this.getAttribute('accept').split(',').map(type => type.trim());
+        const file = this.files[0];
+        const errorElement = document.getElementById(this.name + '-error');
+
+        if (file) {
+            const fileType = file.type;
+            if (!allowedTypes.includes(fileType)) {
+                errorElement.style.display = 'block';
+                this.value = ''; // Reset file input
+            } else {
+                errorElement.style.display = 'none';
+            }
+        }
+    });
+});
+
 </script>
 </div>
 <div id="termsModal" class="modal">
