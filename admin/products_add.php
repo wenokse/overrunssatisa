@@ -46,13 +46,13 @@ if(isset($_POST['add'])){
 
                 for($i = 0; $i < count($colors); $i++) {
                     if(!empty($colors[$i])) {
-                        // Check for color conflicts
-                        $stmt = $conn->prepare("SELECT COUNT(*) AS count FROM product_colors WHERE color = :color AND product_id != :product_id");
-                        $stmt->execute(['color' => $colors[$i], 'product_id' => $product_id]);
+                        // Check for color conflicts only within the same product
+                        $stmt = $conn->prepare("SELECT COUNT(*) AS count FROM product_colors WHERE product_id = :product_id AND color = :color");
+                        $stmt->execute(['product_id' => $product_id, 'color' => $colors[$i]]);
                         $color_conflict = $stmt->fetch()['count'];
 
                         if ($color_conflict > 0) {
-                            $_SESSION['error'] = 'Color conflict: "' . $colors[$i] . '" already exists.';
+                            $_SESSION['error'] = 'Color conflict: "' . $colors[$i] . '" already exists for this product.';
                             $conn->rollBack();
                             header('location: products');
                             exit();
