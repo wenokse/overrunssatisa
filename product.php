@@ -128,22 +128,15 @@ $pdo->close();
                                             <button type="button" 
                                                 class="btn btn-default color-btn active"
                                                 data-photo="<?php echo $product['photo']; ?>"
-                                                data-color="default"
-                                                style="background: linear-gradient(45deg, #f3f3f3 50%, #ddd 50%);
-                                                    width: 30px; 
-                                                    height: 30px; 
-                                                    margin-right: 5px;">
+                                                data-color="default">
+                                                Default
                                             </button>
                                             <?php foreach ($color_options as $color): ?>
                                                 <button type="button" 
                                                     class="btn btn-default color-btn" 
                                                     data-color="<?php echo htmlspecialchars($color['color']); ?>"
-                                                    data-photo="<?php echo htmlspecialchars($color['photo']); ?>"
-                                                    style="background-color: <?php echo htmlspecialchars($color['color']); ?>; 
-                                                        width: 30px; 
-                                                        height: 30px; 
-                                                        margin-right: 5px; 
-                                                        border-radius: 50%;">
+                                                    data-photo="<?php echo htmlspecialchars($color['photo']); ?>">
+                                                    <?php echo htmlspecialchars($color['color']); ?>
                                                 </button>
                                             <?php endforeach; ?>
                                         </div>

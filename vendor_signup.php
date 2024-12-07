@@ -155,6 +155,7 @@
                 <div class="form-group">
                         <label>Shop Image <span style="color: red;">*</span></label>
                         <input type="file" id="photo" name="photo" accept="image/png, image/jpeg, image/jpg" required>
+                        <img id="photo-preview" src="#" alt="Your Image" style="display:none; border-radius: 50%; width: 100px; height: 100px; margin-top: 10px;">
                         <small class="text-danger" id="photo-error" style="display:none;">Invalid file type. Only JPG, JPEG, and PNG are allowed.</small>
                     </div>
 
