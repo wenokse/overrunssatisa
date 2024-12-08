@@ -2,31 +2,31 @@
 <?php include 'includes/header.php'; ?>
 
 <?php
-    $conn = $pdo->open();
+    // $conn = $pdo->open();
 
-    try {
-        $user_id = isset($_SESSION['admin']) ? $_SESSION['admin'] : null;
+    // try {
+    //     $user_id = isset($_SESSION['admin']) ? $_SESSION['admin'] : null;
 
-        if ($user_id === null) {
-            die("Error: User not logged in");
-        }
+    //     if ($user_id === null) {
+    //         die("Error: User not logged in");
+    //     }
 
-        $stmt = $conn->prepare("SELECT type FROM users WHERE id = :user_id");
-        $stmt->execute(['user_id' => $user_id]);
-        $user = $stmt->fetch();
+    //     $stmt = $conn->prepare("SELECT type FROM users WHERE id = :user_id");
+    //     $stmt->execute(['user_id' => $user_id]);
+    //     $user = $stmt->fetch();
 
-        if (!$user) {
-            die("Error: User not found");
-        }
+    //     if (!$user) {
+    //         die("Error: User not found");
+    //     }
 
-        $user_type = $user['type'];
-        if ($user_type != 1) {
-            header('Location: home');
-            exit();
-        }
-    } catch (PDOException $e) {
-        echo "There is some problem in connection: " . $e->getMessage();
-    }
+    //     $user_type = $user['type'];
+    //     if ($user_type != 1) {
+    //         header('Location: home');
+    //         exit();
+    //     }
+    // } catch (PDOException $e) {
+    //     echo "There is some problem in connection: " . $e->getMessage();
+    // }
 ?>
 
 <body class="hold-transition skin-blue sidebar-mini">
