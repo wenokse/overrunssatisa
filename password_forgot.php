@@ -290,10 +290,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
     }
 }
-
 function handleEmailOTP() {
     global $pdo;
-    
+
     $email = filter_var($_POST["email"], FILTER_SANITIZE_EMAIL);
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $_SESSION['error'] = "Invalid email address.";
@@ -301,21 +300,22 @@ function handleEmailOTP() {
         exit();
     }
 
-    $otp = sprintf("%06d", mt_rand(0, 999999));
+    $otp = sprintf("%06d", random_int(0, 999999));
     $expiry = time() + 600; // 10 minutes
 
     try {
         $conn = $pdo->open();
-        // First check if email exists
+
+        // Check if email exists
         $stmt = $conn->prepare("SELECT id FROM users WHERE email = :email");
         $stmt->execute(['email' => $email]);
-        
-        if ($stmt->rowCount() == 0) {
+
+        if ($stmt->rowCount() === 0) {
             $_SESSION['error'] = 'Email not found in our records.';
             header('location: password_forgot');
             exit();
         }
-        
+
         // Update the reset code
         $stmt = $conn->prepare("UPDATE users SET reset_code = :reset_code, reset_code_expiry = :expiry WHERE email = :email");
         $stmt->execute(['reset_code' => $otp, 'expiry' => $expiry, 'email' => $email]);
@@ -326,18 +326,21 @@ function handleEmailOTP() {
             $_SESSION['reset_time'] = $expiry;
             header('location: reset_verify');
             exit();
+        } else {
+            $_SESSION['error'] = 'Unable to process your request. Please try again later.';
         }
-    } catch(PDOException $e) {
-        $_SESSION['error'] = "Database error: " . $e->getMessage();
-        header('location: password_forgot');
+    } catch (PDOException $e) {
+        error_log("Database Error: " . $e->getMessage());
+        $_SESSION['error'] = "System error occurred. Please try again later.";
     }
+
     $pdo->close();
+    header('location: password_forgot');
     exit();
 }
-
 function handleEmailLink() {
     global $pdo;
-    
+
     $email = filter_var($_POST["email"], FILTER_SANITIZE_EMAIL);
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $_SESSION['error'] = "Invalid email address.";
@@ -345,8 +348,7 @@ function handleEmailLink() {
         exit();
     }
 
-    // Generate a 15-character reset code since that's your field length
-    $reset_code = substr(str_shuffle("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 15);
+    $reset_code = bin2hex(random_bytes(8)); // Generate a secure reset code
     $expiry = time() + 3600; // 1 hour
 
     try {
@@ -361,18 +363,20 @@ function handleEmailLink() {
         } else {
             $_SESSION['error'] = 'Email not found in our records.';
         }
-    } catch(PDOException $e) {
-        $_SESSION['error'] = "Database error: " . $e->getMessage();
+    } catch (PDOException $e) {
+        error_log("Database Error: " . $e->getMessage());
+        $_SESSION['error'] = "System error occurred. Please try again later.";
     }
+
     $pdo->close();
     header('location: password_forgot');
     exit();
 }
 
-  
+
 function handleSMS() {
     global $pdo;
-    
+
     $contact_info = filter_var($_POST["contact_info"], FILTER_SANITIZE_STRING);
     if (!preg_match("/^09\d{9}$/", $contact_info)) {
         $_SESSION['error'] = "Invalid phone number format. Please enter a valid 11-digit number starting with 09.";
@@ -381,7 +385,7 @@ function handleSMS() {
     }
 
     $international_format = '+63' . substr($contact_info, 1);
-    $otp = sprintf("%06d", mt_rand(0, 999999));
+    $otp = sprintf("%06d", random_int(0, 999999));
     $expiry = time() + 600; // 10 minutes
 
     try {
@@ -389,7 +393,7 @@ function handleSMS() {
         $stmt = $conn->prepare("SELECT id FROM users WHERE contact_info = :contact_info");
         $stmt->execute(['contact_info' => $contact_info]);
 
-        if ($stmt->rowCount() == 0) {
+        if ($stmt->rowCount() === 0) {
             $_SESSION['error'] = 'Phone number not found in our records.';
             header('location: password_forgot');
             exit();
@@ -439,9 +443,9 @@ function handleSMS() {
         if ($response === false) {
             error_log("SMS sending failed. cURL Error: " . curl_error($curl));
             $_SESSION['error'] = "Failed to send SMS. Please try again later.";
-          } else {
+        } else {
             $response_data = json_decode($response, true);
-            
+
             if ($http_code === 200 && isset($response_data['messages'][0]['status']['groupId']) && $response_data['messages'][0]['status']['groupId'] === 1) {
                 $_SESSION['reset_phone'] = $contact_info;
                 $_SESSION['reset_time'] = $expiry;
@@ -452,14 +456,14 @@ function handleSMS() {
                 $_SESSION['error'] = "Failed to send SMS. Please try again or use email reset.";
             }
         }
-        
+
         curl_close($curl);
-        
-    } catch(PDOException $e) {
+
+    } catch (PDOException $e) {
         error_log("Database Error in handleSMS: " . $e->getMessage());
         $_SESSION['error'] = "System error occurred. Please try again later.";
     }
-    
+
     $pdo->close();
     header('location: password_forgot');
     exit();

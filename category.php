@@ -60,7 +60,14 @@
 						try {
 							$inc = 0;
 							echo "<div class='product-container'>";     
-							$stmt = $conn->prepare("SELECT products.*, IFNULL(AVG(ratings.rating), 0) AS average_rating FROM products LEFT JOIN ratings ON products.id = ratings.product_id WHERE products.category_id = :catid GROUP BY products.id");
+							$stmt = $conn->prepare("
+								SELECT p.*, IFNULL(AVG(r.rating), 0) AS average_rating 
+								FROM products p
+								LEFT JOIN ratings r ON p.id = r.product_id
+								LEFT JOIN users u ON u.id = p.user_id
+								WHERE p.category_id = :catid AND (u.status IS NULL OR u.status = 1)
+								GROUP BY p.id
+							");
 							$stmt->execute(['catid' => $catid]);
 							foreach ($stmt as $row) {
 								$image = (!empty($row['photo'])) ? 'images/'.$row['photo'] : 'images/noimage.jpg';

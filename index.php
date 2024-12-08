@@ -259,8 +259,15 @@ img {
                             echo "<div class='category-images-container'>";
                             $categories = $conn->query("SELECT * FROM category")->fetchAll(PDO::FETCH_ASSOC);
                             foreach ($categories as $category) {
-                                $stmt = $conn->prepare("SELECT products.*, AVG(ratings.rating) AS average_rating FROM products LEFT JOIN ratings ON products.id = ratings.product_id WHERE products.category_id = :category_id GROUP BY products.id");
-                                $stmt->execute(['category_id' => $category['id']]);
+                                $stmt = $conn->prepare("
+                                SELECT p.*, AVG(r.rating) AS average_rating 
+                                FROM products p
+                                LEFT JOIN ratings r ON p.id = r.product_id
+                                LEFT JOIN users u ON u.id = p.user_id
+                                WHERE p.category_id = :category_id AND (u.status IS NULL OR u.status = 1)
+                                GROUP BY p.id
+                            ");
+                            $stmt->execute(['category_id' => $category['id']]);
                                 
                                 $products = $stmt->fetchAll();
                                 if ($products) {

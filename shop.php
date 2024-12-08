@@ -16,18 +16,21 @@ if (!$shop) {
 
 // Fetch top sales
 $stmt = $conn->prepare("
-    SELECT * FROM products 
-    WHERE user_id = :shop_id
-    ORDER BY counter DESC 
-    LIMIT 5
+     SELECT p.* 
+FROM products p
+LEFT JOIN users u ON u.id = p.user_id
+WHERE p.user_id = :shop_id AND (u.status IS NULL OR u.status = 1)
+ORDER BY p.counter DESC LIMIT 5
 ");
 $stmt->execute(['shop_id' => $shop_id]);
 $top_sales = $stmt->fetchAll();
 
 // Fetch all products for the specific shop
 $stmt = $conn->prepare("
-    SELECT * FROM products 
-    WHERE user_id = :shop_id
+    SELECT p.*
+FROM products p
+LEFT JOIN users u ON u.id = p.user_id
+WHERE p.user_id = :shop_id AND (u.status IS NULL OR u.status = 1)
 ");
 $stmt->execute(['shop_id' => $shop_id]);
 $all_products = $stmt->fetchAll();

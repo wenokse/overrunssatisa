@@ -1,6 +1,5 @@
 <?php
 include 'includes/session.php';
-
 // Handle reset code from the URL
 if (isset($_GET['code'])) {
     $reset_code = $_GET['code'];
@@ -8,6 +7,7 @@ if (isset($_GET['code'])) {
     try {
         $conn = $pdo->open();
 
+        // Retrieve the email and reset code where the code hasn't expired
         $stmt = $conn->prepare("
             SELECT email, reset_code 
             FROM users 
@@ -17,11 +17,12 @@ if (isset($_GET['code'])) {
 
         $is_valid = false;
         while ($row = $stmt->fetch()) {
-            if (password_verify($reset_code, $row['reset_code'])) {
+            // Secure comparison to prevent timing attacks
+            if (hash_equals($row['reset_code'], $reset_code)) {
                 $_SESSION['reset_email_verified'] = $row['email'];
                 $is_valid = true;
 
-                // Clear reset code after verification
+                // Clear the reset code and expiry after verification
                 $update = $conn->prepare("
                     UPDATE users 
                     SET reset_code = NULL, reset_code_expiry = NULL 
@@ -38,15 +39,18 @@ if (isset($_GET['code'])) {
             exit();
         }
     } catch (PDOException $e) {
-        $_SESSION['error'] = 'Database error: ' . $e->getMessage();
+        error_log("Database Error: " . $e->getMessage());
+        $_SESSION['error'] = 'System error occurred. Please try again later.';
         header('location: password_forgot');
         exit();
+    } finally {
+        $pdo->close();
     }
 
-    $pdo->close();
     header('location: reset_password');
     exit();
 }
+
 
 // Validate if verification session is set
 if ((!isset($_SESSION['reset_email']) && !isset($_SESSION['reset_phone'])) || !isset($_SESSION['reset_time'])) {

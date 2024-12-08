@@ -17,7 +17,7 @@ function verifyAdminLoginOTP($contact_info, $input_otp) {
 
     // Verify contact info, OTP, and expiry
     if ($otp_data['contact_info'] === $contact_info &&
-        $otp_data['otp'] === $input_otp &&
+        hash_equals($otp_data['otp'], $input_otp) && // Use hash_equals to prevent timing attacks
         time() <= $otp_data['expiry']) {
         
         unset($_SESSION['otp']); // Clear OTP after successful verification
@@ -94,13 +94,27 @@ if (isset($_POST['verify_admin_otp'])) {
     }
 }
 
-// Handle OTP resend (you'll need to implement the actual resend logic)
+// Additional Security: Limit resend attempts
 if (isset($_POST['resend'])) {
-    // Implement OTP resend logic here
-    // This might involve generating a new OTP and sending it to the user
-    $_SESSION['error'] = 'OTP resend functionality not implemented yet.';
+    if (isset($_SESSION['last_otp_resend_time']) && 
+        time() - $_SESSION['last_otp_resend_time'] < 60) {
+        $_SESSION['error'] = 'Please wait a minute before requesting another OTP.';
+        header('Location: admin_otp_verify');
+        exit();
+    }
+
+    $_SESSION['last_otp_resend_time'] = time();
+    if (sendAdminLoginOTP($_SESSION['admin_login_contact'], $_SESSION['admin_login_firstname'])) {
+        $_SESSION['success'] = 'OTP resent successfully.';
+    } else {
+        $_SESSION['error'] = 'Failed to resend OTP. Please try again.';
+    }
     header('Location: admin_otp_verify');
     exit();
+}
+
+function generateSecureOTP() {
+    return str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 }
 ?>
 <!DOCTYPE html>

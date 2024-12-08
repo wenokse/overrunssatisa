@@ -54,9 +54,13 @@ if (isset($_POST['keyword'])) {
         echo '<h1 class="page-header">Search results for <i>'.htmlspecialchars($sanitizedKeyword).'</i></h1>';
         try {
             echo "<div class='product-container'>";
-            // Fetch matching products
-            $stmt = $conn->prepare("SELECT * FROM products WHERE name LIKE :keyword");
-            $stmt->execute(['keyword' => '%'.$sanitizedKeyword.'%']);
+            $stmt = $conn->prepare("
+            SELECT p.* 
+            FROM products p
+            LEFT JOIN users u ON u.id = p.user_id
+            WHERE p.name LIKE :keyword AND (u.status IS NULL OR u.status = 1)
+        ");
+        $stmt->execute(['keyword' => '%'.$sanitizedKeyword.'%']);
 
             foreach ($stmt as $row) {
                 // Highlight search keyword in product name

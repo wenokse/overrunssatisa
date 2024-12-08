@@ -238,7 +238,7 @@ function sendLoginNotification($email, $firstname, $lastname, $location, $latitu
 }
 
 function sendAdminLoginOTP($contact_info, $firstname) {
-    $otp = generateSecureOTP();
+    $otp = generateSecureOTP(); // Ensure this uses a cryptographically secure method
     $expiry = time() + (10 * 60); // 10 minutes expiry
 
     try {
@@ -251,6 +251,7 @@ function sendAdminLoginOTP($contact_info, $firstname) {
         $international_format = '+63' . substr($contact_info, 1);
         $base_url = 'https://wgrqw8.api.infobip.com';
         $api_key = '5952adae049492ab073fba190990c8e5-28be927f-dd27-45fa-94e2-d3eb35f83f37';
+
         $payload = [
             'messages' => [
                 [
@@ -284,7 +285,6 @@ function sendAdminLoginOTP($contact_info, $firstname) {
         $curl_error = curl_error($curl);
         curl_close($curl);
 
-        // Detailed error logging
         if ($response === false) {
             error_log("SMS sending failed. cURL Error: " . $curl_error);
             return false;
@@ -292,7 +292,6 @@ function sendAdminLoginOTP($contact_info, $firstname) {
 
         $response_data = json_decode($response, true);
 
-        // More detailed logging and error checking
         if (!($http_code === 200 && 
               isset($response_data['messages'][0]['status']['groupId']) && 
               $response_data['messages'][0]['status']['groupId'] === 1)) {
@@ -307,6 +306,7 @@ function sendAdminLoginOTP($contact_info, $firstname) {
         return false;
     }
 }
+
 
 
 $conn = null;

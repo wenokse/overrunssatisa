@@ -21,13 +21,14 @@ try {
     FROM products p 
     LEFT JOIN category c ON c.id = p.category_id 
     LEFT JOIN users u ON u.id = CASE WHEN p.user_id = 0 THEN 1 ELSE p.user_id END
-    WHERE p.slug = :slug
+    WHERE p.slug = :slug AND (u.status IS NULL OR u.status = 1)
     ");
     $stmt->execute(['slug' => $slug]);
     $product = $stmt->fetch();
     if (!$product) {
-        exit("Product not found");
+        exit("Product not found or vendor is deactivated");
     }
+
 
     $stmt = $conn->prepare("SELECT * FROM product_colors WHERE product_id = :product_id");
     $stmt->execute(['product_id' => $product['prodid']]);
