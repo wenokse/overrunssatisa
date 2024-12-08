@@ -407,8 +407,8 @@ function handleSMS() {
         ]);
 
         // Infobip API Configuration
-        $base_url = 'https://wgrqw8.api.infobip.com';
-        $api_key = '5952adae049492ab073fba190990c8e5-28be927f-dd27-45fa-94e2-d3eb35f83f37';
+        $base_url = 'https://wgl14q.api.infobip.com';
+        $api_key = '21e860c23732f2ce85ddeeca882c6fd8-18fe6575-d17f-43ac-a383-55d9d9c8b523';
 
         $payload = [
             'messages' => [
