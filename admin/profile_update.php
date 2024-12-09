@@ -13,6 +13,7 @@
 		$password = $_POST['password'];
 		$firstname = $_POST['firstname'];
 		$lastname = $_POST['lastname'];
+		$contact_info = $_POST['contact_info'];
 		$photo = $_FILES['photo']['name'];
 		$allowed_extensions = ['jpg', 'jpeg', 'png']; // Allowed extensions
 
@@ -45,8 +46,8 @@
 			$conn = $pdo->open();
 
 			try{
-				$stmt = $conn->prepare("UPDATE users SET email=:email, password=:password, firstname=:firstname, lastname=:lastname, photo=:photo, updated_on=NOW() WHERE id=:id");
-				$stmt->execute(['email'=>$email, 'password'=>$password, 'firstname'=>$firstname, 'lastname'=>$lastname, 'photo'=>$filename, 'id'=>$admin['id']]);
+				$stmt = $conn->prepare("UPDATE users SET email=:email, password=:password, firstname=:firstname, lastname=:lastname, contact_info=:contact_info, photo=:photo, updated_on=NOW() WHERE id=:id");
+				$stmt->execute(['email'=>$email, 'password'=>$password, 'firstname'=>$firstname, 'lastname'=>$lastname, 'contact_info'=>$contact_info, 'photo'=>$filename, 'id'=>$admin['id']]);
 
 				$_SESSION['success'] = 'Account updated successfully';
 			}

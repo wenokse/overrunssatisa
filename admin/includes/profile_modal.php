@@ -39,6 +39,20 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label for="contact_info" class="col-sm-3 control-label">Contact Number</label>
+                        <div class="col-sm-9">
+                            <input type="text" 
+                                class="form-control" 
+                                id="contact_info" 
+                                name="contact_info" 
+                                value="<?php echo $admin['contact_info']; ?>" 
+                                maxlength="11" 
+                                pattern="09\d{9}" 
+                                title="Contact number must start with '09' and be 11 digits long."
+                                oninput="validateContactNumber(this)">
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label for="photo" class="col-sm-3 control-label">Photo</label>
                         <div class="col-sm-9">
                             <input type="file" id="photo" name="photo" accept="image/png, image/jpeg, image/jpg">
@@ -72,4 +86,13 @@
         };
         reader.readAsDataURL(event.target.files[0]);
     };
+    function validateContactNumber(input) {
+        input.value = input.value.replace(/[^0-9]/g, '');
+        if (!input.value.startsWith('09')) {
+            input.value = '09';
+        }
+        if (input.value.length > 11) {
+            input.value = input.value.slice(0, 11);
+        }
+    }
 </script>

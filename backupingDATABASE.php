@@ -1,46 +1,15 @@
 <?php include 'includes/session.php'; ?>
 <?php include 'includes/header.php'; ?>
 
-<?php
-    $conn = $pdo->open();
-
-    try {
-        $user_id = isset($_SESSION['admin']) ? $_SESSION['admin'] : null;
-
-        if ($user_id === null) {
-            die("Error: User not logged in");
-        }
-
-        $stmt = $conn->prepare("SELECT type FROM users WHERE id = :user_id");
-        $stmt->execute(['user_id' => $user_id]);
-        $user = $stmt->fetch();
-
-        if (!$user) {
-            die("Error: User not found");
-        }
-
-        $user_type = $user['type'];
-        if ($user_type != 1) {
-            header('Location: index');
-            exit();
-        }
-    } catch (PDOException $e) {
-        echo "There is some problem in connection: " . $e->getMessage();
-    }
-?>
-
 <body class="hold-transition skin-blue sidebar-mini">
-<div class="wrapper">
+<div class="">
 
-  <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-  
+
+  <div class="">
     <br><br>
-
-    <!-- Main content -->
-    <section class="content">
-      <div class="row">
-      <div class="col-md-15 col-md-offset-3">
+    <section class="">
+      <div class="">
+        <div class="col-xs-12">
           <div class="box box-solid">
             <div class="box-header with-border">
               <h3 class="box-title">Database Management</h3>
@@ -49,6 +18,9 @@
               <p class="lead">Manage your database with the following options:</p>
               <a href="export_database" class="btn btn-lg btn-success">
                 <i class="fa fa-database"></i> Export Database
+              </a>
+              <a href="view_database" class="btn btn-lg btn-info">
+                <i class="fa fa-table"></i> View Database Tables
               </a>
               <form action="import_database" method="post" enctype="multipart/form-data" style="margin-top: 15px;">
                 <input type="file" name="import_file" required>
@@ -65,17 +37,14 @@
           </div>
         </div>
       </div>
+      
     </section>
-    <!-- /.content -->
-
   </div>
-  <!-- /.content-wrapper -->
 
-  <?php include 'includes/footer.php'; ?>
+ 
 </div>
-<!-- ./wrapper -->
-
 <?php include 'includes/scripts.php'; ?>
+
 
 </body>
 </html>
