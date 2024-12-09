@@ -21,13 +21,14 @@ if(isset($_POST['add'])){
     $row = $stmt->fetch();
 
     if($row['numrows'] > 0){
-        $_SESSION['error'] = 'Product already exist';
+        $_SESSION['error'] = 'Product already exists';
     }
     else{
         if(!empty($filename)){
             $ext = pathinfo($filename, PATHINFO_EXTENSION);
-            $new_filename = $slug.'.'.$ext;
-            move_uploaded_file($_FILES['photo']['tmp_name'], '../images/'.$new_filename);	
+            // Generate unique filename using uniqid and the original extension
+            $new_filename = uniqid('product_') . '.' . $ext;
+            move_uploaded_file($_FILES['photo']['tmp_name'], '../images/' . $new_filename);	
         }
         else{
             $new_filename = '';
@@ -45,41 +46,28 @@ if(isset($_POST['add'])){
                 $color_photos = $_FILES['color_photos'];
                 
                 for($i = 0; $i < count($colors); $i++) {
-
-                    if(!empty($colors[$i])) {
-                        // Check for color conflicts only within the same product
-                        $stmt = $conn->prepare("SELECT COUNT(*) AS count FROM product_colors WHERE product_id = :product_id AND color = :color");
-                        $stmt->execute(['product_id' => $product_id, 'color' => $colors[$i]]);
-                        $color_conflict = $stmt->fetch()['count'];
-
-                        if ($color_conflict > 0) {
-                            $_SESSION['error'] = 'Color conflict: "' . $colors[$i] . '" already exists for this product.';
-                            $conn->rollBack();
-                            header('location: products');
-                            exit();
-                        }
-
-                    if(!empty($color_photos['name'][$i])) {
+                    if (!empty($color_photos['name'][$i])) {
                         $color_filename = $color_photos['name'][$i];
                         $color_tmp = $color_photos['tmp_name'][$i];
-                        $color_ext = pathinfo($color_filename, PATHINFO_EXTENSION);
-                        $new_color_filename = $slug . '_color_' . ($i + 1) . '.' . $color_ext;
                         
-                        if(!is_dir('../images/colors')) {
+                        // Ensure upload directory exists
+                        if (!is_dir('../images/colors')) {
                             mkdir('../images/colors', 0777, true);
                         }
-                        
+                    
+                        // Generate unique color photo filename
+                        $color_ext = pathinfo($color_filename, PATHINFO_EXTENSION);
+                        $new_color_filename = uniqid('color_') . '.' . $color_ext;
                         move_uploaded_file($color_tmp, '../images/colors/' . $new_color_filename);
-                        
-                        $stmt = $conn->prepare("INSERT INTO product_colors (product_id, color, photo) 
-                                             VALUES (:product_id, :color, :photo)");
+                    
+                        $stmt = $conn->prepare("INSERT INTO product_colors (product_id, color, photo) VALUES (:product_id, :color, :photo)");
                         $stmt->execute([
                             'product_id' => $product_id,
                             'color' => $colors[$i],
-                            'photo' => $new_color_filename
+                            'photo' => $new_color_filename,
                         ]);
                     }
-                    }
+                    
                 }
             }
             if(isset($_POST['sizes'])) {
@@ -96,7 +84,6 @@ if(isset($_POST['add'])){
                     }
                 }
             }
-
 
             $conn->commit();
             $_SESSION['success'] = 'Product added successfully';

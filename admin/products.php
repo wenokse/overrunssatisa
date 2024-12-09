@@ -459,5 +459,79 @@ function getCategory(){
   });
 }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// Validation function for color uniqueness
+function validateUniqueColors(colorInputs) {
+    const colorSet = new Set();
+    let isDuplicate = false;
+
+    colorInputs.each(function() {
+        const colorValue = $(this).val().trim().toLowerCase();
+        
+        if (colorValue) {
+            if (colorSet.has(colorValue)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Duplicate Color',
+                    text: 'Duplicate color detected. Please use unique colors.'
+                });
+                $(this).val('').focus();
+                isDuplicate = true;
+                return false; // break the loop
+            }
+            colorSet.add(colorValue);
+        }
+    });
+
+    return !isDuplicate;
+}
+
+$(document).ready(function() {
+    // Validation for Add New Product Modal
+    $('#addnew').on('submit', function(e) {
+        const colorInputs = $('#color-fields input[name="colors[]"]');
+        
+        if (!validateUniqueColors(colorInputs)) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // Validation for Edit Product Modal
+    $('#edit').on('submit', function(e) {
+        const colorInputs = $('#edit_color-fields input[name="edit_colors[]"]');
+        
+        if (!validateUniqueColors(colorInputs)) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // Real-time validation as user types
+    $(document).on('change', '#color-fields input[name="colors[]"], #edit_color-fields input[name="edit_colors[]"]', function() {
+        const currentInput = $(this);
+        const allInputs = currentInput.closest('.modal').find('input[name="' + currentInput.attr('name') + '"]');
+        
+        const currentValue = currentInput.val().trim().toLowerCase();
+        
+        allInputs.each(function() {
+            if ($(this)[0] !== currentInput[0]) {
+                if ($(this).val().trim().toLowerCase() === currentValue) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Color Already Added',
+                        text: 'This color has already been added. Please choose a different color.'
+                    });
+                    currentInput.val('').focus();
+                    return false;
+                }
+            }
+        });
+    });
+});
+</script>
+
 </body>
 </html>

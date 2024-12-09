@@ -39,7 +39,7 @@
               <h4 class="modal-title"><b>Edit Product</b></h4>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" method="POST" action="products_edit">
+              <form class="form-horizontal" method="POST" action="products_edit" enctype="multipart/form-data">
                 <input type="hidden" class="prodid" name="id">
                 <div class="form-group">
                   <label for="edit_name" class="col-sm-1 control-label">Name</label>
