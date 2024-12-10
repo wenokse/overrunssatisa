@@ -332,12 +332,47 @@ $(function(){
     getRow(id);
   });
 
-  $(document).on('click', '.delete', function(e){
+  $(function() {
+  $(document).on('click', '.delete', function(e) {
     e.preventDefault();
-    $('#delete').modal('show');
     var id = $(this).data('id');
-    getRow(id);
+
+    swal({
+      title: "Are you sure?",
+      text: "Deleting this vendor will also delete all associated products, colors, and sizes.",
+      icon: "warning",
+      buttons: ["Cancel", "Yes, delete it!"],
+      dangerMode: true,
+    }).then((willDelete) => {
+      if (willDelete) {
+        $.ajax({
+          type: 'POST',
+          url: 'vendor_delete', // Your PHP file handling the deletion
+          data: { id: id },
+          success: function(response) {
+            swal({
+              title: "Deleted!",
+              text: "Vendor and associated data have been deleted successfully.",
+              icon: "success",
+              button: "OK"
+            }).then(() => {
+              location.reload(); // Reload the page to reflect changes
+            });
+          },
+          error: function(xhr, status, error) {
+            swal({
+              title: "Error",
+              text: "An error occurred while deleting the vendor.",
+              icon: "error",
+              button: "OK"
+            });
+          }
+        });
+      }
+    });
   });
+});
+
 
   $(document).on('click', '.photo', function(e){
     e.preventDefault();

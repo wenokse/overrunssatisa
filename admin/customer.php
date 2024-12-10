@@ -172,11 +172,38 @@ $(function(){
   });
 
   $(document).on('click', '.delete', function(e){
-    e.preventDefault();
-    $('#delete').modal('show');
-    var id = $(this).data('id');
-    getRow(id);
+  e.preventDefault();
+  var id = $(this).data('id');
+
+  swal({
+    title: "Are you sure?",
+    text: "You will not be able to recover this customer's data!",
+    icon: "warning",
+    buttons: true,
+    dangerMode: true,
+  }).then((willDelete) => {
+    if (willDelete) {
+      $.ajax({
+        type: 'POST',
+        url: 'customer_delete', 
+        data: {id: id},
+        success: function(response) {
+          swal("Customer has been deleted!", {
+            icon: "success",
+          }).then(() => {
+            location.reload(); 
+          });
+        },
+        error: function() {
+          swal("Error!", "An error occurred while deleting the customer.", "error");
+        }
+      });
+    } else {
+      swal("Customer data is safe!");
+    }
   });
+});
+
 
   $(document).on('click', '.photo', function(e){
     e.preventDefault();

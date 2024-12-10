@@ -1,27 +1,21 @@
 <?php
-	include 'includes/session.php';
+include 'includes/session.php';
 
-	if(isset($_POST['delete'])){
-		$id = $_POST['id'];
-		
-		$conn = $pdo->open();
+if(isset($_POST['id'])){
+    $id = $_POST['id'];
 
-		try{
-			$stmt = $conn->prepare("DELETE FROM users WHERE id=:id");
-			$stmt->execute(['id'=>$id]);
+    $conn = $pdo->open();
 
-			$_SESSION['success'] = 'Customer deleted successfully';
-		}
-		catch(PDOException $e){
-			$_SESSION['error'] = $e->getMessage();
-		}
+    try {
+        $stmt = $conn->prepare("DELETE FROM users WHERE id = :id");
+        $stmt->execute(['id' => $id]);
+        echo json_encode(['success' => true]);
+    } catch(PDOException $e) {
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    }
 
-		$pdo->close();
-	}
-	else{
-		$_SESSION['error'] = 'Select customer to delete first';
-	}
-
-	header('location: customer');
-	
+    $pdo->close();
+} else {
+    echo json_encode(['success' => false, 'message' => 'No ID provided']);
+}
 ?>
