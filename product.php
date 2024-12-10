@@ -546,22 +546,28 @@ $(window).on('load', function() {
        
 
         $(function(){
+            const stock = $('#quantity').data('stock');
+
             $('#add').click(function(e){
                 e.preventDefault();
-                var quantity = $('#quantity').val();
-                quantity++;
-                const stock = $('#quantity').data('stock');
-                if (stock >= quantity) {
-                    $('#quantity').val(quantity);
+                let quantity = parseInt($('#quantity').val());
+                if (quantity < stock) {
+                    $('#quantity').val(quantity + 1);
+                } else {
+                    swal({
+                        title: "Out of Stock",
+                        text: "You cannot add more than the available stock.",
+                        icon: "warning",
+                    });
                 }
             });
+
             $('#minus').click(function(e){
                 e.preventDefault();
-                var quantity = $('#quantity').val();
+                let quantity = parseInt($('#quantity').val());
                 if (quantity > 1) {
-                    quantity--;
+                    $('#quantity').val(quantity - 1);
                 }
-                $('#quantity').val(quantity);
             });
 
             $('#size').change(function() {
