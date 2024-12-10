@@ -8,16 +8,15 @@ if (!isset($_SESSION['admin_login_email'])) {
     exit();
 }
 
-function verifyAdminLoginOTP($contact_info, $input_otp) {
+function verifyAdminLoginOTP($input_otp) {
     if (!isset($_SESSION['otp'])) {
         return false; // No OTP session exists
     }
 
     $otp_data = $_SESSION['otp'];
 
-    // Verify contact info, OTP, and expiry
-    if ($otp_data['contact_info'] === $contact_info &&
-        hash_equals($otp_data['otp'], $input_otp) && // Use hash_equals to prevent timing attacks
+    // Verify OTP and expiry
+    if (hash_equals($otp_data['otp'], $input_otp) && // Use hash_equals to prevent timing attacks
         time() <= $otp_data['expiry']) {
         
         unset($_SESSION['otp']); // Clear OTP after successful verification
@@ -45,11 +44,11 @@ if (isset($_SESSION['otp'])) {
 // Handle OTP verification
 if (isset($_POST['verify_admin_otp'])) {
     // Sanitize and validate OTP input
-    $contact_info = filter_var($_SESSION['admin_login_contact'], FILTER_SANITIZE_STRING);
+    $email = $_SESSION['admin_login_email'];
     $user_otp = filter_input(INPUT_POST, 'verification_code', FILTER_SANITIZE_NUMBER_INT);
 
     // Additional validation
-    if (!$contact_info || !$user_otp || !preg_match('/^\d{6}$/', $user_otp)) {
+    if (!$email || !$user_otp || !preg_match('/^\d{6}$/', $user_otp)) {
         $_SESSION['error'] = 'Invalid OTP format.';
         header('Location: admin_otp_verify');
         exit();
@@ -57,13 +56,13 @@ if (isset($_POST['verify_admin_otp'])) {
 
     try {
         // Verify the OTP
-        $is_verified = verifyAdminLoginOTP($contact_info, $user_otp);
+        $is_verified = verifyAdminLoginOTP($user_otp);
 
         if ($is_verified) {
             // Fetch user details
             $conn = $pdo->open();
-            $stmt = $conn->prepare("SELECT * FROM users WHERE contact_info = :contact_info");
-            $stmt->execute(['contact_info' => $contact_info]);
+            $stmt = $conn->prepare("SELECT * FROM users WHERE email = :email");
+            $stmt->execute(['email' => $email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$user) {
@@ -75,7 +74,8 @@ if (isset($_POST['verify_admin_otp'])) {
             $_SESSION['success'] = 'Admin login successful.';
             
             // Clear temporary login session data
-            unset($_SESSION['admin_login_email'], $_SESSION['admin_login_contact']);
+            unset($_SESSION['admin_login_email']);
+            unset($_SESSION['admin_login_contact']);
 
             header('Location: admin/home');
             exit();
@@ -104,7 +104,7 @@ if (isset($_POST['resend'])) {
     }
 
     $_SESSION['last_otp_resend_time'] = time();
-    if (sendAdminLoginOTP($_SESSION['admin_login_contact'], $_SESSION['admin_login_firstname'])) {
+    if (sendAdminLoginOTP($_SESSION['admin_login_email'])) {
         $_SESSION['success'] = 'OTP resent successfully.';
     } else {
         $_SESSION['error'] = 'Failed to resend OTP. Please try again.';

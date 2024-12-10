@@ -25,15 +25,16 @@
         try{
             $total = 0;
             $sql = "
-            SELECT c.*, c.id AS cartid, c.size AS size, c.user_id AS cart_user_id, 
-                   p.*, p.name AS prodname, u.store AS vendor_store, u.photo AS vendor_photo,
-                   pc.photo AS color_photo, p.photo AS default_photo
-            FROM cart c
-            LEFT JOIN products p ON p.id = c.product_id 
-            LEFT JOIN users u ON u.id = c.admin_id
-            LEFT JOIN product_colors pc ON pc.product_id = c.product_id AND pc.color = c.color
-            WHERE c.user_id = :user
-            ORDER BY u.id";
+                SELECT c.*, c.id AS cartid, c.size AS size, c.user_id AS cart_user_id, 
+                    p.*, p.name AS prodname, u.store AS vendor_store, u.photo AS vendor_photo,
+                    pc.photo AS color_photo, p.photo AS default_photo,
+                    COALESCE(c.shipping, 100) AS shipping  // Add this line to ensure shipping is always 100
+                FROM cart c
+                LEFT JOIN products p ON p.id = c.product_id 
+                LEFT JOIN users u ON u.id = c.admin_id
+                LEFT JOIN product_colors pc ON pc.product_id = c.product_id AND pc.color = c.color
+                WHERE c.user_id = :user
+                ORDER BY u.id";
             $stmt = $conn->prepare($sql);
             $stmt->execute(['user' => $user['id']]);
     
