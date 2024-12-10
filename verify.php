@@ -237,31 +237,89 @@ function sendLoginNotification($email, $firstname, $lastname, $location, $latitu
     }
 }
 
-function sendAdminLoginOTP($email) {
-    $otp = generateSecureOTP(); // Ensure this uses a cryptographically secure method
+// function sendAdminLoginOTP($contact_info, $firstname) {
+//     $otp = generateSecureOTP(); // Ensure this uses a cryptographically secure method
+//     $expiry = time() + (10 * 60); // 10 minutes expiry
+
+//     try {
+//         $_SESSION['otp'] = [
+//             'contact_info' => $contact_info,
+//             'otp' => $otp, 
+//             'expiry' => $expiry
+//         ];
+
+//         $international_format = '+63' . substr($contact_info, 1);
+//         $base_url = 'https://wgl14q.api.infobip.com';
+//         $api_key = '21e860c23732f2ce85ddeeca882c6fd8-18fe6575-d17f-43ac-a383-55d9d9c8b523';
+
+//         $payload = [
+//             'messages' => [
+//                 [
+//                     'from' => 'OverrunsSaTisa',
+//                     'destinations' => [
+//                         ['to' => $international_format]
+//                     ],
+//                     'text' => "Hello {$firstname}, Your Admin Login OTP is: {$otp}. This code expires in 10 minutes.",
+//                     'flash' => false,
+//                     'validityPeriod' => 600
+//                 ]
+//             ]
+//         ];
+
+//         // Send SMS via cURL
+//         $curl = curl_init();
+//         curl_setopt_array($curl, [
+//             CURLOPT_URL => $base_url . '/sms/2/text/advanced',
+//             CURLOPT_RETURNTRANSFER => true,
+//             CURLOPT_HTTPHEADER => [
+//                 'Content-Type: application/json',
+//                 'Authorization: App ' . $api_key
+//             ],
+//             CURLOPT_POST => true,
+//             CURLOPT_POSTFIELDS => json_encode($payload),
+//             CURLOPT_TIMEOUT => 30
+//         ]);
+
+//         $response = curl_exec($curl);
+//         $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+//         $curl_error = curl_error($curl);
+//         curl_close($curl);
+
+//         if ($response === false) {
+//             error_log("SMS sending failed. cURL Error: " . $curl_error);
+//             return false;
+//         }
+
+//         $response_data = json_decode($response, true);
+
+//         if (!($http_code === 200 && 
+//               isset($response_data['messages'][0]['status']['groupId']) && 
+//               $response_data['messages'][0]['status']['groupId'] === 1)) {
+//             error_log("SMS sending failed. Response: " . print_r($response_data, true));
+//             return false;
+//         }
+
+//         return true;
+
+//     } catch (Exception $e) {
+//         error_log("Error sending admin login OTP: " . $e->getMessage());
+//         return false;
+//     }
+// }
+
+function sendAdminLoginOTP($email, $firstname) {
+    $otp = generateSecureOTP(); // Generate a secure OTP
     $expiry = time() + (10 * 60); // 10 minutes expiry
 
     try {
-        // Fetch user details using email
-        $conn = $pdo->open();
-        $stmt = $conn->prepare("SELECT firstname, lastname FROM users WHERE email = :email");
-        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-        $stmt->execute();
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$user) {
-            error_log("User not found for email: " . $email);
-            return false;
-        }
-
         $_SESSION['otp'] = [
-            'email' => $email,
-            'otp' => $otp, 
+            'contact_info' => $email, // Changed from contact_info to email
+            'otp' => $otp,
             'expiry' => $expiry
         ];
 
         $mail = new PHPMailer(true);
-        
+
         // Server settings
         $mail->SMTPDebug = SMTP::DEBUG_OFF;
         $mail->isSMTP();
@@ -272,46 +330,25 @@ function sendAdminLoginOTP($email) {
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
         $mail->Port       = 465;
 
-        $mail->SMTPOptions = array(
-            'ssl' => array(
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-                'allow_self_signed' => true
-            )
-        );
-        $mail->Timeout = 300;
-        $mail->SMTPKeepAlive = true;
-
-        // Recipients
         $mail->setFrom('overrunssatisa@gmail.com', 'Overruns Sa Tisa Online Shop');
-        $mail->addAddress($email, $user['firstname'] . ' ' . $user['lastname']);
+        $mail->addAddress($email, $firstname);
 
+        // Email content
         $mail->isHTML(true);
-        $mail->Subject = 'Your Admin Login OTP';
-
+        $mail->Subject = 'Your Admin Login OTP Code';
         $mail->Body = "
-        <h2 style='color: #003366;'>Admin Login Verification</h2>
-        <p>Hello {$user['firstname']},</p>
-        <p>Your One-Time Password (OTP) for admin login is:</p>
-        
-        <div style='background-color: #f5f5f5; padding: 20px; text-align: center; font-size: 24px; letter-spacing: 5px; border-radius: 5px;'>
-            <strong>{$otp}</strong>
-        </div>
-        
-        <p>This OTP is valid for 10 minutes. Do not share this code with anyone.</p>
-        
-        <p style='color: #888;'>If you did not request this login, please contact support immediately.</p>
-        
-        <p>Best regards,<br>Overruns Sa Tisa Online Shop Team</p>
+            <h2>Hello, {$firstname}!</h2>
+            <p>Your Admin Login OTP is:</p>
+            <h3 style='color: #003366;'>{$otp}</h3>
+            <p>This code will expire in 10 minutes.</p>
+            <p>If you did not request this code, please contact support immediately.</p>
+            <p>Best regards,<br>Your App Team</p>
         ";
 
         $mail->send();
-        $pdo->close();
         return true;
-
     } catch (Exception $e) {
-        error_log("Error sending admin login OTP email: " . $e->getMessage());
-        if (isset($conn)) $pdo->close();
+        error_log("Failed to send OTP email: " . $e->getMessage());
         return false;
     }
 }
@@ -401,24 +438,17 @@ try {
                     sendLoginNotification($email, $row['firstname'], $row['lastname'], $location, $latitude, $longitude);
 
                     if($row['type'] == 1 || $row['type'] == 2) { // Admin user
-                        // Check if contact info is available
-                        if (empty($row['contact_info'])) {
-                            $_SESSION['error'] = 'Admin contact information not found. Please contact support.';
-                            header('Location: login');
-                            exit();
-                        }
-                    
-                        // Send OTP via SMS to the contact number
-                        $otp_sent = sendAdminLoginOTP($row['contact_info'], $row['firstname']);
+                        // Send OTP via email to the user's email address
+                        $otp_sent = sendAdminLoginOTP($email, $row['firstname']);
                         
                         if ($otp_sent) {
                             // Store temporary session data for OTP verification
                             $_SESSION['admin_login_email'] = $email;
-                            $_SESSION['admin_login_contact'] = $row['contact_info'];
+                            $_SESSION['admin_login_firstname'] = $row['firstname']; // Add this line
                             header('Location: admin_otp_verify');
                             exit();
                         } else {
-                            $_SESSION['error'] = 'Failed to send SMS verification. Please try again.';
+                            $_SESSION['error'] = 'Failed to send OTP email. Please try again.';
                             header('Location: login');
                             exit();
                         }
