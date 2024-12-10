@@ -595,27 +595,24 @@ $(function() {
         updateOrderButton();
     });
 
-    // Update total amount and save state
-    
-
-    // Save checked state to localStorage
     function saveCheckedState() {
-        var checkedProducts = [];
-        $('.product-checkbox:checked').each(function() {
-            checkedProducts.push($(this).data('id'));
+    var checkedProducts = [];
+    $('.product-checkbox:checked').each(function() {
+        checkedProducts.push({
+            id: $(this).data('id'),
+            adminId: $(this).data('admin-id')
         });
-        localStorage.setItem('checkedProducts', JSON.stringify(checkedProducts));
-    }
+    });
+    localStorage.setItem('checkedProducts', JSON.stringify(checkedProducts));
+}
 
-    // Load checked state from localStorage
-    function loadCheckedState() {
-        var checkedProducts = JSON.parse(localStorage.getItem('checkedProducts')) || [];
-        checkedProducts.forEach(function(id) {
-            $('.product-checkbox[data-id="' + id + '"]').prop('checked', true);
-        });
-        updateTotal();
-        updateOrderButton();
-    }
+function loadCheckedState() {
+    var checkedProducts = JSON.parse(localStorage.getItem('checkedProducts')) || [];
+    checkedProducts.forEach(function(product) {
+        $('.product-checkbox[data-id="' + product.id + '"][data-admin-id="' + product.adminId + '"]').prop('checked', true);
+    });
+    updateTotal();
+}
 
     // Modify the form submission handler
     $('#payment_form').submit(function(e) {
@@ -998,34 +995,35 @@ $(function() {
     });
 
     function updateTotal() {
-    var total = 0;
-    var shippingTotal = 0;
-    var uniqueShops = new Set();
+    var selectedTotal = 0;
+    var selectedShops = {};  // Track unique shops
+    var selectedProducts = [];
 
     $('.product-checkbox:checked').each(function() {
         var price = parseFloat($(this).data('price'));
-        var quantity = parseFloat($(this).data('quantity'));
-        var adminId = $(this).data('admin-id');
-        
-        // Calculate product subtotal
-        total += price * quantity;
+        var quantity = parseInt($(this).data('quantity'));
+        var adminId = $(this).data('admin-id');  // Add this data attribute
+
+        // Add product price * quantity
+        selectedTotal += (price * quantity);
 
         // Track unique shops for shipping
-        if (!uniqueShops.has(adminId)) {
-            uniqueShops.add(adminId);
-            shippingTotal += 100;  // 100 per unique shop
+        if (!selectedShops[adminId]) {
+            selectedTotal += 100;  // Add 100 shipping per unique shop
+            selectedShops[adminId] = true;
         }
+
+        selectedProducts.push($(this).data('id'));
     });
 
-    // Update shipping display
-    $('#cod_shipping p').text('Shipping: ₱ ' + shippingTotal.toFixed(2));
-
-    // Update total including shipping
-    var finalTotal = total + shippingTotal;
-    $('#selected-total').text('₱ ' + finalTotal.toFixed(2));
-
-    // Save checked state
-    saveCheckedState();
+    // Format the total with 2 decimal places and display
+    $('#selected-total').text('₱ ' + selectedTotal.toFixed(2));
+    
+    // Update hidden input with selected products
+    $('#selected-products').val(selectedProducts.join(','));
+    
+    // Update checkout button state
+    $('.checkout-btn').prop('disabled', selectedProducts.length === 0 || !$('#confirm_address').is(':checked'));
 }
 
 // Update when checkboxes change
