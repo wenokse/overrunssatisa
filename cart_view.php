@@ -365,7 +365,7 @@ include 'includes/session.php';
 
                                 </table>
                                 <div id="cod_shipping" style="">
-                            <p style="color: red;">Shipping: 100</p>
+                            <p style="color: red;">Shipping: 100 per shop</p>
                         </div>
                             </div>
                         </div>
@@ -425,7 +425,7 @@ include 'includes/session.php';
                         <div class="box box-solid">
                         <div class="box-header with-border">
                         <div id="cod_shipping" style="">
-                            <p style="color: red;">Shipping: 100</p>
+                            <p style="color: red;">Shipping: 100 per shop</p>
                         </div>
                         <div id="gcash_shipping" style="display: none;">
                             <img src="image/GCash.jpg" alt="GCash QR Code">
