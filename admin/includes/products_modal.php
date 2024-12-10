@@ -71,7 +71,7 @@
                   <div class="form-group size-field">
                     <label for="size1" class="col-sm-1 control-label">Size</label>
                     <div class="col-sm-5">
-                      <input type="text" class="form-control" name="sizes[]" placeholder="Enter size (e.g. S, M, L, 42, 44)" required>
+                      <input type="text" class="form-control" name="sizes[]" placeholder="Enter size (e.g. S, M, L, 42, 44)">
                     </div>
                    
                   </div>
