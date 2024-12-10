@@ -998,54 +998,33 @@ $(function() {
     });
 
     function updateTotal() {
-    var total = 0;
-    var shipping = 0;
-    var selectedShops = new Set(); // Track unique shops
+    var selectedTotal = 0;
+    var selectedProducts = [];
+    var hasSelectedProducts = false;
 
     $('.product-checkbox:checked').each(function() {
+        hasSelectedProducts = true;
         var price = parseFloat($(this).data('price'));
         var quantity = parseInt($(this).data('quantity'));
-        var productTotal = price * quantity;
-        var shopId = $(this).data('shop-id'); // Assuming you add a shop-id data attribute
-
-        total += productTotal;
-        
-        // Add unique shop to set
-        if (shopId) {
-            selectedShops.add(shopId);
-        }
-    });
-
-    // Calculate shipping: 100 per unique selected shop
-    shipping = selectedShops.size * 100;
-
-    // Update selected total display
-    var formattedTotal = '₱ ' + (total + shipping).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-    $('#selected-total').text(formattedTotal);
-
-    // Prepare selected products for form submission
-    var selectedProducts = [];
-    $('.product-checkbox:checked').each(function() {
+        // Add product price * quantity
+        selectedTotal += (price * quantity);
         selectedProducts.push($(this).data('id'));
     });
-    $('#selected-products').val(JSON.stringify(selectedProducts));
 
-    // Optional: Display shipping breakdown
-    $('#shipping-total').text('₱ ' + shipping.toFixed(2));
+    // Add shipping fee of 100 if there are selected products
+    if (hasSelectedProducts) {
+        selectedTotal += 100; // Fixed shipping fee
+    }
+
+    // Format the total with 2 decimal places and display
+    $('#selected-total').text('₱ ' + selectedTotal.toFixed(2));
+    
+    // Update hidden input with selected products
+    $('#selected-products').val(selectedProducts.join(','));
+    
+    // Update checkout button state
+    $('.checkout-btn').prop('disabled', !hasSelectedProducts || !$('#confirm_address').is(':checked'));
 }
-
-// Add event listeners
-$(function() {
-    $('.product-checkbox').change(function() {
-        updateTotal();
-        saveCheckedState();
-        updateOrderButton();
-    });
-
-    // Initial load of checked state and total
-    loadCheckedState();
-    updateTotal();
-});
 
 // Update when checkboxes change
 $(document).on('change', '.product-checkbox', function() {
