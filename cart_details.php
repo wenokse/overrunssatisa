@@ -84,7 +84,14 @@ if (isset($_SESSION['user'])) {
 
             $output .= "
                 <tr>
-                    <td><input type='checkbox' class='product-checkbox' data-id='" . $row['cartid'] . "' data-price='" . $row['price'] . "' data-quantity='" . $row['quantity'] . "' data-shipping='100'></td>
+                    <td>
+        <input type='checkbox' 
+               class='product-checkbox' 
+               data-id='" . $row['cartid'] . "' 
+               data-shop-id='" . $row['admin_id'] . "' 
+               data-price='" . $row['price'] . "' 
+               data-quantity='" . $row['quantity'] . "'>
+    </td>
                     <td><button type='button' data-id='" . $row['cartid'] . "' class='btn btn-danger btn-flat cart_delete'><i class='fa fa-remove'></i></button></td>
                     <td>
                         <a href='product?product=" . $row['slug'] . "'>
