@@ -14,7 +14,7 @@ $vendor_id = $_POST['vendor_id']; // Get vendor_id from POST data
 
 if (isset($_SESSION['user'])) {
     try {
-        // Fetch product details
+        // Fetch product stock
         $stmt_product = $conn->prepare("SELECT stock FROM products WHERE id=:product_id");
         $stmt_product->execute(['product_id' => $id]);
         $row_product = $stmt_product->fetch();
@@ -28,24 +28,25 @@ if (isset($_SESSION['user'])) {
 
         $available_stock = $row_product['stock'];
 
-        // Check if user is adding more than available stock
-        $stmt_cart = $conn->prepare("
-            SELECT COALESCE(SUM(quantity), 0) AS cart_quantity 
+        // Calculate total quantity already in cart for this product
+        $stmt_cart_total = $conn->prepare("
+            SELECT COALESCE(SUM(quantity), 0) AS total_cart_quantity 
             FROM cart 
-            WHERE user_id=:user_id AND product_id=:product_id AND size=:size AND color=:color
+            WHERE user_id=:user_id AND product_id=:product_id
         ");
-        $stmt_cart->execute(['user_id' => $user['id'], 'product_id' => $id, 'size' => $size, 'color' => $color]);
-        $row_cart = $stmt_cart->fetch();
-        $current_cart_quantity = $row_cart['cart_quantity'];
+        $stmt_cart_total->execute(['user_id' => $user['id'], 'product_id' => $id]);
+        $cart_total_row = $stmt_cart_total->fetch();
+        $total_cart_quantity = $cart_total_row['total_cart_quantity'];
 
-        if (($current_cart_quantity + $quantity) > $available_stock) {
+        // Check if adding this quantity exceeds available stock
+        if (($total_cart_quantity + $quantity) > $available_stock) {
             $output['error'] = true;
-            $output['message'] = 'Not enough stock available';
+            $output['message'] = 'You cannot add more than the available stock.';
             echo json_encode($output);
             exit();
         }
 
-        // Check if item already exists in cart with the same size and color
+        // Check if the specific combination of size and color exists in the cart
         $stmt_check = $conn->prepare("
             SELECT id, quantity 
             FROM cart 
@@ -55,14 +56,14 @@ if (isset($_SESSION['user'])) {
         $check_row = $stmt_check->fetch();
 
         if ($check_row) {
-            // Update quantity if the same product, size, and color combination is found
+            // Update quantity if the same combination exists
             $new_quantity = $check_row['quantity'] + $quantity;
 
             $stmt_update = $conn->prepare("UPDATE cart SET quantity=:quantity WHERE id=:cart_id");
             $stmt_update->execute(['quantity' => $new_quantity, 'cart_id' => $check_row['id']]);
-            $output['message'] = 'Item quantity updated in cart';
+            $output['message'] = 'Cart updated successfully.';
         } else {
-            // Insert new item into cart
+            // Insert a new entry for the specific combination
             $stmt_insert = $conn->prepare("
                 INSERT INTO cart (user_id, admin_id, product_id, size, color, quantity, shipping) 
                 VALUES (:user_id, :admin_id, :product_id, :size, :color, :quantity, :shipping)
@@ -76,7 +77,7 @@ if (isset($_SESSION['user'])) {
                 'quantity' => $quantity, 
                 'shipping' => $shipping
             ]);
-            $output['message'] = 'Item added to cart';
+            $output['message'] = 'Item added to cart.';
         }
     } catch (PDOException $e) {
         $output['error'] = true;
