@@ -998,32 +998,34 @@ $(function() {
     });
 
     function updateTotal() {
-    var selectedTotal = 0;
-    var selectedProducts = [];
-    var hasSelectedProducts = false;
+    var total = 0;
+    var shippingTotal = 0;
+    var uniqueShops = new Set();
 
     $('.product-checkbox:checked').each(function() {
-        hasSelectedProducts = true;
         var price = parseFloat($(this).data('price'));
-        var quantity = parseInt($(this).data('quantity'));
-        // Add product price * quantity
-        selectedTotal += (price * quantity);
-        selectedProducts.push($(this).data('id'));
+        var quantity = parseFloat($(this).data('quantity'));
+        var adminId = $(this).data('admin-id');
+        
+        // Calculate product subtotal
+        total += price * quantity;
+
+        // Track unique shops for shipping
+        if (!uniqueShops.has(adminId)) {
+            uniqueShops.add(adminId);
+            shippingTotal += 100;  // 100 per unique shop
+        }
     });
 
-    // Add shipping fee of 100 if there are selected products
-    if (hasSelectedProducts) {
-        selectedTotal += 100; // Fixed shipping fee
-    }
+    // Update shipping display
+    $('#cod_shipping p').text('Shipping: ₱ ' + shippingTotal.toFixed(2));
 
-    // Format the total with 2 decimal places and display
-    $('#selected-total').text('₱ ' + selectedTotal.toFixed(2));
-    
-    // Update hidden input with selected products
-    $('#selected-products').val(selectedProducts.join(','));
-    
-    // Update checkout button state
-    $('.checkout-btn').prop('disabled', !hasSelectedProducts || !$('#confirm_address').is(':checked'));
+    // Update total including shipping
+    var finalTotal = total + shippingTotal;
+    $('#selected-total').text('₱ ' + finalTotal.toFixed(2));
+
+    // Save checked state
+    saveCheckedState();
 }
 
 // Update when checkboxes change
