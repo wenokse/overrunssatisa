@@ -1006,12 +1006,15 @@ $(function() {
         hasSelectedProducts = true;
         var price = parseFloat($(this).data('price'));
         var quantity = parseInt($(this).data('quantity'));
-        var shipping = parseFloat($(this).data('shipping') || 100);
-        
-        // Add product price * quantity + shipping
-        selectedTotal += (price * quantity) + shipping;
+        // Add product price * quantity
+        selectedTotal += (price * quantity);
         selectedProducts.push($(this).data('id'));
     });
+
+    // Add shipping fee of 100 if there are selected products
+    if (hasSelectedProducts) {
+        selectedTotal += 100; // Fixed shipping fee
+    }
 
     // Format the total with 2 decimal places and display
     $('#selected-total').text('₱ ' + selectedTotal.toFixed(2));
