@@ -417,32 +417,8 @@ function viewAttachment(path) {
             return false;
         }
 
-        // If all validations pass, confirm the selection
-        swal({
-            title: 'Confirm Selection',
-            text: `Add to cart with:\n${requireSize ? 'Size: ' + selectedSize + '\n' : ''}Color: ${selectedColor}`,
-            icon: 'info',
-            buttons: {
-                cancel: {
-                    text: "Cancel",
-                    value: null,
-                    visible: true,
-                    className: "btn btn-default",
-                    closeModal: true
-                },
-                confirm: {
-                    text: "Add to Cart",
-                    value: true,
-                    visible: true,
-                    className: "btn btn-primary",
-                    closeModal: true
-                }
-            }
-        }).then((willAdd) => {
-            if (willAdd) {
-                this.submit();
-            }
-        });
+        // If all validations pass, submit the form directly
+        this.submit();
     });
 
     // Enable/disable submit button based on size selection
