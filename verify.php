@@ -437,28 +437,32 @@ try {
                     // Send login notification email
                     sendLoginNotification($email, $row['firstname'], $row['lastname'], $location, $latitude, $longitude);
 
+                    // In your login verification logic, modify the OTP sending logic
                     if($row['type'] == 1 || $row['type'] == 2) { // Admin user
-                        // Send OTP via email to the user's email address
-                        $otp_sent = sendAdminLoginOTP($email, $row['firstname']);
-                        
-                        if ($otp_sent) {
-                            // Store temporary session data for OTP verification
-                            $_SESSION['admin_login_email'] = $email;
-                            $_SESSION['admin_login_firstname'] = $row['firstname']; // Add this line
-                            header('Location: admin_otp_verify');
-                            exit();
+                        // Check if OTP is enabled for this user
+                        if($row['otp_enabled'] == 1) {
+                            // Send OTP via email to the user's email address
+                            $otp_sent = sendAdminLoginOTP($email, $row['firstname']);
+                            
+                            if ($otp_sent) {
+                                // Store temporary session data for OTP verification
+                                $_SESSION['admin_login_email'] = $email;
+                                $_SESSION['admin_login_firstname'] = $row['firstname'];
+                                header('Location: admin_otp_verify');
+                                exit();
+                            } else {
+                                $_SESSION['error'] = 'Failed to send OTP email. Please try again.';
+                                header('Location: login');
+                                exit();
+                            }
                         } else {
-                            $_SESSION['error'] = 'Failed to send OTP email. Please try again.';
-                            header('Location: login');
+                            // OTP is disabled, proceed directly to login
+                            setSessionVariables($row);
+                            $redirect = 'profile';
+                            $_SESSION['success'] = 'Login successful';
+                            header("Location: $redirect");
                             exit();
                         }
-                    } else {
-                        // Regular user login process remains the same
-                        setSessionVariables($row);
-                        $redirect = 'profile';
-                        $_SESSION['success'] = 'Login successful';
-                        header("Location: $redirect");
-                        exit();
                     }
                 } else {
                     // Increment login attempts

@@ -59,6 +59,20 @@
                             <img id="photo-preview" src="#" alt="Your Image" style="display:none; border-radius: 50%; width: 100px; height: 100px; margin-top: 10px;">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="otp_login" class="col-sm-3 control-label">OTP Login</label>
+                        <div class="col-sm-9">
+                            <label class="switch">
+                                <input type="checkbox" id="otp_login" name="otp_login" 
+                                    <?php echo ($admin['otp_enabled'] == 1) ? 'checked' : ''; ?>>
+                                <span class="slider round"></span>
+                            </label>
+                            <small class="form-text text-muted">
+                                When enabled, an OTP will be sent on every login.
+                            </small>
+                        </div>
+                    </div>
+
                     <hr>
                     <div class="form-group">
                         <label for="curr_password" class="col-sm-3 control-label">Current Password:</label>
@@ -66,6 +80,7 @@
                             <input type="password" class="form-control" id="curr_password" name="curr_password" placeholder="input current password to save changes" required>
                         </div>
                     </div>
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
@@ -96,3 +111,59 @@
         }
     }
 </script>
+<style>
+     .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+    }
+
+    input:checked + .slider {
+        background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+
+    .slider.round {
+        border-radius: 34px;
+    }
+
+    .slider.round:before {
+        border-radius: 50%;
+    }
+</style>
