@@ -47,7 +47,7 @@
                   </div>
                   <label for="photo" class="col-sm-1 control-label">Display</label>
                   <div class="col-sm-5">
-                    <input type="file" id="photo" name="photo">
+                    <input type="file" id="photo" name="photo" accept=".png,.jpg,.jpeg" required>
                   </div>
                 </div>
                 
@@ -60,7 +60,7 @@
                     </div>
                     <label for="color_photo1" class="col-sm-1 control-label">Photo</label>
                     <div class="col-sm-4">
-                      <input type="file" name="color_photos[]" required>
+                      <input type="file" name="color_photos[]" accept=".png,.jpg,.jpeg" required>
                     </div>
                   </div>
                 </div>
